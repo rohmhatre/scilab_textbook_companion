@@ -607,8 +607,8 @@ function book_proposal_form($form_state)
   $form['version'] = array(
     '#type' => 'select',
     '#title' => t('Version'),
-    '#options' => array('scilab541' => 'Scilab 5.4.1',
-						'scilab533' => 'Scilab 5.3.3',
+    '#options' => array('scilab 5.4.1' => 'Scilab 5.4.1',
+						'scilab 5.3.3' => 'Scilab 5.3.3',
                         'olderversion' => 'Older Version'),
     '#required' => TRUE,
   );
@@ -849,7 +849,9 @@ function book_proposal_form_validate($form, &$form_state)
     form_set_error('isbn3', t('Invalid ISBN for Book Preference 3'));
 
   if($form_state['values']['version'] == 'olderversion'){
-	form_set_error('older', t('Please provide valid version'));
+  	if($form_state['values']['older'] == ''){
+  		form_set_error('older', t('Please provide valid version'));
+  	}
   }
   return;
 }
@@ -866,56 +868,20 @@ function book_proposal_form_submit($form, &$form_state)
   /* completion date to timestamp */
   list($d, $m, $y) = explode('-', $form_state['values']['completion_date']);
   $completion_date_timestamp = mktime(0, 0, 0, $m, $d, $y);
-if($form_state['values']['version']=='olderversion')
-	{
-	$result = db_query("INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, how_project, course, branch, university, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_versions, operating_system, teacher_email) VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', '%s', '%s')",
-    $user->uid,
-    0,
-    ucwords(strtolower($form_state['values']['full_name'])),
-    $form_state['values']['mobile'],
-    $form_state['values']['how_project'],
-    $form_state['values']['course'],
-    $form_state['values']['branch'],
-    $form_state['values']['university'],
-    ucwords(strtolower($form_state['values']['faculty'])),
-    ucwords(strtolower($form_state['values']['reviewer'])),
-    $completion_date_timestamp,
-    time(),
-    0,
-    0,
-    $form_state['values']['older'],
-    $form_state['values']['operating'],
-    $form_state['values']['faculty_email']
-  );
+  
+  
+  $scilab_version = $form_state['values']['version'];
+  
+	if($form_state['values']['version'] == 'olderversion'){
+		$scilab_version = $form_state['values']['older'];
 	}
-	else
-	{
-  /* inserting the user proposal */
-  $result = db_query("INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, how_project, course, branch, university, faculty, reviewer, completion_date, operating_system, scilab_version, creation_date, approval_date, proposal_status ,scilab_versions, operating_system, teacher_email) VALUES
-    (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d , '%s', '%s', '%s')",
-    $user->uid,
-    0,
-    ucwords(strtolower($form_state['values']['full_name'])),
-    $form_state['values']['mobile'],
-    $form_state['values']['how_project'],
-    $form_state['values']['course'],
-    $form_state['values']['branch'],
-    $form_state['values']['university'],
-    ucwords(strtolower($form_state['values']['faculty'])),
-    ucwords(strtolower($form_state['values']['reviewer'])),
-    $completion_date_timestamp,
-    $form_state['values']['operating_system'],
-    $form_state['values']['scilab_version'],
-    time(),
-    0,
-    0,
-    $form_state['values']['version'],
-    $form_state['values']['operating'],
-    $form_state['values']['faculty_email']
-  );
-  }
+
+  //var_dump($form_state['values']);
+  
+  $query = "INSERT INTO {textbook_companion_proposal}
+    (uid, approver_uid, full_name, mobile, how_project, course, branch, university, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_version, operating_system, teacher_email) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$completion_date_timestamp."', NOW(), 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."')";
+
+	$result = db_query($query);
   if (!$result)
   {
     drupal_set_message(t('Error receiving your proposal. Please try again.'), 'error');

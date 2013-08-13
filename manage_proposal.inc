@@ -599,7 +599,7 @@ function proposal_edit_form($form_state)
     '#type' => 'textfield',
     '#title' => t('Scilab Version'),
     '#size' => 10,
-    '#maxlength' => 10,
+    '#maxlength' => 20,
     '#default_value' => $proposal_data->scilab_version,
   );
   $form['operating_system'] = array(
@@ -849,7 +849,14 @@ function proposal_edit_form_submit($form, &$form_state)
 
   $proposal_id = $form_state['values']['hidden_proposal_id'];
 
-  db_query("UPDATE {textbook_companion_proposal} SET full_name = '%s', mobile = '%s', how_project = '%s', course = '%s', branch = '%s', university = '%s', faculty = '%s', reviewer = '%s', completion_date = %d, operating_system= '%s', scilab_version= '%s' WHERE id = %d",
+  
+  $query = "UPDATE {textbook_companion_proposal} SET full_name = '".$form_state['values']['full_name']."', mobile = '".$form_state['values']['mobile']."', how_project = '".$form_state['values']['how_project']."', course = '".$form_state['values']['course']."', branch = '".$form_state['values']['branch']."', university = '".$form_state['values']['university']."', faculty = '".$form_state['values']['faculty']."', reviewer = '".$form_state['values']['reviewer']."', completion_date = $completion_date_timestamp, operating_system= '".$form_state['values']['operating_system']."', scilab_version= '".$form_state['values']['scilab_version']."' WHERE id =".$proposal_id;
+
+
+  db_query($query);
+
+
+/*db_query("UPDATE {textbook_companion_proposal} SET full_name = '%s', mobile = '%s', how_project = '%s', course = '%s', branch = '%s', university = '%s', faculty = '%s', reviewer = '%s', completion_date = %d, operating_system= '%s', scilab_version= '%s' WHERE id = %d",
     $form_state['values']['full_name'],
     $form_state['values']['mobile'],
     $form_state['values']['how_project'],
@@ -861,7 +868,7 @@ function proposal_edit_form_submit($form, &$form_state)
     $completion_date_timestamp,
     $form_state['values']['operating_system'],
     $form_state['values']['scilab_version'],
-    $proposal_id);
+    $proposal_id); */
 
   $preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 1);
   $preference1_data = db_fetch_object($preference1_q);

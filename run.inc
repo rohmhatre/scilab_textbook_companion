@@ -1,14 +1,23 @@
 <?php
 // $Id$
 
-function textbook_companion_run_form($form_state)
+function textbook_companion_run_form($form_state, $pref_id = NULL)
 {
+
   $form['#redirect'] = FALSE;
+  $book_default_value = 0;
 
   ahah_helper_register($form, $form_state);
   if (!isset($form_state['storage']['run']['category']))
   {
-     $category_default_value = 0;
+  		$category_default_value = 0;
+  		if($pref_id){
+  			$query = "select category from textbook_companion_preference where id=".$pref_id;
+  			$result = db_query($query);
+  			$row = db_fetch_object($result);
+  			$category_default_value = $row->category;
+  			$book_default_value = $pref_id;
+  		}
   } else {
      $category_default_value = $form_state['storage']['run']['category'];
   }
@@ -25,8 +34,6 @@ function textbook_companion_run_form($form_state)
         $('#edit-run-book').change();
       });";
       drupal_add_js($chapter_name_js, 'inline', 'footer');
-    } else {
-      $book_default_value = 0;
     }
   } else {
     $book_default_value =  $form_state['storage']['run']['book'];
