@@ -139,7 +139,7 @@ function textbook_companion_dependency_approval_form_submit($form, &$form_state)
             /* email */
             $email_subject = t('Dependency deleted');
             $email_body = t('Dependency deleted : .') . $form_state['values']['run']['dependency'];
-            $email_to = variable_get('textbook_companion_emails', '') . ', ' . $user->mail;
+            $email_to = $user->mail;
             $param['standard']['subject'] = $email_subject;
             $param['standard']['body'] = $email_body;
             if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))

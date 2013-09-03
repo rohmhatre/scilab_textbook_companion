@@ -77,7 +77,7 @@ function paper_submission_form_submit($form, &$form_state)
 			$book_user = user_load($proposal_data->uid);
 			$param['proposal_completed']['proposal_id'] = $proposal_id;
 			$param['proposal_completed']['user_id'] = $proposal_data->uid;
-			$email_to = $book_user->mail . ', ' . variable_get('textbook_companion_emails', '');
+			$email_to = $book_user->mail;
 			if (!drupal_mail('textbook_companion', 'internship_form', $email_to , language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
 				drupal_set_message('Error sending email message.', 'error');
 			drupal_set_message('Internship Form for Book proposal has been recieved. User has been notified .', 'status');
@@ -99,7 +99,7 @@ function paper_submission_form_submit($form, &$form_state)
 			$book_user = user_load($proposal_data->uid);
 			$param['proposal_completed']['proposal_id'] = $proposal_id;
 			$param['proposal_completed']['user_id'] = $proposal_data->uid;
-			$email_to = $book_user->mail . ', ' . variable_get('textbook_companion_emails', '');
+			$email_to = $book_user->mail;
 			if (!drupal_mail('textbook_companion', 'copyrighttransfer_form', $email_to , language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
 				drupal_set_message('Error sending email message.', 'error');
 			drupal_set_message('Copyright Form for Book proposal has been recieved. User has been notified .', 'status');
@@ -121,7 +121,7 @@ function paper_submission_form_submit($form, &$form_state)
 			$book_user = user_load($proposal_data->uid);
 			$param['proposal_completed']['proposal_id'] = $proposal_id;
 			$param['proposal_completed']['user_id'] = $proposal_data->uid;
-			$email_to = $book_user->mail . ', ' . variable_get('textbook_companion_emails', '');
+			$email_to = $book_user->mail;
 			if (!drupal_mail('textbook_companion', 'undertakingform_form', $email_to , language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
 				drupal_set_message('Error sending email message.', 'error');
 			drupal_set_message('Undertaking Form for Book proposal has been recieved. User has been notified .', 'status');
@@ -847,7 +847,7 @@ function cheque_status_form_submit($form, &$form_state)
 		$book_user = user_load($proposal_data->uid);
 		$param['proposal_completed']['proposal_id'] = $proposal_id;
 		$param['proposal_completed']['user_id'] = $proposal_data->uid;
-		$email_to = $book_user->mail . ', ' . variable_get('textbook_companion_emails', '');
+		$email_to = $book_user->mail;
 		if (!drupal_mail('textbook_companion', 'cheque_sent', $email_to , language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message('Cheque for Book proposal has been Sent. User has been notified .', 'status');
@@ -874,7 +874,7 @@ function cheque_status_form_submit($form, &$form_state)
     		$book_user = user_load($proposal_data->uid);
 		$param['proposal_completed']['proposal_id'] = $proposal_id;
 		$param['proposal_completed']['user_id'] = $proposal_data->uid;
-		$email_to = $book_user->mail . ', ' . variable_get('textbook_companion_emails', '');
+		$email_to = $book_user->mail;
 		if (!drupal_mail('textbook_companion', 'remark', $email_to , language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message(t('Remark Updated. User has been notified'), 'status');

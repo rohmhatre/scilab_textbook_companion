@@ -154,7 +154,7 @@ function code_approval_form_submit($form, &$form_state)
       db_query("UPDATE {textbook_companion_example} SET approval_status = 1, approver_uid = %d, approval_date = %d WHERE id = %d", $user->uid, time(), $ex_data['example_id']);
 
       /* sending email */
-      $email_to = $user_data->mail . ', ' . variable_get('textbook_companion_emails', '');
+      $email_to = $user_data->mail;
       $param['example_approved']['example_id'] = $ex_data['example_id'];
       $param['example_approved']['user_id'] = $user_data->uid;
       if (!drupal_mail('textbook_companion', 'example_approved', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
@@ -164,7 +164,7 @@ function code_approval_form_submit($form, &$form_state)
       if (delete_example($ex_data['example_id']))
       {
         /* sending email */
-        $email_to = $user_data->mail . ', ' . variable_get('textbook_companion_emails', '');
+        $email_to = $user_data->mail;
         $param['example_disapproved']['example_number'] = $example_data->number;
         $param['example_disapproved']['example_caption'] = $example_data->caption;
         $param['example_disapproved']['user_id'] = $user_data->uid;
@@ -644,7 +644,7 @@ Reason for dis-approval:
       			/****** sending email when everything done ******/
       			if ($email_subject)
       			{
-        			$email_to = variable_get('textbook_companion_emails', '') . ', ' . $user->mail;
+        			$email_to = $user->mail;
         			$param['standard']['subject'] = $email_subject;
         			$param['standard']['body'] = $email_body;
         			if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))

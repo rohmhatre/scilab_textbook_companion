@@ -859,7 +859,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   }
 
   /* sending email */
-  $email_to = $user_data->mail . ', ' . variable_get('textbook_companion_emails', '');
+  $email_to = $user_data->mail;
   $param['example_updated_admin']['example_id'] = $example_id;
   $param['example_updated_admin']['user_id'] = $proposal_data->uid;
   if (!drupal_mail('textbook_companion', 'example_updated_admin', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))

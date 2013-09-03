@@ -240,7 +240,7 @@ function upload_dependency_form_submit($form, &$form_state) {
     $param['dependency_uploaded']['user_id'] = $user->uid;
     $param['dependency_uploaded']['dependency_names'] = $dependency_names;
 
-    $email_to = $user->mail . ', ' . variable_get('textbook_companion_emails', '');
+    $email_to = $user->mail;
     if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
       drupal_set_message('Error sending email message.', 'error');
   }

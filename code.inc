@@ -532,7 +532,7 @@ function upload_examples_form_submit($form, &$form_state) {
   drupal_set_message('Example uploaded successfully.', 'status');
 
   /* sending email */
-  $email_to = $user->mail . ', ' . variable_get('textbook_companion_emails', '');
+  $email_to = $user->mail;
   $param['example_uploaded']['example_id'] = $example_id;
   $param['example_uploaded']['user_id'] = $user->uid;
   if (!drupal_mail('textbook_companion', 'example_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
@@ -600,7 +600,7 @@ function _upload_examples_delete()
     drupal_set_message('Example deleted.', 'status');
 
     /* sending email */
-    $email_to = $user->mail . ', ' . variable_get('textbook_companion_emails', '');
+    $email_to = $user->mail;
     $param['example_deleted_user']['book_title'] = $preference_data->book;
     $param['example_deleted_user']['chapter_title'] = $chapter_data->name;
     $param['example_deleted_user']['example_number'] = $example_data->number;
