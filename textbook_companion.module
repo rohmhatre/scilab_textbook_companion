@@ -544,6 +544,13 @@ function book_proposal_form($form_state)
     '#maxlength' => 15,
     '#required' => TRUE,
   );
+   $form['gender'] = array(
+    '#type' => 'radios',
+    '#title' => t('Gender'),
+    '#options' => array('M' => 'Male', 'F' => 'Female'),
+    '#required' => TRUE,
+  );
+
   $form['how_project'] = array(
     '#type' => 'select',
     '#title' => t('How did you come to know about this project'),
@@ -879,7 +886,7 @@ function book_proposal_form_submit($form, &$form_state)
   //var_dump($form_state['values']);
   
   $query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, how_project, course, branch, university, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_version, operating_system, teacher_email) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."')";
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_version, operating_system, teacher_email) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."')";
 
 	$result = db_query($query);
   if (!$result)

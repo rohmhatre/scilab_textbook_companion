@@ -9,6 +9,17 @@
 		$data2 = db_fetch_object($query2);
 		$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id=".$data2->proposal_id);
 		$data3 = db_fetch_object($query3);
+  		//var_dump($data3->gender);
+		$gender = array('salutation' => 'Mr. /Ms.', 'gender' => 'He/She');
+		if($data3->gender){
+			if($data3->gender == 'M'){
+			 	$gender = array('salutation' => 'Mr.', 'gender' => 'He');
+			
+			}else{
+				$gender = array('salutation' => 'Ms.', 'gender' => 'She');
+			}
+		}
+		//die;
 		if($data3->proposal_status == 3)
 		{
 			$pdf=new FPDF('L', 'mm', 'Letter');
@@ -42,11 +53,11 @@
 			$pdf->SetFont('Arial','',12);
 		if(strtolower($data3->branch)!="others")
 		{
-		$pdf->MultiCell(240,8,'This is to certify that Mr./Ms. '.$data3->full_name.' from the Department of '.$data3->branch.', '.$data3->university.' has successfully completed Internship under Scilab Textbook Companion for a duration equivalent to six weeks. He/She has coded, in Scilab, all the solved examples of the allotted textbook: '.$data2->book.' by '.$data2->author.'.', 0);
+		$pdf->MultiCell(240,8,'This is to certify that '.$gender['salutation']." ".$data3->full_name.' from the Department of '.$data3->branch.', '.$data3->university.' has successfully completed Internship under Scilab Textbook Companion for a duration equivalent to six weeks. '.$gender['gender'].' has coded, in Scilab, all the solved examples of the allotted textbook: '.$data2->book.' by '.$data2->author.'.', 0);
 		}
 		else
 		{
-		$pdf->MultiCell(240,8,'This is to certify that Mr. /Ms. '.$data3->full_name.' from '.$data3->university.' has successfully completed training under Scilab Textbook Companion for a duration equivalent to six weeks.He/She has coded, in Scilab, all the solved examples of the allotted textbook: '.$data2->book.' by '.$data2->author.'.', 0);
+		$pdf->MultiCell(240,8,'This is to certify that '.$gender['salutation']." ".$data3->full_name.' from '.$data3->university.' has successfully completed training under Scilab Textbook Companion for a duration equivalent to six weeks. '.$gender['gender'].' has coded, in Scilab, all the solved examples of the allotted textbook: '.$data2->book.' by '.$data2->author.'.', 0);
 		}	$pdf->Cell(10,10,'The work done is available at ', '0','0','L');
 			
 			$pdf->SetX(75);	
