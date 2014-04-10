@@ -90,6 +90,24 @@ $('#edit-version').change(function() {
     }
     
 });
+
+/* highlighting current filter [A-Z] of book search pages */
+var pathname = window.location.pathname;
+var filter = pathname.charAt(pathname.length-1);
+$filters = $("#filter-links a");
+$filters.each(function() {
+    
+    var current = $(this).attr("href");
+    var current = current.charAt(current.length-1);
+    if(current == filter) {
+        $(this).css({
+            "padding": "0 2px",
+            "color": "#000000",
+            "font-weight": "bolder",
+            "background-color": "#f5f5f5"
+        });
+    }
+});
 });
 
 

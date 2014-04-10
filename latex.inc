@@ -51,6 +51,13 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
 		header('Content-Type: application/pdf');
 		header('Content-disposition: attachment; filename="' . $preference_data->book . '_' . $preference_data->author . '.pdf"');
 		header('Content-Length: ' . filesize($dir_path . "book_" . $preference_data->id . ".pdf"));
+		header("Content-Transfer-Encoding: binary");
+		header('Expires: 0');
+		header('Pragma: no-cache');
+		ob_end_flush();
+		ob_clean();
+		flush();
+
 		readfile($dir_path . "book_" . $preference_data->id . ".pdf");
 		return;
   }
@@ -153,6 +160,13 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
 		header('Content-Type: application/pdf');
 		header('Content-disposition: attachment; filename="' . $preference_data->book . '_' . $preference_data->author . '.pdf"');
 		header('Content-Length: ' . filesize($dir_path . $pdf_filename));
+		header("Content-Transfer-Encoding: binary");
+                header('Expires: 0');
+                header('Pragma: no-cache');
+                ob_end_flush();
+                ob_clean();
+                flush();
+
 		readfile($dir_path . $pdf_filename);
 	} else {
 		drupal_set_message("Error occurred when generating the PDF version of the Book.", 'error');

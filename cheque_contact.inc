@@ -971,6 +971,7 @@ function contact_details($form_state)
 	    '#title' => t('Email'),
 	    '#size' => 48,
             '#value' => $user->mail,
+	    '#disabled' => TRUE,
   	);
 	$form['candidate_detail']['mobileno1'] = array(
             '#type' => 'textfield',

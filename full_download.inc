@@ -69,6 +69,13 @@ function textbook_companion_download_full_chapter()
     header('Content-Type: application/zip');
     header('Content-disposition: attachment; filename="CH' . $chapter_data->number . '.zip"');
     header('Content-Length: ' . filesize($zip_filename));
+    header("Content-Transfer-Encoding: binary");
+    header('Expires: 0');
+    header('Pragma: no-cache');
+    ob_end_flush();
+    ob_clean();
+    flush();
+
     readfile($zip_filename);
     unlink($zip_filename);
   } else {
@@ -149,6 +156,12 @@ function textbook_companion_download_full_book()
     header('Content-Type: application/zip');
     header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
     header('Content-Length: ' . filesize($zip_filename));
+    //header("Content-Transfer-Encoding: binary");
+    //header('Expires: 0');
+    //header('Pragma: no-cache');
+    //ob_end_flush();
+    ob_clean();
+    //flush();
     readfile($zip_filename);
     unlink($zip_filename);
   } else {

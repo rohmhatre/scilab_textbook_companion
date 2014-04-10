@@ -24,6 +24,7 @@ function textbook_companion_download_dependency_file()
   header('Content-Type: ' . $dependency_file_data->filemime);
   header('Content-disposition: attachment; filename="' . $dependency_file_data->filename . '"');
   header('Content-Length: ' . filesize($root_path . $dependency_file_data->filepath));
+  var_dump($root_path . $dependency_file_data->filepath); die;
   readfile($root_path . $dependency_file_data->filepath);
 }
 
@@ -174,11 +175,27 @@ function textbook_companion_download_book()
   if ($zip_file_count > 0)
   {
     /* download zip file */
-    header('Content-Type: application/zip');
-    header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
-    header('Content-Length: ' . filesize($zip_filename));
-    readfile($zip_filename);
-    unlink($zip_filename);
+    global $user;
+    if($user->uid){
+        header('Content-Type: application/zip');
+        header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
+        header('Content-Length: ' . filesize($zip_filename));
+	ob_clean();
+        readfile($zip_filename);
+        unlink($zip_filename);
+    }else{
+        header('Content-Type: application/zip');
+        header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
+        header('Content-Length: ' . filesize($zip_filename));
+        header("Content-Transfer-Encoding: binary");
+        header('Expires: 0');
+        header('Pragma: no-cache');
+        ob_end_flush();
+        ob_clean();
+        flush();
+        readfile($zip_filename);
+        unlink($zip_filename);
+    }
   } else {
     drupal_set_message("There are no examples in this book to download", 'error');
     drupal_goto('textbook_run');

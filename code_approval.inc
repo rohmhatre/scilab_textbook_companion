@@ -557,7 +557,11 @@ Reason for dis-approval:
 
           				/* email */
           				$email_subject = t('Your uploaded examples including the book proposal have been deleted');
-          				$email_body = t('Your all the uploaded examples including the book have been deleted permanently.');
+					$email_body = t('Your all the uploaded examples including the book have been deleted permanently.
+
+Reason for deletion:
+
+' . $form_state['values']['run']['message']);
 
         			} else {
           				drupal_set_message(t('Error Dis-Approving and Deleting Entire Book.'), 'error');

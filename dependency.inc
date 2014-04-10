@@ -13,7 +13,7 @@ function upload_dependency_form($form_state)
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
     drupal_goto('');
   }
-  if ($proposal_data->proposal_status  != 1)
+  if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
   {
     switch ($proposal_data->proposal_status )
     {
@@ -152,7 +152,7 @@ function upload_dependency_form_submit($form, &$form_state) {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
     drupal_goto('');
   }
-  if ($proposal_data->proposal_status  != 1)
+  if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
   {
     switch ($proposal_data->proposal_status )
     {

@@ -1,3 +1,4 @@
+\nonstopmode
 \documentclass[12pt]{report} 
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue}

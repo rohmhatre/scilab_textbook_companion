@@ -920,7 +920,7 @@ function edit_chapter_title_form($form_state)
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
     drupal_goto('textbook_companion/code');
   }
-  if ($proposal_data->proposal_status  != 1)
+  if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
   {
     switch ($proposal_data->proposal_status )
     {
@@ -1024,7 +1024,7 @@ function edit_chapter_title_form_submit($form, &$form_state)
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
     drupal_goto('textbook_companion/code');
   }
-  if ($proposal_data->proposal_status  != 1)
+  if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
   {
     switch ($proposal_data->proposal_status )
     {

@@ -110,36 +110,11 @@ function textbook_companion_browse_author()
     return $return_html;
   }
   $book_rows = array();
-  $book_q = db_query("SELECT pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as id FROM {textbook_companion_preference} pe RIGHT JOIN  {textbook_companion_proposal} po on pe.proposal_id=po.id  WHERE po.proposal_status=3 and pe.approval_status = 1", $query_character);
+  $book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE author like '%s%%' AND approval_status = 1", $query_character);
   while ($book_data = db_fetch_object($book_q))
   {
-    /* Initial's fix algorithm */
-    preg_match_all("/{$query_character}[a-z]+/", $book_data->author, $matches);
-
-    if (count($matches) > 0) {
-      /* Remove the word "And"/i from the match array and make match bold */
-        if (count($matches[0]) > 0) {
-          
-          foreach ($matches[0] as $key => $value) {
-            
-            if (strtolower($value) == "and") {
-              unset($matches[$key]);
-            }
-            else {
-              $matches[0][$key] = "<b>" . $value . "</b>";
-              $book_data->author = str_replace($value, $matches[0][$key], $book_data->author);
-            }
-          }            
-        }
-
-        /* Check count of matches after removing And */
-        if (count($matches[0]) > 0) {
-          $book_rows[] = array(l($book_data->book, 'textbook_run/' . $book_data->id), $book_data->author);
-        }
-    }
+    $book_rows[] = array(l($book_data->book, 'textbook_run/' . $book_data->id), $book_data->author);
   }
-
-
   if (!$book_rows)
   {
     $return_html .= "Sorry no books are available with that author's name";
@@ -192,7 +167,7 @@ function _browse_list($type)
     if ($char_name != 'Z')
       $return_html .= ' | ';
   }
-  return '<div id="filter-links">' . $return_html . "</div>";
+  return $return_html;
 }
 function _list_of_colleges()
 {

@@ -353,24 +353,6 @@ function textbook_companion_menu()
     'file' => 'full_download.inc',
   );
 
-  /* external reviewer download */
-  $items['full_download_external/chapter'] = array(
-    'title' => 'Code Download',
-    'description' => 'Code Download',
-    'page callback' => 'textbook_companion_download_full_chapter',
-    'access arguments' => array('download books to review'),
-    'type' => MENU_CALLBACK,
-    'file' => 'full_download.inc',
-  );
-  $items['full_download_external/book'] = array(
-    'title' => 'Code Download',
-    'description' => 'Code Download',
-    'page callback' => 'textbook_companion_download_full_book',
-    'access arguments' => array('download books to review'),
-    'type' => MENU_CALLBACK,
-    'file' => 'full_download.inc',
-  );
-
   /* latex script for book generation */
   $items['textbook_companion/generate_book'] = array(
     'title' => 'Generate Book',
@@ -499,7 +481,7 @@ function textbook_companion_menu()
  */
 function textbook_companion_perm() {
 
-  return array('create book proposal', 'approve book proposal', 'approve code', 'upload code', 'edit uploaded code', 'download code', 'create feedback', 'bulk manage code', 'bulk delete code', 'edit book proposal', 'administer book companion', 'generate book', 'cheque contct form', 'contact_details', 'comment cheque', 'list all certificates', 'generate pdf', 'paper submission form', 'cheque status form' ,'cheque report form' ,'cheque proposal', 'download books to review');
+  return array('create book proposal', 'approve book proposal', 'approve code', 'upload code', 'edit uploaded code', 'download code', 'create feedback', 'bulk manage code', 'bulk delete code', 'edit book proposal', 'administer book companion', 'generate book', 'cheque contct form', 'contact_details', 'comment cheque', 'list all certificates', 'generate pdf', 'paper submission form', 'cheque status form' ,'cheque report form' ,'cheque proposal');
 }
 
 
@@ -619,24 +601,21 @@ function book_proposal_form($form_state)
     '#required' => TRUE,
   );
   $form['faculty'] = array(
-    '#type' => 'hidden',
-    '#value' => 'None',
+    '#type' => 'textfield',
     '#title' => t('College Teacher/Professor'),
     '#size' => 30,
     '#maxlength' => 50,
     '#required' => TRUE,
   );
   $form['faculty_email'] = array(
-    '#type' => 'hidden',
-    '#value' => 'None',
+    '#type' => 'textfield',
     '#title' => t('Teacher/Professor Email Id'),
     '#default_value' => '@email.com',
     '#size' => 30,
     '#maxlength' => 50,
   );
   $form['reviewer'] = array(
-    '#type' => 'hidden',
-    '#value' => 'None',
+    '#type' => 'textfield',
     '#title' => t('Reviewer'),
     '#size' => 30,
     '#maxlength' => 50,
@@ -1176,12 +1155,6 @@ ISBN No. : ' . $approved_preference_data->isbn . '
 Publisher and Place : ' . $approved_preference_data->publisher . '
 Edition : ' . $approved_preference_data->edition . '
 Year of publication : ' . $approved_preference_data->year . '
-
-According the new Textbook Companion procedure, a student doing a textbook companion is not required to have a mentor. For more details check the links given below.
-http://scilab.in/tbc_honorarium
-http://scilab.in/Textbook_Companion_Internship
-
-Please contact us by sending an e-mail to textbook@scilab.in in case you wish to cancel this book proposal.
 
 Best Wishes,
 

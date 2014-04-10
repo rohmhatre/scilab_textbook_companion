@@ -4,10 +4,10 @@
 		require('fpdf/fpdf.php');
 		global $user;
 		$x = $user->uid;
-		$book_id = arg(2);
-		$query2 = db_query("SELECT * FROM {textbook_companion_preference} WHERE id=".$book_id);
+		$proposal_id = arg(2);
+		$query2 = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status=1 AND  proposal_id=".$proposal_id);
 		$data2 = db_fetch_object($query2);
-		$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id=".$data2->proposal_id);
+		$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id=".$proposal_id);
 		$data3 = db_fetch_object($query3);
   		//var_dump($data3->gender);
 		$gender = array('salutation' => 'Mr. /Ms.', 'gender' => 'He/She');
@@ -20,8 +20,8 @@
 			}
 		}
 		//die;
-		if($data3->proposal_status == 3)
-		{
+		/*if($data3->proposal_status == 3)
+		{*/
 			$pdf=new FPDF('L', 'mm', 'Letter');
 			if (!$pdf)
 			{
@@ -38,7 +38,7 @@
 			
 			$pdf->Image("/Sites/scilab_in/sites/default/files/scilab_logo.png", 10, 9, 0, 15);
 			$path = drupal_get_path('module', 'textbook_companion');
-			$pdf->Image($path."/pdf/images/fossee.png", 232, 9, 0, 15);
+			$pdf->Image($path."/pdf/images/fossee.png", 228, 9, 0, 15);
 			
 			$pdf->SetFont('Arial','B',25);
 			$pdf->Ln(30);
@@ -107,11 +107,11 @@
 	 	        //$pdf->Cell(200,0,' Date: 28th August, 2013',0,1,'L');
 			$pdf->Cell(200,15,'Email: textbook@scilab.in', 0,1,'L');
 			$pdf->Output();
-		}
+		/*}
 		else
 		{
 			drupal_set_message('Your Book Is Still Under Review.', 'status');
-		}
+		}*/
 }	
 ?>
 

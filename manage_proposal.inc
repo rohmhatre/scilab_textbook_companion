@@ -25,6 +25,14 @@ function _proposal_pending()
 
 function _proposal_all()
 {
+  function _tbc_ext($status, $preference_id) {                                  
+    if($status == "Approved") {                                                 
+       return " | " . l("ER", "tbc_external_review/add_book/" . $preference_id);
+    }                                                                           
+    else {                                                                      
+       return "";                                                              
+    }                                                                           
+  }
   /* get pending proposals to be approved */
   $proposal_rows = array();
   $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC");
@@ -41,9 +49,15 @@ function _proposal_all()
     case 1: $proposal_status = 'Approved'; break;
     case 2: $proposal_status = 'Dis-approved'; break;
     case 3: $proposal_status = 'Completed'; break;
+    case 4: $proposal_status = 'External'; break;
     default: $proposal_status = 'Unknown'; break;
     }
-    $proposal_rows[] = array(date('d-m-Y', $proposal_data->creation_date), $preference_data->book, $preference_data->author, l($proposal_data->full_name, 'user/' . $proposal_data->uid), date('d-m-Y', $proposal_data->completion_date), $proposal_status, l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id));
+    $proposal_rows[] = array(
+	date('d-m-Y', $proposal_data->creation_date), $preference_data->book, $preference_data->author, 
+	l($proposal_data->full_name, 'user/' . $proposal_data->uid), date('d-m-Y', $proposal_data->completion_date), 
+	$proposal_status, l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id) .
+	_tbc_ext($proposal_status, $preference_data->id)
+    );
   }
 
   /* check if there are any pending proposals */
@@ -385,6 +399,7 @@ function proposal_status_form($form_state)
   case 1: $proposal_status = t('Approved'); break;
   case 2: $proposal_status = t('Dis-approved'); break;
   case 3: $proposal_status = t('Completed'); break;
+  case 4: $proposal_status = t('External'); break;
   default: $proposal_status = t('Unkown'); break;
   }
   $form['proposal_status'] = array(
@@ -401,7 +416,7 @@ function proposal_status_form($form_state)
     );
   }
 
-  if ($proposal_data->proposal_status == 1)
+  if ($proposal_data->proposal_status == 1 || $proposal_data->proposal_status == 4)
   {
     $form['completed'] = array(
       '#type' => 'checkbox',
