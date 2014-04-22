@@ -281,6 +281,14 @@ function proposal_approval_form_submit($form, &$form_state)
   db_query("UPDATE {textbook_companion_proposal} SET approver_uid = %d, approval_date = %d, proposal_status = 1 WHERE id = %d", $user->uid, time(), $proposal_id);
   db_query("UPDATE {textbook_companion_preference} SET approval_status = 1 WHERE id = %d", $preference_id);
 
+  /* unlock aicte books except the one which was approved out of 3 nos */
+  $query = "
+    UPDATE textbook_companion_aicte
+    SET status = 0, uid = 0, proposal_id = 0, preference_id = 0
+    WHERE proposal_id = {$proposal_id} AND preference_id = {$preference_id}
+  ";
+  db_query($query);
+
   /* sending email */
   $book_user = user_load($row->uid);
   $param['proposal_approved']['proposal_id'] = $proposal_id;

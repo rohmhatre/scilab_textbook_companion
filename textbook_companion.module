@@ -1,9 +1,10 @@
 <?php
 // $Id$
 
-/**
- * Implementation of hook_menu().
- */
+/*
+* Implementation of hook_menu().
+*/
+
 function textbook_companion_menu()
 {
   $items = array();
@@ -12,13 +13,18 @@ function textbook_companion_menu()
   $items['proposal'] = array(
     'title' => 'Book Proposal Form',
     'description' => 'Book Proposal Form.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('book_proposal_form'),
+    'page callback' => 'textbook_companion_proposal_all',
     'access callback' => 'user_access',
     'access arguments' => array('create book proposal'),
     'type' => MENU_NORMAL_ITEM,
   );
-
+  $items["aicte_proposal"] = array(
+    "title" => "AICTE Book Proposal",
+    "description" => "AICTE Book Proposal Form",
+    "page callback" => "textbook_companion_aicte_proposal_all",
+    'access arguments' => array('create book proposal'),
+    'type' => MENU_NORMAL_ITEM,
+  );
   /* for reviewers */
   $items['manage_proposal'] = array(
     'title' => 'Manage Book Proposals',
@@ -498,53 +504,169 @@ function textbook_companion_menu()
  * Implementation of hook_perm().
  */
 function textbook_companion_perm() {
-
   return array('create book proposal', 'approve book proposal', 'approve code', 'upload code', 'edit uploaded code', 'download code', 'create feedback', 'bulk manage code', 'bulk delete code', 'edit book proposal', 'administer book companion', 'generate book', 'cheque contct form', 'contact_details', 'comment cheque', 'list all certificates', 'generate pdf', 'paper submission form', 'cheque status form' ,'cheque report form' ,'cheque proposal', 'download books to review');
 }
 
+/* Aicte books pickup before the proposal form */
+function textbook_companion_aicte_proposal_form($form_state) {
+    $query = "
+        SELECT * FROM textbook_companion_aicte
+        WHERE status = 0
+    ";
+    $result = db_query($query);
 
-function book_proposal_form($form_state)
-{
-  global $user;
-
-  if (!$user->uid) {
-		drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
-		return;
-  }
-
-  /* check if user has already submitted a proposal */
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  if ($proposal_q)
-  {
-    if ($proposal_data = db_fetch_object($proposal_q))
-    {
-      switch ($proposal_data->proposal_status)
-      {
-      case 0:
-        drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
-        drupal_goto('');
-        return;
-        break;
-      case 1:
-        drupal_set_message(t('Your proposal has been approved. Please go to ' . l('Code Submission', 'textbook_companion/code') . ' to upload your code'), 'status');
-        drupal_goto('');
-        return;
-        break;
-      case 2:
-        drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal below.'), 'error');
-        break;
-      case 3:
-        drupal_set_message(t('Congratulations! You have completed your last book proposal. You can create another proposal below.'), 'status');
-        break;
-      default:
-         drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
-         drupal_goto('');
-         return;
-         break;
-      }
+    $form = array();
+    $num_rows = mysql_num_rows($result);
+    if ($num_rows > 0) {
+        while($row = db_fetch_object($result)) {
+            $form[$row->id] = array(
+                "#type" => "checkbox",
+                "#title" => t("{$row->book} by {$row->author} ( ed: {$row->edition}, pub: {$row->year})"),
+            );
+        }
     }
-  }
+    $form["submit"] = array(
+        "#type" => "submit",
+        "#value" => "Submit"
+    );
+    return $form;
+}
 
+function textbook_companion_aicte_proposal_form_validate($form, &$form_state) {
+    $query = "
+        SELECT * FROM textbook_companion_aicte
+        WHERE status = 0
+    ";
+    $result = db_query($query);
+
+    $count = 0;
+    $selections = array();
+    while($row = db_fetch_object($result)) {
+        if($form_state["values"][$row->id] == 1) {
+            $count++;
+            array_push($selections, $row->id);
+        }
+    }
+    /* user can choose only 3 books to propose */
+    if($count != 3) {
+        form_set_error("", "Please select exactly <strong>3</strong> books. You currently selected <strong>{$count}</strong>");
+    } else {
+        $form_state["values"]["selections"] = $selections;
+    }
+}
+
+function textbook_companion_aicte_proposal_form_submit($form, &$form_state) {
+    global $user;
+    $selections = $form_state["values"]["selections"];
+    variable_set("aicte_".$user->uid, $selections);
+    drupal_goto("proposal");
+}
+
+function textbook_companion_aicte_proposal_all() {
+    global $user;
+    if (!$user->uid) {
+        drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
+        return;
+    }
+
+    /* check if user has already submitted a proposal */
+    $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+    if ($proposal_q) {
+        if ($proposal_data = db_fetch_object($proposal_q)) {
+          switch ($proposal_data->proposal_status) {
+            case 0:
+                drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 1:
+                drupal_set_message(t('Your proposal has been approved. Please go to ' . l('Code Submission', 'textbook_companion/code') . ' to upload your code'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 2:
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal below.'), 'error');
+                break;
+            case 3:
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You can create another proposal below.'), 'status');
+                break;
+            default:
+                drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
+                drupal_goto('');
+                return;
+                break;
+            }
+        }
+    }
+
+    variable_del("aicte_".$user->uid);
+    $page_content = "";
+    $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
+    return $page_content;
+}
+
+/* Textbook Companion Proposal */
+function textbook_companion_proposal_all() {
+    global $user;
+    $page_content = "";
+
+    if (!$user->uid) {
+        drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
+        return;
+    }
+
+    /* check if user has already submitted a proposal */
+    $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+    if ($proposal_q) {
+        if ($proposal_data = db_fetch_object($proposal_q)) {
+          switch ($proposal_data->proposal_status) {
+            case 0:
+                drupal_set_message(t('We have already received your proposal. We will get back to you soon.'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 1:
+                drupal_set_message(t('Your proposal has been approved. Please go to ' . l('Code Submission', 'textbook_companion/code') . ' to upload your code'), 'status');
+                drupal_goto('');
+                return;
+                break;
+            case 2:
+                drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal below.'), 'error');
+                break;
+            case 3:
+                drupal_set_message(t('Congratulations! You have completed your last book proposal. You can create another proposal below.'), 'status');
+                break;
+            default:
+                drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
+                drupal_goto('');
+                return;
+                break;
+            }
+        }
+    }
+
+    $selections = variable_get("aicte_".$user->uid, "");
+    if($selections) {
+        $selections = implode(",", $selections);
+        $query = "
+            SELECT * FROM textbook_companion_aicte
+            WHERE id IN ({$selections})
+        ";
+        $result = db_query($query);
+        $row1 = db_fetch_object($result);
+        $row2 = db_fetch_object($result);
+        $row3 = db_fetch_object($result);
+    } else {
+        // drupal_goto("pr");
+    }
+
+    $page_content .= drupal_get_form("book_proposal_form", $row1, $row2, $row3);
+    return $page_content;
+}
+
+function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
+{
+  $form = array();
   $form['imp_notice'] = array(
     '#type' => 'item',
     '#value' => '<font color="red"><b>Please fill up this form carefully as the details entered here will be exactly written in the Textbook Companion</b></font>',
@@ -689,6 +811,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row1->book,
+    '#disabled' => ($row1->book?TRUE:FALSE),
   );
   $form['preference1']['author1'] = array(
     '#type' => 'textfield',
@@ -696,6 +820,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row1->author,
+    '#disabled' => ($row1->author?TRUE:FALSE),
   );
   $form['preference1']['isbn1'] = array(
     '#type' => 'textfield',
@@ -703,6 +829,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
+    '#value' => $row1->isbn,
+    '#disabled' => ($row1->isbn?TRUE:FALSE),
   );
   $form['preference1']['publisher1'] = array(
     '#type' => 'textfield',
@@ -710,6 +838,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 50,
     '#required' => TRUE,
+    '#value' => $row1->publisher,
+    '#disabled' => ($row1->publisher?TRUE:FALSE),
   );
   $form['preference1']['edition1'] = array(
     '#type' => 'textfield',
@@ -717,6 +847,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 2,
     '#required' => TRUE,
+    '#value' => $row1->edition,
+    '#disabled' => ($row1->edition?TRUE:FALSE),
   );
   $form['preference1']['year1'] = array(
     '#type' => 'textfield',
@@ -724,6 +856,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 4,
     '#required' => TRUE,
+    '#value' => $row1->year,
+    '#disabled' => ($row1->year?TRUE:FALSE),
   );
   $form['preference2'] = array(
     '#type' => 'fieldset',
@@ -737,6 +871,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row2->book,
+    '#disabled' => ($row2->book?TRUE:FALSE),
   );
   $form['preference2']['author2'] = array(
     '#type' => 'textfield',
@@ -744,6 +880,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row2->author,
+    '#disabled' => ($row2->author?TRUE:FALSE),
   );
   $form['preference2']['isbn2'] = array(
     '#type' => 'textfield',
@@ -751,6 +889,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
+    '#value' => $row2->isbn,
+    '#disabled' => ($row2->isbn?TRUE:FALSE),
   );
   $form['preference2']['publisher2'] = array(
     '#type' => 'textfield',
@@ -758,6 +898,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 50,
     '#required' => TRUE,
+    '#value' => $row2->publisher,
+    '#disabled' => ($row2->publisher?TRUE:FALSE),
   );
   $form['preference2']['edition2'] = array(
     '#type' => 'textfield',
@@ -765,6 +907,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 2,
     '#required' => TRUE,
+    '#value' => $row2->edition,
+    '#disabled' => ($row2->edition?TRUE:FALSE),
   );
   $form['preference2']['year2'] = array(
     '#type' => 'textfield',
@@ -772,6 +916,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 4,
     '#required' => TRUE,
+    '#value' => $row2->year,
+    '#disabled' => ($row2->year?TRUE:FALSE),
   );
   $form['preference3'] = array(
     '#type' => 'fieldset',
@@ -785,6 +931,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row3->book,
+    '#disabled' => ($row3->book?TRUE:FALSE),
   );
   $form['preference3']['author3'] = array(
     '#type' => 'textfield',
@@ -792,6 +940,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 100,
     '#required' => TRUE,
+    '#value' => $row3->author,
+    '#disabled' => ($row3->author?TRUE:FALSE),
   );
   $form['preference3']['isbn3'] = array(
     '#type' => 'textfield',
@@ -799,6 +949,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
+    '#value' => $row3->isbn,
+    '#disabled' => ($row3->isbn?TRUE:FALSE),
   );
   $form['preference3']['publisher3'] = array(
     '#type' => 'textfield',
@@ -806,6 +958,8 @@ function book_proposal_form($form_state)
     '#size' => 30,
     '#maxlength' => 50,
     '#required' => TRUE,
+    '#value' => $row3->publisher,
+    '#disabled' => ($row3->publisher?TRUE:FALSE),
   );
   $form['preference3']['edition3'] = array(
     '#type' => 'textfield',
@@ -813,6 +967,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 2,
     '#required' => TRUE,
+    '#value' => $row3->edition,
+    '#disabled' => ($row3->edition?TRUE:FALSE),
   );
   $form['preference3']['year3'] = array(
     '#type' => 'textfield',
@@ -820,6 +976,8 @@ function book_proposal_form($form_state)
     '#size' => 4,
     '#maxlength' => 4,
     '#required' => TRUE,
+    '#value' => $row3->year,
+    '#disabled' => ($row3->year?TRUE:FALSE),
   );
   $form['termconditions'] = array(
   '#type' => 'checkboxes',
@@ -896,6 +1054,7 @@ function book_proposal_form_validate($form, &$form_state)
 function book_proposal_form_submit($form, &$form_state)
 {
   global $user;
+  $selections = variable_get("aicte_".$user->uid, "");
 
   if (!$user->uid) {
 		drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
@@ -947,6 +1106,14 @@ function book_proposal_form_submit($form, &$form_state)
     if (!$result)
     {
       drupal_set_message(t('Error receiving your first book preference.'), 'error');
+    } else {
+        $preference_id = db_last_insert_id("textbook_companion_preference", "id");
+        $query = "
+            UPDATE textbook_companion_aicte
+            SET preference_id = {$preference_id}
+            WHERE id = {$selections[0]}
+        ";
+        db_query($query);
     }
   }
 
@@ -970,6 +1137,14 @@ function book_proposal_form_submit($form, &$form_state)
     if (!$result)
     {
       drupal_set_message(t('Error receiving your second book preference.'), 'error');
+    } else {
+        $preference_id = db_last_insert_id("textbook_companion_preference", "id");
+        $query = "
+            UPDATE textbook_companion_aicte
+            SET preference_id = {$preference_id}
+            WHERE id = {$selections[1]}
+        ";
+        db_query($query);
     }
   }
 
@@ -990,6 +1165,28 @@ function book_proposal_form_submit($form, &$form_state)
       0,
       0
     );
+    if (!$result)
+    {
+      drupal_set_message(t('Error receiving your third book preference.'), 'error');
+    } else {
+        $preference_id = db_last_insert_id("textbook_companion_preference", "id");
+        $query = "
+            UPDATE textbook_companion_aicte
+            SET preference_id = {$preference_id}
+            WHERE id = {$selections[2]}
+        ";
+        db_query($query);
+    }
+
+    /* locking the books in the textbook_companion_aicte table */ 
+    foreach ($selections as $selection) {
+        $query = "
+            UPDATE textbook_companion_aicte
+            SET status = 1, uid = {$user->uid}, proposal_id = {$proposal_id}
+            WHERE id = {$selection} AND status = 0
+        ";
+        db_query($query);
+    }
     if (!$result)
     {
       drupal_set_message(t('Error receiving your third book preference.'), 'error');
