@@ -1250,6 +1250,9 @@ Caption : ' .  $example_data->caption . '
 
 The example is under review. You will be notified when it has been approved.
 
+Please ensure that ALL the codes have followed the naming convention and contain captions as described here.
+The codes cannot be approved unless the convention is followed.
+
 Best Wishes,
 
 !site_name', array('!site_name' => variable_get('site_name', ''), '!user_name' => $user_data->name), $language->language);
