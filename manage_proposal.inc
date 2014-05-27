@@ -67,7 +67,7 @@ function _proposal_all()
     return '';
   }
 
-  $proposal_header = array('Date of Submission', 'Title of the Book', 'Author', 'Contributor Name', 'Expected Date of Completion', 'Status');
+  $proposal_header = array('Date of Submission', 'Title of the Book', 'Author', 'Contributor Name', 'Expected Date of Completion', 'Status', 'Action');
   $output = theme_table($proposal_header, $proposal_rows);
   return $output; 
 }
