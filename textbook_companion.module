@@ -666,6 +666,7 @@ function textbook_companion_proposal_all() {
 
 function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
 {
+  global $user;
   $form = array();
   $form['imp_notice'] = array(
     '#type' => 'item',
@@ -829,7 +830,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#value' => $row1->isbn,
+    '#default_value' => $row1->isbn,
     '#disabled' => ($row1->isbn?TRUE:FALSE),
   );
   $form['preference1']['publisher1'] = array(
@@ -889,7 +890,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#value' => $row2->isbn,
+    '#default_value' => $row2->isbn,
     '#disabled' => ($row2->isbn?TRUE:FALSE),
   );
   $form['preference2']['publisher2'] = array(
@@ -949,7 +950,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#value' => $row3->isbn,
+    '#default_value' => $row3->isbn,
     '#disabled' => ($row3->isbn?TRUE:FALSE),
   );
   $form['preference3']['publisher3'] = array(
