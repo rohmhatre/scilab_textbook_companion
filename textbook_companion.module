@@ -524,9 +524,27 @@ function textbook_companion_aicte_proposal_form($form_state) {
     $num_rows = mysql_num_rows($result);
     if ($num_rows > 0) {
         while($row = db_fetch_object($result)) {
+            /* fixing title string */
+            $title = "";
+            $edition = "";
+            $year = "";
+            $title = "{$row->book} by {$row->author}";
+            if($row->edition) {
+                $edition = "<i>ed</i>: {$row->edition}";
+            }
+            if($row->year) {
+                if($row->edition) {
+                    $year = ", <i>pub</i>: {$row->year}";
+                } else {
+                    $year = "<i>pub</i>: {$row->year}";
+                }
+            }
+            if($edition or $year) {
+                $title .= "({$edition} {$year})";
+            }
             $form["wrapper"][$row->id] = array(
                 "#type" => "checkbox",
-                "#title" => t("{$row->book} by {$row->author} ( ed: {$row->edition}, pub: {$row->year})"),
+                "#title" => $title,
             );
         }
     }
