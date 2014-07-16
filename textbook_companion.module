@@ -516,10 +516,15 @@ function textbook_companion_aicte_proposal_form($form_state) {
     $result = db_query($query);
 
     $form = array();
+    $form["wrapper"] = array(
+        "#type" => "fieldset",
+        "#prefix" => "<div id='aicte-form-wrapper'>",
+        "#suffix" => "</div>",
+    );
     $num_rows = mysql_num_rows($result);
     if ($num_rows > 0) {
         while($row = db_fetch_object($result)) {
-            $form[$row->id] = array(
+            $form["wrapper"][$row->id] = array(
                 "#type" => "checkbox",
                 "#title" => t("{$row->book} by {$row->author} ( ed: {$row->edition}, pub: {$row->year})"),
             );
@@ -527,7 +532,7 @@ function textbook_companion_aicte_proposal_form($form_state) {
     }
     $form["submit"] = array(
         "#type" => "submit",
-        "#value" => "Submit"
+        "#value" => "Submit Book Selections"
     );
     return $form;
 }
@@ -601,6 +606,7 @@ function textbook_companion_aicte_proposal_all() {
 
     variable_del("aicte_".$user->uid);
     $page_content = "";
+    $page_content .= "<h4>* Please select any 3 books from the below available list.</h4>";
     $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
     return $page_content;
 }
@@ -830,7 +836,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#default_value' => $row1->isbn,
+    '#value' => $row1->isbn,
     '#disabled' => ($row1->isbn?TRUE:FALSE),
   );
   $form['preference1']['publisher1'] = array(
@@ -890,7 +896,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#default_value' => $row2->isbn,
+    '#value' => $row2->isbn,
     '#disabled' => ($row2->isbn?TRUE:FALSE),
   );
   $form['preference2']['publisher2'] = array(
@@ -950,7 +956,7 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 25,
     '#required' => TRUE,
-    '#default_value' => $row3->isbn,
+    '#value' => $row3->isbn,
     '#disabled' => ($row3->isbn?TRUE:FALSE),
   );
   $form['preference3']['publisher3'] = array(
@@ -991,6 +997,15 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#type' => 'submit',
     '#value' => t('Submit')
   );
+
+  /* #value fix for #default_value bug drupal6  */
+  foreach(array("preference1", "preference2", "preference3") as $preference) {
+    foreach($form[$preference] as $key => $value) {
+      if(!$form[$preference][$key]["#value"]) {
+        unset($form[$preference][$key]["#value"]);
+      }
+    }
+  }
   return $form;
 }
 
