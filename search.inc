@@ -161,11 +161,11 @@ function textbook_companion_browse_student()
     return $return_html;
   }
   $book_rows = array();
-  $query = "SELECT * FROM textbook_companion_proposal WHERE full_name like '".$query_character."%' ORDER BY full_name ASC";
+  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name
   $student_q = db_query($query);
   while ($student_data = db_fetch_object($student_q))
   {
-    $query = "SELECT * FROM textbook_companion_preference WHERE proposal_id = " . $student_data->id . " AND approval_status = 1";
+    $query = "SELECT * FROM textbook_companion_preference WHERE proposal_id = " . $student_data->proposal_id . " AND approval_status = 1";
     $book_q = db_query($query);
     while ($book_data = db_fetch_object($book_q))
     {
