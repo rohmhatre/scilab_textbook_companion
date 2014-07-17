@@ -873,7 +873,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 2,
     '#required' => TRUE,
     '#value' => $row1->edition,
-    '#disabled' => ($row1->edition?TRUE:FALSE),
   );
   $form['preference1']['year1'] = array(
     '#type' => 'textfield',
@@ -882,7 +881,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 4,
     '#required' => TRUE,
     '#value' => $row1->year,
-    '#disabled' => ($row1->year?TRUE:FALSE),
   );
   $form['preference2'] = array(
     '#type' => 'fieldset',
@@ -933,7 +931,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 2,
     '#required' => TRUE,
     '#value' => $row2->edition,
-    '#disabled' => ($row2->edition?TRUE:FALSE),
   );
   $form['preference2']['year2'] = array(
     '#type' => 'textfield',
@@ -942,7 +939,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 4,
     '#required' => TRUE,
     '#value' => $row2->year,
-    '#disabled' => ($row2->year?TRUE:FALSE),
   );
   $form['preference3'] = array(
     '#type' => 'fieldset',
@@ -993,7 +989,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 2,
     '#required' => TRUE,
     '#value' => $row3->edition,
-    '#disabled' => ($row3->edition?TRUE:FALSE),
   );
   $form['preference3']['year3'] = array(
     '#type' => 'textfield',
@@ -1002,7 +997,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 4,
     '#required' => TRUE,
     '#value' => $row3->year,
-    '#disabled' => ($row3->year?TRUE:FALSE),
   );
   $form['termconditions'] = array(
   '#type' => 'checkboxes',
