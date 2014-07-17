@@ -589,6 +589,7 @@ function textbook_companion_aicte_proposal_all() {
     global $user;
     if (!$user->uid) {
         drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
+        drupal_goto("");
         return;
     }
 
@@ -634,10 +635,10 @@ function textbook_companion_proposal_all() {
     global $user;
     $page_content = "";
 
-    if (!$user->uid) {
-        drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
-        return;
-    }
+    // if (!$user->uid) {
+    //     drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
+    //     return;
+    // }
 
     /* check if user has already submitted a proposal */
     $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
