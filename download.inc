@@ -24,8 +24,8 @@ function textbook_companion_download_dependency_file()
   header('Content-Type: ' . $dependency_file_data->filemime);
   header('Content-disposition: attachment; filename="' . $dependency_file_data->filename . '"');
   header('Content-Length: ' . filesize($root_path . $dependency_file_data->filepath));
-  var_dump($root_path . $dependency_file_data->filepath); die;
   readfile($root_path . $dependency_file_data->filepath);
+  exit;
 }
 
 function textbook_companion_download_example()
