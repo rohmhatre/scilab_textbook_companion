@@ -157,12 +157,12 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
 
     $form['run']['download_book'] = array(
       '#type' => 'item',
-      '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download all the examples of the entire book)'),
+      '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download the Scilab codes for all the solved examples)'),
     );
 
     $form['run']['download_book_pdf'] = array(
       '#type' => 'item',
-      '#value' => l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download PDF for all examples of the entire book)'),
+      '#value' => l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)'),
     );
 
     $form['run']['chapter'] = array(
@@ -186,7 +186,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     {
       $form['run']['download_chapter'] = array(
         '#type' => 'item',
-        '#value' => l('Download', 'download/chapter/' . $chapter_default_value) . ' ' . t('(Download all the examples of the entire chapter)'),
+        '#value' => l('Download', 'download/chapter/' . $chapter_default_value) . ' ' . t('(Download the Scilab codes for all the solved examples from the Chapter)'),
       );
       $form['run']['example'] = array(
         '#type' => 'select',
@@ -265,7 +265,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
       }
       $form['run']['download_example'] = array(
         '#type' => 'item',
-        '#value' => l('Download Example', 'download/example/' . $example_default_value),
+        '#value' => l('Download Scilab code for the example', 'download/example/' . $example_default_value),
       );
       $form['run']['example_files'] = array(
         '#type'  => 'item',
