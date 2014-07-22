@@ -196,6 +196,22 @@ function textbook_companion_menu()
     'file' => 'dependency.inc',
     'weight' => 3,
   );
+  $items['textbook_companion/code/edit_dep'] = array(
+    'title' => 'Edit Dependency',
+    'description' => 'Edit Dependency File',
+    'page callback' => 'edit_dependency',
+    'access arguments' => array('upload code'),
+    'type' => MENU_CALLBACK,
+    'file' => 'dependency.inc',
+  );
+  $items['textbook_companion/code/delete_dep'] = array(
+    'title' => 'Delete Dependency',
+    'description' => 'Delete Dependency File',
+    'page callback' => 'delete_dependency',
+    'access arguments' => array('upload code'),
+    'type' => MENU_CALLBACK,
+    'file' => 'dependency.inc',
+  );
   $items['textbook_companion/code/edit'] = array(
     'title' => 'Edit Example',
     'description' => 'Edit Example', 

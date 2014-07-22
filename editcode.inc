@@ -1102,7 +1102,7 @@ function _list_of_book_dependency_files()
     $temp_caption = '';
     if ($book_dependency_files_data->caption)
       $temp_caption .= ' (' . $book_dependency_files_data->caption . ')';
-    $book_dependency_files[$book_dependency_files_data->id] = l($book_dependency_files_data->filename . $temp_caption, 'download/dependency/' . $book_dependency_files_data->id);
+    $book_dependency_files[$book_dependency_files_data->id] = l($book_dependency_files_data->filename . $temp_caption, 'download/dependency/' . $book_dependency_files_data->id, array('attributes' => array('class' => $book_dependency_files_data->preference_id)));
     $book_dependency_files_class[$book_dependency_files_data->id] = $book_dependency_files_data->preference_id;
   }
   return array($book_dependency_files, $book_dependency_files_class);
