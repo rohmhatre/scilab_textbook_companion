@@ -603,10 +603,48 @@ function textbook_companion_aicte_proposal_form_submit($form, &$form_state) {
 
 function textbook_companion_aicte_proposal_all() {
     global $user;
+    $page_content = "";
+
     if (!$user->uid) {
-        drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
-        drupal_goto("");
-        return;
+        $query = "
+            SELECT * FROM textbook_companion_aicte
+            WHERE status = 0
+        ";
+        $result = db_query($query);
+        
+        $page_content .= "<ul>";
+        $page_content .= "<li>These are the list of books available for <em>Textbook Companion</em> proposal.</li>";
+        $page_content .= "<li>Please <a href='/user'><b><u>Login</u></b></a> to create a proposal.</li>";
+        $page_content .= "</ul>";
+        $page_content .= "<div id='aicte-list-wrapper'>";
+        $num_rows = mysql_num_rows($result);
+        if ($num_rows > 0) {
+            $i = 1;
+            while($row = db_fetch_object($result)) {
+                /* fixing title string */
+                $title = "";
+                $edition = "";
+                $year = "";
+                $title = "{$row->book} by {$row->author}";
+                if($row->edition) {
+                    $edition = "<i>ed</i>: {$row->edition}";
+                }
+                if($row->year) {
+                    if($row->edition) {
+                        $year = ", <i>pub</i>: {$row->year}";
+                    } else {
+                        $year = "<i>pub</i>: {$row->year}";
+                    }
+                }
+                if($edition or $year) {
+                    $title .= "({$edition} {$year})";
+                }
+                $page_content .= "<div class='title'>{$i}) {$title}</div>";
+                $i++;
+            }
+        }
+        $page_content .= "</div>";
+        return $page_content;
     }
 
     /* check if user has already submitted a proposal */
@@ -640,7 +678,6 @@ function textbook_companion_aicte_proposal_all() {
     }
 
     variable_del("aicte_".$user->uid);
-    $page_content = "";
     $page_content .= "<h4>* Please select any 3 books from the below available list.</h4>";
     $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
     return $page_content;

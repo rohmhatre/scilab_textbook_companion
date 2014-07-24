@@ -79,6 +79,21 @@ fieldset input[type="text"]
 .page-certificate .sticky-enabled th{
 	padding: 0px 65px 3px 0px;
 }
+#aicte-list-wrapper {
+    max-height: 500px;
+    height: 500px;
+    overflow-y: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #cccccc;
+}
+#aicte-list-wrapper .title {
+    border-bottom: 1px solid #cccccc;
+    padding: 7px 0 7px 4px;
+}
+#aicte-list-wrapper .title:hover {
+    background: #f5f5f5;
+}
 #aicte-form-wrapper {
     max-height: 500px;
     height: 500px;
