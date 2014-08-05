@@ -64,6 +64,16 @@ function textbook_companion_menu()
     'weight' => 2,
     'file' => 'manage_proposal.inc',
   );
+  $items['manage_proposal/failed'] = array(
+    'title' => 'Failed Proposals',
+    'description' => 'Failed to submit code',
+    'page callback' => '_failed_all',
+    'access callback' => 'user_access',
+    'access arguments' => array('approve book proposal'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+    'file' => 'manage_proposal.inc',
+  );
   $items['manage_proposal/approve'] = array(
     'title' => 'Proposal Approval',
     'description' => 'Proposal Approval',

@@ -1163,3 +1163,100 @@ function dataentry_edit_form_submit($form, &$form_state)
   drupal_set_message('Book details updated successfully');
   drupal_goto('dataentry_book');
 }
+
+
+function _failed_all($preference_id=0, $confirm="") {
+  $page_content = "";
+  if($preference_id && $confirm == "yes"){
+    $query = "
+      SELECT *, pro.id as proposal_id FROM textbook_companion_proposal pro
+      LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
+      LEFT JOIN users usr ON usr.uid = pro.uid
+      WHERE pre.id = {$preference_id}
+    ";
+    $result = db_query($query);
+    $row = db_fetch_object($result);
+    
+    /* increment failed_reminder */
+    $query = "
+      UPDATE textbook_companion_proposal
+      SET failed_reminder = failed_reminder + 1
+      WHERE id = {$row->proposal_id}
+    ";
+    db_query($query);
+
+    /* sending mail */
+    $to = $row->mail;
+    $subject = "Failed to upload the TBC codes on time";
+    $body = "
+    <p>
+      Dear {$row->name},<br><br>
+      This is to inform you that you have failed to upload the TBC codes on time.<br>
+      Please note that the time you have taken is way past the deadline as well.<br>
+      Kindly upload the TBC codes on the interface within 5 days from now.<br>
+      Failure to submit the same will result in disapproval of your work and cancellation of your internship.<br><br>
+      Regards,<br>
+      Scilab Team
+    </p>
+    ";
+
+    $message = array(
+      "to" => $to,
+      "subject" => $subject,
+      "body" => $body,
+      "headers" => array(
+        "From" => "textbook@scilab.in",
+        "Bcc" => "textbook@scilab.in, lavitha89@gmail.com, bhavani.jalkrish@gmail.com, rush2jrp@gmail.com",
+        "Content-Type" => "text/html; charset=UTF-8; format=flowed"
+      )
+    );
+    drupal_mail_send($message);
+    drupal_set_message("Reminder sent successfully.");
+    drupal_goto("manage_proposal/failed");
+  } else if($preference_id) {
+    $query = "
+      SELECT * FROM textbook_companion_preference pre
+      LEFT JOIN textbook_companion_proposal pro ON pro.id = pre.proposal_id
+      WHERE pre.id = {$preference_id}
+    ";
+    $result = db_query($query);
+    $row = db_fetch_object($result);
+    $page_content .= "Are you sure you want to notify?<br><br>";
+    $page_content .= "Book: <b>{$row->book}</b><br>";
+    $page_content .= "Author: <b>{$row->author}</b><br>";
+    $page_content .= "Contributor: <b>{$row->full_name}</b><br>";
+    $page_content .= "Expected Completion Date: <b>" . date("d-m-Y", $row->completion_date) . "</b><br><br>";
+    $page_content .= l("Yes", "manage_proposal/failed/{$preference_id}/yes") . " | ";
+    $page_content .= l("Cancel", "manage_proposal/failed");
+  } else {
+    $query = "
+      SELECT * FROM textbook_companion_proposal pro
+      LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
+      LEFT JOIN users usr ON usr.uid = pro.uid
+      WHERE pro.proposal_status = 1 AND pre.approval_status = 1 AND pro.completion_date < %d
+      ORDER BY failed_reminder
+    ";
+    $result = db_query($query, time());
+    
+    $headers = array(
+      "Date of Submission", "Book", "Contributor Name",
+      "Expected Completion Date", "Remainders", "Action"
+    );
+    $rows = array();
+  
+    while ($row = db_fetch_object($result)) {
+      $item  =array(
+        date("d-m-Y", $row->creation_date),
+        "{$row->book}<br><i>by</i> {$row->author}",
+        $row->name,
+        date("d-m-Y", $row->completion_date),
+        $row->failed_reminder,
+        l("Remind", "manage_proposal/failed/{$row->id}")
+      );
+      array_push($rows, $item);
+    }
+    $page_content .= theme("table", $headers, $rows);
+  }
+  
+  return $page_content;
+}
