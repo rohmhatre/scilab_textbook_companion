@@ -1,6 +1,9 @@
 <?php
 // $Id$
-
+ date_default_timezone_set('Asia/Calcutta');
+ 
+ 
+        
 function _proposal_pending()
 {
   /* get pending proposals to be approved */
@@ -23,6 +26,18 @@ function _proposal_pending()
   return $output; 
 }
 
+
+
+//
+function completed_mail($status, $preference_id){
+       
+       global $user;
+                        
+    } 
+//
+
+
+
 function _proposal_all()
 {
   function _tbc_ext($status, $preference_id) {                                  
@@ -33,6 +48,83 @@ function _proposal_all()
        return "";                                                              
     }                                                                           
   }
+  
+  function _tbc_mail($status, $preference_data) {
+  
+    // $preferencee_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1",       $proposal_data->id);
+// $preferencee_data = db_fetch_object($preferencee_q);
+ //$pdata = $proposal_data->id;
+      
+     $preferencee_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 LIMIT 1");
+     $preferencee_data = db_fetch_object($preferencee_q); 
+     $propdata = $preferencee_data->proposal_id;
+     $propstatus = $preferencee_data->approval_status;
+     $reminder_mail_status = $propstatus->reminder_mail_status; 
+     $prefe_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_id = %d proposal_status = 1 LIMIT 1", $propdata);
+     $prefe_data = db_fetch_object($prefe_q);
+     $propstatus = $prefe_data->proposal_status;
+    
+
+$completion_date = date('d-m-Y',$prefe_data->completion_date);
+strtotime($completion_date);
+time() - strtotime($completion_date);
+$dtime = (time()-(60*60*24)) > strtotime($completion_date);
+                        
+    if($status == "Approved" && $dtime && $reminder_mail_status == $propstatus ){
+                                                  
+       
+       
+      
+               // preparing to send mail to user 
+                $query = "
+                    SELECT * FROM {textbook_companion_proposal} pre
+                    LEFT JOIN {users} usr ON pre.uid = usr.uid
+                    WHERE pre.id = %d
+                ";
+                $results = db_query($query, $preferencee_data->proposal_id);
+                $rows = db_fetch_object($result);
+                                
+                //sending mail 
+                $to = "{$row->mail}";
+                $subject = "You Are Not Subbitted Your Code - Textbook Companian Project";
+                $body = "
+                    Dear Intern
+
+                            This is to inform you that you have failed to upload the TBC codes on time
+                            Please note that the time you have taken is way past the deadline as well. Kindly upload the TBC codes on the  
+                            interface within 5 days from now. Failure to submit the same will result in disapproval of your work and cancellation of
+                            your internship.
+
+                   Regards,
+
+                   Scilab Team
+
+                ";
+                $message = array(
+                    "to" => "prashantsinalkar@gmail.com",
+                    "subject" => $subject,
+                    "body" => $body,
+                    "headers" => array(
+                        "From" => "textbook@scilab.in",
+                        "Bcc" => "",
+                        "Content-Type" => "text/html; charset=UTF-8; format=flowed"
+                    )
+                );
+                            
+   
+                   
+                drupal_mail_send($message);
+                 drupal_set_message(" mail sent.", "status");
+                 
+                 return " | " . l("Mail Sent");
+
+        }
+                                                                          
+    else {                                                                      
+       return "";                                                              
+    }                                                                           
+  }
+  
   /* get pending proposals to be approved */
   $proposal_rows = array();
   $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC");
@@ -56,10 +148,12 @@ function _proposal_all()
 	date('d-m-Y', $proposal_data->creation_date), $preference_data->book, $preference_data->author, 
 	l($proposal_data->full_name, 'user/' . $proposal_data->uid), date('d-m-Y', $proposal_data->completion_date), 
 	$proposal_status, l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id) .
-	_tbc_ext($proposal_status, $preference_data->id)
+	_tbc_ext($proposal_status, $preference_data->id) . _tbc_mail($proposal_status, $preference_data->proposal_id)
     );
   }
+//
 
+//
   /* check if there are any pending proposals */
   if (!$proposal_rows)
   {
@@ -1150,9 +1244,26 @@ function dataentry_edit_form($form_state, $id)
   return $form;
 }
 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
 function dataentry_edit_form_submit($form, &$form_state)
 {
   db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = '%s', year = %d WHERE id = %d", $_POST['book'], $_POST['author'], $_POST['isbn'], $_POST['publisher'], $_POST['edition'], $_POST['year'], $_POST['id']);
   drupal_set_message('Book details updated successfully');
   drupal_goto('dataentry_book');
+  
+  
+  
+  
 }
