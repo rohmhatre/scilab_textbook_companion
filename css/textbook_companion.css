@@ -109,3 +109,11 @@ fieldset input[type="text"]
     padding-bottom: 5px;
     border-bottom: 1px solid #cccccc;
 }
+#textbook-companion-aicte-report-form {
+    padding: 15px;
+    background: #ffffff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}

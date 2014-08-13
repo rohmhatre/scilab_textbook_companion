@@ -108,6 +108,54 @@ $filters.each(function() {
         });
     }
 });
+
+$report_form = $("#textbook-companion-aicte-report-form");
+$("#aicte-report").click(function() {
+    $("#textbook-companion-aicte-report-form").lightbox_me( {
+            centered: true
+    });
 });
 
+/* validate report_form and submit */
+function danger(obj) {
+    obj.css("border", "2px solid red");
+}
+function safe(obj) {
+    obj.css("border", "2px solid #cccccc");
+}
+function validateEmail(email) { 
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+} 
+$report_form.submit(function(e) {
+    var $name = $("#edit-name");
+    var $email = $("#edit-email");
+    var $number = $("#edit-number");
+    var $book = $("#edit-book");
 
+    var errors = 0;
+    /* reset errors */
+    safe($name); safe($email); safe($number); safe($book);
+    if(!$name.val()) {
+        danger($name);
+        errors = 1;
+    }
+    if(!validateEmail($email.val())) {
+        danger($email);
+        errors = 1;
+    }
+    if(!$number.val()) {
+        danger($number);
+        errors = 1;
+    }
+    if($book.val() == "0") {
+        danger($book);
+        errors = 1;
+    }
+    if(!errors) {
+        $(this).submit();
+    }
+    e.preventDefault();
+});
+
+});

@@ -619,6 +619,66 @@ function textbook_companion_aicte_proposal_form_submit($form, &$form_state) {
     drupal_goto("proposal");
 }
 
+function textbook_companion_aicte_report_form($form_state) {
+    $query = "
+        SELECT * FROM textbook_companion_aicte
+        WHERE status = 0
+        ORDER BY book
+    ";
+    $result = db_query($query);
+    $books = array();
+    $books[0] = "Please select a book";
+    while($row = db_fetch_object($result)) {
+        $books[$row->id] = "{$row->book} ({$row->author})";
+    }
+    $form = array();
+    $form["name"] = array(
+        "#type" => "textfield",
+        "#title" => "Name",
+        "#description" => t("Please enter your name."),
+    );
+    $form["email"] = array(
+        "#type" => "textfield",
+        "#title" => "Email",
+        "#description" => t("Please enter your valid email id."),
+    );
+    $form["number"] = array(
+        "#type" => "textfield",
+        "#title" => "Number",
+        "#description" => t("Please enter your valid phone number."),
+    );
+    $form["book"] = array(
+        "#type" => "select",
+        "#title" => "AICTE Book",
+        "#description" => t("Please select a book."),
+        "#options" => $books
+    );
+    $form["comment"] = array(
+        "#type" => "textarea",
+        "#title" => "Any other comment?",
+        "#description" => t("Please enter your query (if any)")
+    );
+    $form["submit"] = array(
+        "#type" => "submit",
+        "#value" => "Submit"
+    );
+    return $form;
+}
+
+function textbook_companion_aicte_report_form_submit($form, &$form_state) {
+    $v = $form_state["values"];
+    $query = "
+        INSERT INTO textbook_companion_aicte_report
+        (aicte_id, name, number, email, comment)
+        VALUES
+        (%d, '%s', '%s', '%s', '%s')
+    ";
+    $result = db_query($query, 
+        $v["book"], $v["name"], $v["number"], $v["email"], $v["comment"]
+    );
+    drupal_set_message("Thank you for reporting.", "status");
+}
+
 function textbook_companion_aicte_proposal_all() {
     global $user;
     $page_content = "";
@@ -633,6 +693,7 @@ function textbook_companion_aicte_proposal_all() {
         $page_content .= "<ul>";
         $page_content .= "<li>These are the list of books available for <em>Textbook Companion</em> proposal.</li>";
         $page_content .= "<li>Please <a href='/user'><b><u>Login</u></b></a> to create a proposal.</li>";
+        $page_content .= "<li>If you are unable to propose any of the books from the below list, please let us know. <a id='aicte-report' href='#'>Click here</a> to report.</li>";
         $page_content .= "</ul>";
         $page_content .= "<div id='aicte-list-wrapper'>";
         $num_rows = mysql_num_rows($result);
@@ -662,6 +723,8 @@ function textbook_companion_aicte_proposal_all() {
             }
         }
         $page_content .= "</div>";
+        /* adding aicte report form */
+        $page_content .= drupal_get_form("textbook_companion_aicte_report_form");
         return $page_content;
     }
 
