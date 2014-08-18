@@ -161,7 +161,7 @@ function textbook_companion_browse_student()
     return $return_html;
   }
   $book_rows = array();
-  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name
+  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name";
   $student_q = db_query($query);
   while ($student_data = db_fetch_object($student_q))
   {
