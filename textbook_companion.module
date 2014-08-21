@@ -761,8 +761,8 @@ function textbook_companion_aicte_proposal_all() {
 
     variable_del("aicte_".$user->uid);
     $page_content .= "<h5><b>* Please select any 3 books from the below available list.</b></h5>";
-    $page_content .= "<li>Unable to propose perticular book: <a id='aicte-report' href='#'>Click here</a></li>";
-    $page_content .= "<li>Do not wish to propose any of above books: <a id='aicte-report' href='http://fossee.in/feedback/scilab-aicte' target = _blank>Click here</a></li>";
+    $page_content .= "Unable to propose perticular book: <a id='aicte-report' href='#'>Click here</a></br>";
+    $page_content .= "Do not wish to propose any of above books: <a id='aicte-report' href='http://fossee.in/feedback/scilab-aicte' target = _blank>Click here</a>";
     $page_content .= drupal_get_form("textbook_companion_aicte_report_form");
     $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
     return $page_content;
