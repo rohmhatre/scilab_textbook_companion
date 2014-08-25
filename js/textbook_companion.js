@@ -1,5 +1,27 @@
 $( document ).ready(function() {
 
+ $('#searchtext').keyup(function(event) {
+        var search_text = $('#searchtext').val();
+        var rg = new RegExp(search_text,'i');
+        $('#aicte-list-wrapper  .title , .form-item' ).each(function(){
+             if($.trim($(this).html()).search(rg) == -1) {
+             //alert("one");
+                $(this).parent('div').css('background-color', '#ffffff');
+                $(this).css('display', 'none');
+                $(this).next().css('display', 'none');
+                $(this).next().next().css('display', 'none');
+            }  
+            else {
+            //alert("two");
+                $(this).parent('div').css('background-color', '#ffffff');
+                $(this).css('display', '');
+                $(this).next().css('display', '');
+                $(this).next().next().css('display', '');
+            }
+        });
+    });
+    
+
 $('#edit-same-address').click(function() {
     var temp = $('#edit-chq-address').val();
     $('#edit-temp-chq-address').val(temp);
