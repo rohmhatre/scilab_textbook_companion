@@ -1006,7 +1006,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 50,
     '#required' => TRUE,
     '#value' => $row1->publisher,
-    '#disabled' => ($row1->publisher?TRUE:FALSE),
   );
   $form['preference1']['edition1'] = array(
     '#type' => 'textfield',
@@ -1064,7 +1063,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 50,
     '#required' => TRUE,
     '#value' => $row2->publisher,
-    '#disabled' => ($row2->publisher?TRUE:FALSE),
   );
   $form['preference2']['edition2'] = array(
     '#type' => 'textfield',
@@ -1122,7 +1120,6 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#maxlength' => 50,
     '#required' => TRUE,
     '#value' => $row3->publisher,
-    '#disabled' => ($row3->publisher?TRUE:FALSE),
   );
   $form['preference3']['edition3'] = array(
     '#type' => 'textfield',
