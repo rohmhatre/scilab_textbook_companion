@@ -169,7 +169,6 @@ function textbook_companion_menu()
     'weight' => 3,
     'file' => 'dependency_approval.inc',
   );
-
   $items['textbook_companion/code'] = array(
     'title' => 'Code Submission',
     'description' => 'Code Submission',
@@ -579,8 +578,8 @@ function textbook_companion_aicte_proposal_form($form_state) {
             $form["wrapper"][$row->id] = array(
                 "#type" => "checkbox",
                 "#title" => $title,
-                "#prefix" => "<div class='title>",
-        	"#suffix" => "</div>",
+                "#prefix" => "<div class='title'>",
+                "#suffix" => "</div>",
             );
         }
     }
@@ -766,7 +765,7 @@ function textbook_companion_aicte_proposal_all() {
     $page_content .= "<h5><b>* Please select any 3 books from the below available list.</b></h5></br>";
     $page_content .= "Unable to propose particular book: <a id='aicte-report' href='#'>Click here</a></br></br>";
     $page_content .= "Do not wish to propose any of the below books: <a id='aicte-report' href='http://fossee.in/feedback/scilab-aicte' target = _blank>Click here</a></br></br>";
-    $page_content .= "Search :   <input type='text' id='searchtext' style='width:90%;/></br>";
+    $page_content .= "Search :   <input type='text' id='searchtext' style='width:90%;'/></br>";
     $page_content .= drupal_get_form("textbook_companion_aicte_report_form");
     $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
     return $page_content;
