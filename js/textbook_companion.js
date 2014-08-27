@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-
+//to search 
  $('#searchtext').keyup(function(event) {
         var search_text = $('#searchtext').val();
         var rg = new RegExp(search_text,'i');
@@ -20,6 +20,17 @@ $( document ).ready(function() {
             }
         });
     });
+   
+   //to clear the searched text
+    $('#search_clear').click(function() {
+    $('#searchtext').val('');   
+   $('#aicte-list-wrapper  .title , .form-item' ).each(function(){
+        $(this).parent().css('display', '');
+        $(this).css('display', '');
+        $(this).next().css('display', '');
+        $(this).next().next().css('display', '');
+    });
+});
     
 
 $('#edit-same-address').click(function() {
