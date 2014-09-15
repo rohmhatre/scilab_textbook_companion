@@ -138,7 +138,8 @@ function textbook_companion_download_book()
   /* get example data */
   $book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $book_id);
   $book_data = db_fetch_object($book_q);
-  $BK_PATH = $book_data->book . '/';
+  $zipname = str_replace(' ','_',strtolower($book_data->book .'.zip'));
+  $BK_PATH = $zipname . '/';
 
   /* zip filename */
   $zip_filename = $root_path . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
