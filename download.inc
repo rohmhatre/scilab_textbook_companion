@@ -138,7 +138,7 @@ function textbook_companion_download_book()
   /* get example data */
   $book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $book_id);
   $book_data = db_fetch_object($book_q);
-  $zipname = str_replace(' ','_',strtolower($book_data->book .'.zip'));
+  $zipname = str_replace(' ','_',($book_data->book));
   $BK_PATH = $zipname . '/';
 
   /* zip filename */
@@ -180,14 +180,14 @@ function textbook_companion_download_book()
     global $user;
     if($user->uid){
         header('Content-Type: application/zip');
-        header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
+        header('Content-disposition: attachment; filename="' . str_replace(' ','_',($book_data->book)) . '.zip"');
         header('Content-Length: ' . filesize($zip_filename));
 	ob_clean();
         readfile($zip_filename);
         unlink($zip_filename);
     }else{
         header('Content-Type: application/zip');
-        header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
+        header('Content-disposition: attachment; filename="' . str_replace(' ','_',($book_data->book)) . '.zip"');
         header('Content-Length: ' . filesize($zip_filename));
         header("Content-Transfer-Encoding: binary");
         header('Expires: 0');
