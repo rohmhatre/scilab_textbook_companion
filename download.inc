@@ -169,6 +169,11 @@ function textbook_companion_download_book()
         if ($dependency_file_data)
           $zip->addFile($root_path . $dependency_file_data->filepath, $BK_PATH . $CH_PATH . $EX_PATH . 'DEPENDENCIES/' . $dependency_file_data->filename);
       }
+      $query = "SELECT * FROM textbook_companion_dependency_files WHERE preference_id = %d";
+      $result = db_query($query, $book_id);
+      while($row = db_fetch_object($result)) {
+          $zip->addFile($root_path . $row->filepath, $BK_PATH . 'DEPENDENCIES/' . $row->filename);
+      }
     }
   }
   $zip_file_count = $zip->numFiles;
