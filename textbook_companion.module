@@ -824,11 +824,12 @@ function textbook_companion_proposal_all() {
         $row1 = db_fetch_object($result);
         $row2 = db_fetch_object($result);
         $row3 = db_fetch_object($result);
+        $page_content .= drupal_get_form("book_proposal_form", $row1, $row2, $row3);
     } else {
-        drupal_goto("aicte_proposal");
+        $page_content .= drupal_get_form("book_proposal_form");
+        // drupal_goto("aicte_proposal");
     }
 
-    $page_content .= drupal_get_form("book_proposal_form", $row1, $row2, $row3);
     return $page_content;
 }
 
