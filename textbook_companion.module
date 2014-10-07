@@ -544,7 +544,7 @@ function textbook_companion_perm() {
 function textbook_companion_aicte_proposal_form($form_state) {
     $query = "
         SELECT * FROM textbook_companion_aicte
-        WHERE status = 0
+        WHERE status = 0 AND selected = 0
     ";
     $result = db_query($query);
 
@@ -593,7 +593,7 @@ function textbook_companion_aicte_proposal_form($form_state) {
 function textbook_companion_aicte_proposal_form_validate($form, &$form_state) {
     $query = "
         SELECT * FROM textbook_companion_aicte
-        WHERE status = 0
+        WHERE status = 0 AND selected = 0
     ";
     $result = db_query($query);
 
@@ -687,7 +687,7 @@ function textbook_companion_aicte_proposal_all() {
     if (!$user->uid) {
         $query = "
             SELECT * FROM textbook_companion_aicte
-            WHERE status = 0
+            WHERE status = 0 AND selected = 0
         ";
         $result = db_query($query);
         
