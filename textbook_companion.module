@@ -687,7 +687,7 @@ function textbook_companion_aicte_proposal_all() {
     if (!$user->uid) {
         $query = "
             SELECT * FROM textbook_companion_aicte
-            WHERE status = 0 AND selected = 0
+            WHERE status = 0
         ";
         $result = db_query($query);
         

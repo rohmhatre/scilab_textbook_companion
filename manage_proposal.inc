@@ -97,7 +97,7 @@ function _category_all()
     case 13: $category_data = 'Others'; break;
     default: $category_data = 'Unknown'; break;
   	}
-    $preference_rows[] = array($preference_data->book ."<br> <i>by" .$preference_data->author."</i>", $preference_data->isbn, $preference_data->publisher, $preference_data->edition, $preference_data->year, $category_data, l('Edit', 'manage_proposal/category/edit/' . $preference_data->id));
+    $preference_rows[] = array($preference_data->book ."<br> <i>by " .$preference_data->author."</i>", $preference_data->isbn, $preference_data->publisher, $preference_data->edition, $preference_data->year, $category_data, l('Edit', 'manage_proposal/category/edit/' . $preference_data->id));
   }
 
   $preference_header = array('Book', 'ISBN', 'Publisher', 'Edition', 'Year', 'Category', 'Status');
