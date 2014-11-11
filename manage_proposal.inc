@@ -39,7 +39,8 @@ function _proposal_all()
   while ($proposal_data = db_fetch_object($proposal_q))
   {
     /* get preference */
-    $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+    // $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+    $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d LIMIT 1", $proposal_data->id);
     $preference_data = db_fetch_object($preference_q);
 
     $proposal_status = '';
@@ -53,10 +54,12 @@ function _proposal_all()
     default: $proposal_status = 'Unknown'; break;
     }
     $proposal_rows[] = array(
-	date('d-m-Y', $proposal_data->creation_date), $preference_data->book, $preference_data->author, 
-	l($proposal_data->full_name, 'user/' . $proposal_data->uid), date('d-m-Y', $proposal_data->completion_date), 
-	$proposal_status, l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id) .
-	_tbc_ext($proposal_status, $preference_data->id)
+	date('d-m-Y', $proposal_data->creation_date),
+    "{$preference_data->book} <br> <em>by {$preference_data->author}<em>",
+	l($proposal_data->full_name, 'user/' . $proposal_data->uid),
+    date('d-m-Y', $proposal_data->completion_date),
+	$proposal_status,
+    l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id) . _tbc_ext($proposal_status, $preference_data->id)
     );
   }
 
@@ -67,7 +70,7 @@ function _proposal_all()
     return '';
   }
 
-  $proposal_header = array('Date of Submission', 'Title of the Book', 'Author', 'Contributor Name', 'Expected Date of Completion', 'Status', 'Action');
+  $proposal_header = array('Date of Submission', 'Title of the Book', 'Contributor Name', 'Expected Date of Completion', 'Status', 'Action');
   $output = theme_table($proposal_header, $proposal_rows);
   return $output; 
 }
