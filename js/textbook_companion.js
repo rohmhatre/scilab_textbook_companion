@@ -124,6 +124,24 @@ $('#edit-version').change(function() {
     
 });
 
+/* hide nonaicte_proposal form textbox of other reason */
+$('#edit-other-reason-wrapper').hide();
+$(function() {
+  enable_cb();
+  $("#edit-reason-4").click(enable_cb);
+});
+
+function enable_cb() {
+  if (this.checked) {
+     $('#edit-other-reason-wrapper').show();
+  } else {
+    $('#edit-other-reason-wrapper').hide();
+  }
+}
+
+
+
+
 /* highlighting current filter [A-Z] of book search pages */
 var pathname = window.location.pathname;
 var filter = pathname.charAt(pathname.length-1);
