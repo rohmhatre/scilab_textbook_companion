@@ -536,13 +536,11 @@ function textbook_companion_menu()
     'access arguments' => array('paper submission form'),
     'type' => MENU_CALLBACK,
     'file' => 'cheque_contact.inc',
-  );
-   /*Non AICTE proposal */
+  ); 
     $items["nonaicte_proposal"] = array(
     "title" => "Book Suggestion Form ",
     "description" => "NON-AICTE Book Proposal Form",
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('book_proposal_nonaicte_form'),
+    'page callback' => 'textbook_companion_nonaicte_proposal_all',    
     'access arguments' => array('create book proposal'),
     'type' => MENU_NORMAL_ITEM,
   );
@@ -744,7 +742,7 @@ function textbook_companion_aicte_proposal_all() {
         }
         $page_content .= "</div>";
         /* adding aicte report form */
-        $page_content .= drupal_get_form("textbook_companion_aicte_report_form");
+        //$page_content .= drupal_get_form("textbook_companion_aicte_report_form");
         return $page_content;
     }
 
@@ -784,20 +782,22 @@ function textbook_companion_aicte_proposal_all() {
     //$page_content .= "Do not wish to propose any of the below books: <a id='aicte-report' href='http://fossee.in/feedback/scilab-aicte' target = _blank>Click here</a></br></br>";
     $page_content .= "Search :  <input type='text' id='searchtext' style='width:82%'/>";
         $page_content .= "<input type='button' value ='clear' id='search_clear'/>";
-    $page_content .= drupal_get_form("textbook_companion_aicte_report_form");
+    //$page_content .= drupal_get_form("textbook_companion_aicte_report_form");
     $page_content .= drupal_get_form("textbook_companion_aicte_proposal_form");
     return $page_content;
 }
-
-/* Textbook Companion Proposal */
-function textbook_companion_proposal_all() {
+/*non aicte book proposal */
+function textbook_companion_nonaicte_proposal_all() {
     global $user;
     $page_content = "";
 
-    // if (!$user->uid) {
-    //     drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
-    //     return;
-    // }
+    if (!$user->uid) {
+        
+        $page_content .= "<ul>";        
+        $page_content .= "<li>Please <a href='/user'><b><u>Login</u></b></a> to create a proposal.</li>";      
+        $page_content .= "</ul>";        
+        return $page_content;
+    }
 
     /* check if user has already submitted a proposal */
     $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
@@ -822,34 +822,20 @@ function textbook_companion_proposal_all() {
                 break;
             default:
                 drupal_set_message(t('Invalid proposal state. Please contact site administrator for further information.'), 'error');
-                drupal_goto('');
+                drupal_goto('');  
                 return;
                 break;
             }
         }
     }
 
-    $selections = variable_get("aicte_".$user->uid, "");
-    if($selections) {
-        $selections = implode(",", $selections);
-        $query = "
-            SELECT * FROM textbook_companion_aicte
-            WHERE id IN ({$selections})
-        ";
-        $result = db_query($query);
-        $row1 = db_fetch_object($result);
-        $row2 = db_fetch_object($result);
-        $row3 = db_fetch_object($result);
-        $page_content .= drupal_get_form("book_proposal_form", $row1, $row2, $row3);
-    } else {
-        $page_content .= drupal_get_form("book_proposal_form");
-        // drupal_goto("aicte_proposal");
-    }
-
+    //variable_del("aicte_".$user->uid);    
+    $page_content .= drupal_get_form("textbook_companion_nonaicte_proposal_form");
     return $page_content;
 }
 
-function textbook_companion_proposals_all() {
+/* Textbook Companion Proposal */
+function textbook_companion_proposal_all() {
     global $user;
     $page_content = "";
 
@@ -2380,6 +2366,7 @@ function book_proposal_nonaicte_form($form_state)
 {
 
    global $user;
+  
   $form = array();
   $form['imp_notice'] = array(
     '#type' => 'item',
