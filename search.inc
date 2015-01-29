@@ -155,15 +155,17 @@ function textbook_companion_browse_student()
   $return_html = _browse_list('student');
   $return_html .= '<br /><br />';
   $query_character = arg(2);
+  print $query_character;
+  die();
   if (!$query_character) {
     /* all books */
     $return_html .= "Please select the starting character of the student's name";
     return $return_html;
   }
   $book_rows = array();
-  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name";
+  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name = '%s%'";
   $student_q = db_query($query);
-  while ($student_data = db_fetch_object($student_q))
+  while ($student_data = db_fetch_object($student_q,$query_character))
   {
     $query = "SELECT * FROM textbook_companion_preference WHERE proposal_id = " . $student_data->proposal_id . " AND approval_status = 1";
     $book_q = db_query($query);

@@ -59,7 +59,7 @@ function _proposal_all()
 
     $proposal_rows[] = array(
 	date('d-m-Y', $proposal_data->creation_date),
-     "{$preference_data->book} <br> <em>by {$preference_data->author}</em>",
+    "{$preference_data->book} <br> <em>by {$preference_data->author}</em>",
 	l($proposal_data->full_name, 'user/' . $proposal_data->uid),
     date('d-m-Y', $proposal_data->completion_date),
 	$proposal_status,
@@ -199,6 +199,16 @@ function proposal_approval_form($form_state)
     '#value' => $row->scilab_version,
     '#title' => t('Scilab Version'),
   );
+  $form['reference'] = array(
+    '#type' => 'item',
+    '#value' => $row->reference,
+    '#title' => t('References'),
+  );
+  $form['reason'] = array(
+    '#type' => 'item',
+    '#value' => $row->reason,
+    '#title' => t('Reasons'),
+  );
 
   /* get book preference */
   $preference_rows = array();
@@ -207,16 +217,27 @@ function proposal_approval_form($form_state)
   {
     $preference_rows[$preference_data->id] = $preference_data->book . ' (Written by ' . $preference_data->author . ')';
   }
-
+   if($row->proposal_type == 1){
+    $form['book_preference'] = array(
+      '#type' => 'radios',
+      '#options' => $preference_rows,
+      '#title' => t('Book Preferences'),
+       '#required' => TRUE,
+      
+    );
+   }
+   else{
   $form['book_preference'] = array(
       '#type' => 'radios',
       '#title' => t('Book Preferences'),
       '#options' => $preference_rows,
-  );
+       '#required' => TRUE,
+  );}
 
   $form['disapprove'] = array(
     '#type' => 'checkbox',
     '#title' => t('Disapprove all the above book preferences'),
+
   );
 
   $form['message'] = array(
@@ -395,6 +416,20 @@ function proposal_status_form($form_state)
     '#value' => $proposal_data->scilab_version,
     '#title' => t('Scilab Version'),
   );
+  if($proposal_data->proposal_type == 1)
+  {
+  $form['reason'] = array(
+    '#type' => 'item',
+    '#value' => $proposal_data->reason,
+    '#title' => t('Reason'),
+  );
+  $form['reference'] = array(
+    '#type' => 'item',
+    '#value' => $proposal_data->reference,
+    '#title' => t('References'),
+  );    
+  }
+  
 
   /* get book preference */
   $preference_html = '<ul>';
@@ -511,7 +546,7 @@ function proposal_status_form_submit($form, &$form_state)
 /**************************** PROPOSAL EDIT FORM ******************************/
 /******************************************************************************/
 
-function proposal_edit_form($form_state)
+function proposal_edit_form($form_state,$nonaicte_book)
 {
   global $user;
 
@@ -700,6 +735,7 @@ function proposal_edit_form($form_state)
     '#required' => TRUE,
     '#default_value' => $preference1_data->year,
   );
+  if($preference2_data){
   $form['preference2'] = array(
     '#type' => 'fieldset',
     '#title' => t('Book Preference 2'),
@@ -754,6 +790,8 @@ function proposal_edit_form($form_state)
     '#required' => TRUE,
     '#default_value' => $preference2_data->year,
   );
+}
+if($preference3_data){
   $form['preference3'] = array(
     '#type' => 'fieldset',
     '#title' => t('Book Preference 3'),
@@ -808,6 +846,7 @@ function proposal_edit_form($form_state)
     '#required' => TRUE,
     '#default_value' => $preference3_data->year,
   );
+}
 
   /* hidden fields */
   $form['hidden_proposal_id'] = array(
@@ -826,8 +865,10 @@ function proposal_edit_form($form_state)
   return $form;
 }
 
-function proposal_edit_form_validate($form, &$form_state)
+function proposal_edit_form_validate($form, &$form_state, &$nonaicte_book)
+
 {
+
   /* mobile */
   if (!preg_match('/^[0-9\ \+]{0,15}$/', $form_state['values']['mobile']))
     form_set_error('mobile', t('Invalid mobile number'));
@@ -846,18 +887,23 @@ function proposal_edit_form_validate($form, &$form_state)
   /* edition */
   if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition1']))
     form_set_error('edition1', t('Invalid edition for Book Preference 1'));
+  if($form_state['values']['edition2']){
   if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition2']))
     form_set_error('edition2', t('Invalid edition for Book Preference 2'));
   if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition3']))
     form_set_error('edition3', t('Invalid edition for Book Preference 3'));
+}
+
 
   /* year of publication */
   if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year1']))
     form_set_error('year1', t('Invalid year of pulication for Book Preference 1'));
+  if($form_state['values']['edition2']){
   if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year2']))
     form_set_error('year2', t('Invalid year of pulication for Book Preference 2'));
   if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year3']))
     form_set_error('year3', t('Invalid year of pulication for Book Preference 3'));
+}
 
   /* year of publication */
   $cur_year = date('Y');
@@ -871,10 +917,12 @@ function proposal_edit_form_validate($form, &$form_state)
   /* isbn */
   if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn1']))
     form_set_error('isbn1', t('Invalid ISBN for Book Preference 1'));
+  if($form_state['values']['edition2']){
   if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn2']))
     form_set_error('isbn2', t('Invalid ISBN for Book Preference 2'));
   if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn3']))
     form_set_error('isbn3', t('Invalid ISBN for Book Preference 3'));
+}
   return;
 }
 

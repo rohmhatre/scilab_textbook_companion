@@ -120,17 +120,15 @@ $('#edit-version').change(function() {
     else
     {
 	$('#edit-older-wrapper').hide();
-    }
-    
+    }    
 });
 
 /* hide nonaicte_proposal form textbox of other reason */
 $('#edit-other-reason-wrapper').hide();
 $(function() {
   enable_cb();
-  $("#edit-reason-4").click(enable_cb);
+  $("#edit-reason-Other-reason").click(enable_cb);
 });
-
 function enable_cb() {
   if (this.checked) {
      $('#edit-other-reason-wrapper').show();
