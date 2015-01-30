@@ -1667,28 +1667,21 @@ case 'nonaicte_proposal_to_pi':
       
       $user_data = user_load($params['proposal_received']['user_id']);
  
-      $message['subject'] = t('[!site_name] Your book proposal has been received', array('!site_name' => variable_get('site_name', '')), $language->language);
+      $message['subject'] = t('[!site_name] New Non AICTE book suggestion has been received', array('!site_name' => variable_get('site_name', '')), $language->language);
       $message['body'] = t('
-Dear Sir,
+Dear all,
 
-We have received following book proposal:
+We have received following Non AICTE book suggestion:
 
 Full Name : ' . $proposal_data->full_name . '
-Email : ' . $user_data->mail . '
-Mobile : ' . $proposal_data->mobile . '
-Course : ' . $proposal_data->course . '
-Department/Branch : ' . $proposal_data->branch . '
-University/Institute : ' .  $proposal_data->university . '
-College Teacher / Professor : ' . $proposal_data->faculty . '
-Reviewer : ' .  $proposal_data->reviewer . '
-Expected date of completion : ' .  date('d-m-Y', $proposal_data->completion_date) . '
+University/Institute :' .  $proposal_data->university . '
+
 
 Reason(s): '. $proposal_data->reason . '
 
 
-Your Non AICTE Book Preferences :
+Your Non AICTE Book Preference :
 
-Book Preference :-
 Title of the book : ' . $preference1_data->book . '
 Author name : ' . $preference1_data->author . '
 ISBN No. : ' . $preference1_data->isbn . '
@@ -1698,7 +1691,7 @@ Year of publication : ' . $preference1_data->year . '
 
 Reference :- '.$proposal_data->reference.'
 
-Please click here for further approval/disapproval : http://scilab.in/comments
+Please click here to provide your feedback: http://scilab.in/comments
 
 
 Best Wishes,
@@ -2377,7 +2370,7 @@ function book_proposal_nonaicte_form($form_state)
     '#title' => t('Guidelines'),
     '#attributes' => array('style'=>'font-weight: bold'),    
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,   
+    '#collapsed' => FALSE,
   );
   $form['guidelines']['book'] = array(
     '#type' => 'item',
@@ -2547,7 +2540,7 @@ function book_proposal_nonaicte_form($form_state)
     '#required' => TRUE,
     '#size' => 500,
     '#maxlength' => 500,
-    
+    '#attributes' =>array('placeholder' =>'Links of the syllabus must be provided....'),
   );
   $form['preference1'] = array(
     '#type' => 'fieldset',
