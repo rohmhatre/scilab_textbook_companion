@@ -830,7 +830,7 @@ function textbook_companion_nonaicte_proposal_all() {
     }
 
     //variable_del("aicte_".$user->uid);    
-    $page_content .= drupal_get_form("textbook_companion_nonaicte_proposal_form");
+    $page_content .= drupal_get_form("book_proposal_nonaicte_form");
     return $page_content;
 }
 
