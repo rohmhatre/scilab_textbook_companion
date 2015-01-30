@@ -155,24 +155,22 @@ function textbook_companion_browse_student()
   $return_html = _browse_list('student');
   $return_html .= '<br /><br />';
   $query_character = arg(2);
-  print $query_character;
-  die();
+  //print $query_character;
+  //die();
   if (!$query_character) {
     /* all books */
     $return_html .= "Please select the starting character of the student's name";
     return $return_html;
   }
   $book_rows = array();
-  $query = "SELECT *, pro.id AS proposal_id, pre.id AS preference_id FROM textbook_companion_proposal pro LEFT JOIN textbook_companion_preference pre ON pro.id = pre.proposal_id WHERE full_name = '%s%'";
-  $student_q = db_query($query);
-  while ($student_data = db_fetch_object($student_q,$query_character))
-  {
-    $query = "SELECT * FROM textbook_companion_preference WHERE proposal_id = " . $student_data->proposal_id . " AND approval_status = 1";
-    $book_q = db_query($query);
-    while ($book_data = db_fetch_object($book_q))
-    {
-        $book_rows[] = array(l($book_data->book, 'textbook_run/' . $book_data->id), $student_data->full_name);
-    }
+  $student_q = db_query("
+                        SELECT po.full_name, pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
+                        FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
+                        WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND full_name LIKE '%s%%'
+                        ", $query_character);  
+  while ($student_data = db_fetch_object($student_q))
+  {   
+        $book_rows[] = array(l($student_data->book, 'textbook_run/' . $student_data->pe_id), $student_data->full_name);   
   }
   if (!$book_rows)
   {
