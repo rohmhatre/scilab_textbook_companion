@@ -312,15 +312,15 @@ function textbook_companion_menu()
     'file' => 'search.inc',
     'weight' => 4,
   );
-  // $items['textbook_search/student'] = array(
-  //   'title' => 'By Student',
-  //   'description' => '',
-  //   'page callback' => 'textbook_companion_browse_student',
-  //   'access arguments' => array('access content'),
-  //   'type' => MENU_LOCAL_TASK,
-  //   'file' => 'search.inc',
-  //   'weight' => 5,
-  // );
+  $items['textbook_search/student'] = array(
+    'title' => 'By Student',
+    'description' => '',
+    'page callback' => 'textbook_companion_browse_student',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'search.inc',
+    'weight' => 5,
+  );
 
   $items['textbook_run'] = array(
     'title' => 'Download Codes',
