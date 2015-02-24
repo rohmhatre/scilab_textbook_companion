@@ -1505,6 +1505,9 @@ Edition : ' . $preference3_data->edition . '
 Year of publication : ' . $preference3_data->year . '
 
 Your proposal is under review and you will soon receive an email from us regarding the same.
+Note:
+Send sample codes to textbook@scilab.in in a .zip or .tgz file. The sample codes should be sent utmost by the 3rd day of the proposal. The subject of the email containing sample code should be "New Book Proposal-Sample Codes-(Student Name)"​.
+The book will not be alloted to you until we receive the sample codes.
 
 Best Wishes,
 
@@ -1651,6 +1654,9 @@ Year of publication : ' . $preference1_data->year . '
 
 
 Your proposal is under review and you will soon receive an email from us regarding the same.
+Note:
+Send sample codes to textbook@scilab.in in a .zip or .tgz file. The sample codes should be sent utmost by the 3rd day of the proposal. The subject of the email containing sample code should be "New Book Proposal-Sample Codes-(Student Name)"​.
+The book will not be alloted to you until we receive the sample codes.
 
 Best Wishes,
 
