@@ -16,21 +16,21 @@ function textbook_companion_menu()
     'page callback' => 'textbook_companion_proposal_all',
     'access callback' => 'user_access',
     'access arguments' => array('create book proposal'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
   $items["aicte_proposal"] = array(
     "title" => "AICTE Book Proposal",
     "description" => "AICTE Book Proposal Form",
     "page callback" => "textbook_companion_aicte_proposal_all",
     'access arguments' => array('create book proposal'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
   $items["all_proposal"] = array(
     "title" => "Book Proposal",
     "description" => "Book Proposal Form",
     "page callback" => "textbook_companion_aicte_proposal_all",
     'access arguments' => array('create book proposal'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
   /* for reviewers */
   $items['manage_proposal'] = array(
@@ -542,7 +542,7 @@ function textbook_companion_menu()
     "description" => "NON-AICTE Book Proposal Form",
     'page callback' => 'textbook_companion_nonaicte_proposal_all',    
     'access arguments' => array('create book proposal'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
