@@ -36,7 +36,7 @@
 			$pdf->Line(270.0,210.0,270.0,7.0);
 			$pdf->Line(7.0,210.0,270.0,210.0);
 			
-			$pdf->Image("/Sites/scilab_in/sites/default/files/scilab_logo.png", 10, 9, 0, 15);
+			$pdf->Image("/Sites/scilab_in_2015/sites/default/files/scilab_logo.png", 10, 9, 0, 15);
 			$path = drupal_get_path('module', 'textbook_companion');
 			$pdf->Image($path."/pdf/images/fossee.png", 228, 9, 0, 15);
 			
