@@ -325,15 +325,20 @@ function textbook_companion_menu()
   $items['textbook_run'] = array(
     'title' => 'Download Codes',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('textbook_companion_run_form'),
+    'page arguments' => array('textbook_companion_run_form_ajax'),
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
+    'file' => 'run.inc',
+  );
+  $items['textbook_run_ajax'] = array(
+    'page callback' => 'textbook_run_ajax',
+    'access callback' => TRUE,
     'file' => 'run.inc',
   );
   $items['download_codes'] = array(
     'title' => 'Download Codes',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('textbook_companion_run_form'),
+    'page arguments' => array('textbook_companion_run_form_ajax'),
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'run.inc',
@@ -2738,6 +2743,9 @@ function textbook_companion_init(){
   //drupal_add_js('http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css', array('type' => 'external'));
   //drupal_add_js(drupal_get_path('module', 'textbook_companion') .'/js/jquery-ui.js');
   //drupal_add_js(drupal_get_path('module', 'textbook_companion') .'/js/jquery.js');
-  drupal_add_css(drupal_get_path('module', 'textbook_companion') .'/css/textbook_companion.css');
-  drupal_add_js(drupal_get_path('module', 'textbook_companion') .'/js/textbook_companion.js');
+  $path = drupal_get_path('module', 'textbook_companion');
+  drupal_add_js($path . '/css/textbook_companion.css');
+  drupal_add_js($path . '/js/textbook_companion.js');
+  drupal_add_js($path . '/js/jquery-1.7.1.js');
+  drupal_add_js($path . '/js/tbc-download.js');
 }

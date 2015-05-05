@@ -1,6 +1,170 @@
 <?php
 // $Id$
 
+function textbook_run_ajax() {
+
+    $output = '';
+    $example_files = '';
+    if(isset($_POST['category']) && isset($_POST['book']) && isset($_POST['chapter']) && isset($_POST['example'])) {
+        $output['download'] = l('Download Scilab code for the example', 'download/example/' . $_POST['example']);
+        $example_list_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id=".$_POST['example']);
+        if ($example_list_q) {
+            $example_files_rows = array();
+            while ($example_list_data = db_fetch_object($example_list_q)) {
+                $example_file_type = '';
+                switch ($example_list_data->filetype) {
+                    case 'S' : $example_file_type = 'Source or Main file'; break;
+                    case 'R' : $example_file_type = 'Result file'; break;
+                    case 'X' : $example_file_type = 'xcos file'; break;
+                    default  : $example_file_type = 'Unknown'; break;
+                }
+                $example_files_rows[] = array(l($example_list_data->filename, 'download/file/' . $example_list_data->id), $example_file_type);
+            }
+            $dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, dependency.caption as dependency_caption FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency ON example_dependency.dependency_id = dependency.id WHERE example_dependency.example_id = %d", $form_state['values']['run']['example']);
+            while ($dependency_list_data = db_fetch_object($dependency_list_q)) {
+                $example_file_type = 'Dependency file';
+                $temp_caption = '';
+                if ($dependency_list_data->dependency_caption)
+                    $temp_caption = ' (' . $dependency_list_data->dependency_caption . ')';
+                $example_files_rows[] = array(l($dependency_list_data->dependency_filename, 'download/dependency/' . $dependency_list_data->dependency_id) . $temp_caption, $example_file_type);
+            }
+
+            /* creating list of files table */
+            $example_files_header = array('Filename', 'Type');
+            $example_files = theme_table($example_files_header, $example_files_rows); 
+        }
+        $output['files'] = $example_files;
+    } elseif(isset($_POST['category']) && isset($_POST['book']) && isset($_POST['chapter'])) {
+        $output['download'] = l('Download', 'download/chapter/' . $_POST['chapter']) . ' ' . t('(Download the Scilab codes for all the solved examples from the Chapter)');
+        $output['examples'] = _list_of_examples($_POST['chapter']);
+    } elseif(isset($_POST['category']) && isset($_POST['book'])) {
+        $output['details'] = _html_book_info($_POST['book']);
+        $output['download'] = l('Download', 'download/book/' . $_POST['book']) . ' ' . t('(Download the Scilab codes for all the solved examples)');
+        $output['downloadpdf'] = l('Download PDF', 'textbook_companion/generate_book/' . $_POST['book']) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)');
+        $output['chapters'] = _list_of_chapters($_POST['book']);
+    } elseif(isset($_POST['category'])) {
+        $output['books'] = _list_of_books($_POST['category']);
+    }
+
+    echo json_encode($output);
+    exit;
+}
+
+
+function textbook_companion_run_form_ajax($form_state, $pref_id = NULL) {
+
+    $path = drupal_get_path('module', 'textbook_companion');
+    drupal_add_js($path . '/js/jquery-1.7.1.js');
+    drupal_add_js($path . '/js/tbc-download.js');
+    $category_default_value = 0;
+    $book_default_value = 0;
+    $book_details = '';
+    $book_download = '';
+    $book_download_pdf = '';
+    $book_books = array(0 => 'Please select book');
+    $book_chapters = array(0 => 'Please select chapter');
+    $style_param = 'display:none;';
+    if($pref_id){
+        $query = "select category from textbook_companion_preference where id=".$pref_id;
+        $result = db_query($query);
+        $row = db_fetch_object($result);
+        $category_default_value = $row->category;
+        $book_default_value = $pref_id;
+        $book_books = _list_of_books($category_default_value);
+        $book_details = _html_book_info($pref_id);
+        $book_download = l('Download', 'download/book/' . $pref_id) . ' ' . t('(Download the Scilab codes for all the solved examples)');
+        $book_download_pdf = l('Download PDF', 'textbook_companion/generate_book/' . $pref_id) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)');
+        $book_chapters = _list_of_chapters($pref_id);
+        $style_param = 'display:block;';
+    }
+
+    $form['run'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Run Book Example'),
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+        '#prefix' => '<div id="run-wrapper">',
+        '#suffix' => '</div>',
+        '#tree' => TRUE,
+    );
+
+    $form['run']['category'] = array(
+        '#type' => 'select',
+        '#title' => t('Category'),
+        '#options' =>  array(0 => 'Please select category',
+            1 => 'Fluid Mechanics',
+            2 => 'Control Theory & Control Systems',
+            3 => 'Chemical Engineering',
+            4 => 'Thermodynamics',
+            5 => 'Mechanical Engineering',
+            6 => 'Signal Processing',
+            7 => 'Digital Communications',
+            8 => 'Electrical Technology',
+            9 => 'Mathematics & Pure Science',
+            10 => 'Analog Electronics',
+            11 => 'Digital Electronics',
+            12 => 'Computer Programming',
+            13 => 'Others'
+        ),
+        '#default_value' => $category_default_value,
+        '#tree' => TRUE,
+        '#attributes' => array('class' => 'tbc-category'),
+        '#suffix' => '<div class="tbc-book-main tbc-book-overall" style="'.$style_param.'">',
+    );  
+    $form['run']['book'] = array(
+        '#type' => 'select',
+        '#title' => t('Title of the Book'),
+        '#options' => $book_books,
+        '#default_value' => $book_default_value,
+        '#tree' => TRUE,
+        '#attributes' => array('class' => 'tbc-book'),
+        '#suffix' => '</div>
+                      <div class="tbc-book-block tbc-book-overall tbc-after-book" style="'.$style_param.'">
+                        <div class="form-item tbc-book-details">'.$book_details.'</div>
+                        <div class="form-item tbc-book-download">'.$book_download.'</div>
+                        <div class="form-item tbc-book-download-pdf">'.$book_download_pdf.'</div>',
+    );
+    $form['run']['chapter'] = array(
+        '#type' => 'select',
+        '#title' => t('Title of the Chapter'),
+        '#options' => $book_chapters,
+        '#default_value' => 0,
+        '#tree' => TRUE,
+        '#attributes' => array('class' => 'tbc-chapter'),
+        '#suffix' => '</div>
+                      <div class="tbc-chapter-block tbc-book-overall tbc-after-book tbc-after-chapter" style="display:none;">
+                        <div class="tbc-chapter-download"></div>',
+    );
+    $form['run']['example'] = array(
+        '#type' => 'select',
+        '#title' => t('Example No. (Caption)'),
+        '#options' => array(0 => 'Please select example'),
+        '#default_value' => 0,
+        '#tree' => TRUE,
+        '#attributes' => array('class' => 'tbc-example'),
+        '#suffix' => '</div>
+                      <div class="tbc-example-block tbc-book-overall tbc-after-book tbc-after-chapter tbc-after-example" style="display:none;">
+                        <div class="tbc-example-download"></div>
+                        <div class="tbc-example-files"></div>
+                      </div></div>',
+    );
+    /*$form['run']['feedback'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Feedback on the above example'),
+    );
+    $form['run']['feedback_submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit'),
+        '#suffix' => '</div></div>',
+    );*/
+
+    return $form;
+}
+
+function textbook_companion_run_form_ajax_submit($form, &$form_state) {
+    
+}
+
 function textbook_companion_run_form($form_state, $pref_id = NULL)
 {
 
@@ -397,4 +561,29 @@ function _book_information($preference_id)
     proposal.full_name as proposal_full_name, proposal.faculty as proposal_faculty, proposal.reviewer as proposal_reviewer, proposal.course as proposal_course, proposal.branch as proposal_branch, proposal.university as proposal_university
     FROM {textbook_companion_proposal} proposal LEFT JOIN {textbook_companion_preference} preference ON proposal.id = preference.proposal_id WHERE preference.id = %d", $preference_id));
   return $book_data;
+}
+
+function _html_book_info($preference_id) {
+    $book_details = db_fetch_object(db_query("SELECT
+        preference.book as preference_book, preference.author as preference_author, preference.isbn as preference_isbn, preference.publisher as preference_publisher, preference.edition as preference_edition, preference.year as preference_year,
+        proposal.full_name as proposal_full_name, proposal.faculty as proposal_faculty, proposal.reviewer as proposal_reviewer, proposal.course as proposal_course, proposal.branch as proposal_branch, proposal.university as proposal_university
+        FROM {textbook_companion_proposal} proposal LEFT JOIN {textbook_companion_preference} preference ON proposal.id = preference.proposal_id WHERE preference.id=".$preference_id));
+    $html_data = '';
+    if($book_details) {
+        $html_data = '<table cellspacing="1" cellpadding="1" border="0" style="width: 100%;" valign="top">' .
+            '<tr><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Book</strong></span></td><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Contributor</strong></span></td>' .
+            '<tr><td valign="top"><ul>' .
+            '<li><strong>Author:</strong> ' . $book_details->preference_author . '</li>' .
+            '<li><strong>Title of the Book:</strong> ' . $book_details->preference_book . '</li>' .
+            '<li><strong>Publisher:</strong> ' . $book_details->preference_publisher . '</li>' .
+            '<li><strong>Year:</strong> ' . $book_details->preference_year . '</li>' .
+            '<li><strong>Edition:</strong> ' . $book_details->preference_edition . '</li>' .
+            '</ul></td><td valign="top"><ul>' .
+            '<li><strong>Contributor Name: </strong>' . $book_details->proposal_full_name . ', ' . $book_details->proposal_course . ', ' . $book_details->proposal_branch . ', ' . $book_details->proposal_university . '</li>' .
+            '<li><strong>College Teacher: </strong>' . $book_details->proposal_faculty . '</li>' .
+            '<li><strong>Reviewer: </strong>' . $book_details->proposal_reviewer . '</li>' .
+            '</ul></td></tr>' . '</table>';
+    }
+
+    return $html_data;
 }
