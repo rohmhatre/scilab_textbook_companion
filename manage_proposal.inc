@@ -631,6 +631,8 @@ function proposal_edit_form($form_state,$nonaicte_book)
                         'Mechanical Engineering' => 'Mechanical Engineering',
                         'Civil Engineering' => 'Civil Engineering',
                         'Physics' => 'Physics',
+                        'Applied Physics' =>'Applied Physics',
+                        ' Nuclear Technology and Biotechnology' => ' Nuclear Technology and Biotechnology',
                         'Mathematics' => 'Mathematics',
                         'Others' => 'Others'),
     '#required' => TRUE,
