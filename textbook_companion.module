@@ -2680,11 +2680,9 @@ function book_proposal_nonaicte_form_submit($form, &$form_state)
   if($form_state['values']['version'] == 'olderversion'){
     $scilab_version = $form_state['values']['older'];
   }
-
-  //var_dump($form_state['values']);
   
   $query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, proposal_type, reason ) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".strtolower($form_state['values']['reference'])."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."','".$form_state['values']['proposal_type']."','".$my_reason."')";
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, proposal_type, reason ) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$form_state['values']['reference']."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."','".$form_state['values']['proposal_type']."','".$my_reason."')";
 
   $result = db_query($query);
   if (!$result)
