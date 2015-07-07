@@ -646,6 +646,60 @@ function proposal_edit_form($form_state,$nonaicte_book)
     '#required' => TRUE,
     '#default_value' => $proposal_data->university,
   );
+  $form['city'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City/Village'),
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#required' => TRUE,
+    '#default_value' => $proposal_data->city,
+  );
+  $form['states'] = array(
+    '#type' => 'select',
+    '#title' => t('State'),
+    '#options' => array (
+    				 '' => 'Please select...',
+					 'Andhra Pradesh' => 'Andhra Pradesh',
+					 'Arunachal Pradesh' => 'Arunachal Pradesh',
+					 'Assam' => 'Assam',
+					 'Bihar' => 'Bihar',
+					 'CT' => 'Chhattisgarh',
+					 'Chhattisgarh' => 'Goa',
+					 'Gujarat' => 'Gujarat',
+					 'Haryana' => 'Haryana',
+					 'Himachal Pradesh' => 'Himachal Pradesh',
+					 'Jammu & Kashmir' => 'Jammu & Kashmir',
+					 'Jharkhand' => 'Jharkhand',
+					 'Karnataka' => 'Karnataka',
+					 'Kerala' => 'Kerala',
+					 'Madhya Pradesh' => 'Madhya Pradesh',
+					 'Maharashtra' => 'Maharashtra',
+					 'Manipur' => 'Manipur',
+					 'Meghalaya' => 'Meghalaya',
+					 'Mizoram' => 'Mizoram',
+					 'Nagaland' => 'Nagaland',
+					 'Odisha' => 'Odisha',
+					 'Punjab' => 'Punjab',
+					 'Rajasthan' => 'Rajasthan',
+					 'Sikkim' => 'Sikkim',
+					 'Tamil Nadu' => 'Tamil Nadu',
+					 'Telangana' => 'Telangana',
+					 'Tripura' => 'Tripura',
+					 'Uttarakhand' => 'Uttarakhand',
+					 'Uttar Pradesh'=> 'Uttar Pradesh',
+					 'West Bengal' => 'West Bengal',
+					 'Andaman & Nicobar' => 'Andaman & Nicobar',
+					 'Chandigarh' => 'Chandigarh',
+					 'Dadra and Nagar Haveli' => 'Dadra and Nagar Haveli',
+					 'Daman & Diu' => 'Daman & Diu',
+					 'Delhi' => 'Delhi',
+					 'Lakshadweep' => 'Lakshadweep',
+					 'Puducherry' => 'Puducherry',
+					 'Others' => 'Others',
+                ),
+    '#required' => TRUE,
+    '#default_value' => $proposal_data->state,
+  );
   $form['faculty'] = array(
     '#type' => 'textfield',
     '#title' => t('College Teacher/Professor'),
@@ -870,6 +924,12 @@ if($preference3_data){
 function proposal_edit_form_validate($form, &$form_state, &$nonaicte_book)
 
 {
+   if($form_state['values']['city']== ''){
+   form_set_error('city', t('Invalid city/village'));
+   }
+   if($form_state['values']['state']== ''){
+   form_set_error('state', t('Invalid state'));
+   }
 
   /* mobile */
   if (!preg_match('/^[0-9\ \+]{0,15}$/', $form_state['values']['mobile']))
@@ -937,7 +997,7 @@ function proposal_edit_form_submit($form, &$form_state)
   $proposal_id = $form_state['values']['hidden_proposal_id'];
 
   
-  $query = "UPDATE {textbook_companion_proposal} SET full_name = '".$form_state['values']['full_name']."', mobile = '".$form_state['values']['mobile']."', how_project = '".$form_state['values']['how_project']."', course = '".$form_state['values']['course']."', branch = '".$form_state['values']['branch']."', university = '".$form_state['values']['university']."', faculty = '".$form_state['values']['faculty']."', reviewer = '".$form_state['values']['reviewer']."', completion_date = $completion_date_timestamp, operating_system= '".$form_state['values']['operating_system']."', scilab_version= '".$form_state['values']['scilab_version']."' WHERE id =".$proposal_id;
+  $query = "UPDATE {textbook_companion_proposal} SET full_name = '".$form_state['values']['full_name']."', mobile = '".$form_state['values']['mobile']."', how_project = '".$form_state['values']['how_project']."', course = '".$form_state['values']['course']."', branch = '".$form_state['values']['branch']."', university = '".$form_state['values']['university']."', city = '".$form_state['values']['city']."', state = '".$form_state['values']['state']."', faculty = '".$form_state['values']['faculty']."', reviewer = '".$form_state['values']['reviewer']."', completion_date = $completion_date_timestamp, operating_system= '".$form_state['values']['operating_system']."', scilab_version= '".$form_state['values']['scilab_version']."' WHERE id =".$proposal_id;
 
 
   db_query($query);

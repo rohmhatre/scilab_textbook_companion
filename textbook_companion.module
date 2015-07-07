@@ -844,10 +844,13 @@ function textbook_companion_proposal_all() {
     global $user;
     $page_content = "";
 
-    // if (!$user->uid) {
-    //     drupal_set_message('It is mandatory to login on this website to access the proposal form', 'error');
-    //     return;
-    // }
+    if (!$user->uid) {
+        
+        $page_content .= "<ul>";        
+        $page_content .= "<li>Please <a href='/user'><b><u>Login</u></b></a> to create a proposal.</li>";      
+        $page_content .= "</ul>";        
+        return $page_content;
+    }
 
     /* check if user has already submitted a proposal */
     $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
@@ -977,6 +980,59 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
     '#size' => 30,
     '#maxlength' => 50,
     '#required' => TRUE,
+  );
+  $form['city'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City/Village'),
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#required' => TRUE,
+  );
+  $form['states'] = array(
+    '#type' => 'select',
+    '#title' => t('State'),
+    '#options' => array (
+    				 '' => 'Please select....',
+					 'Andhra Pradesh' => 'Andhra Pradesh',
+					 'Arunachal Pradesh' => 'Arunachal Pradesh',
+					 'Assam' => 'Assam',
+					 'Bihar' => 'Bihar',
+					 'Chhattisgarh' => 'Chhattisgarh',
+					 'Goa' => 'Goa',
+					 'Gujarat' => 'Gujarat',
+					 'Haryana' => 'Haryana',
+					 'Himachal Pradesh' => 'Himachal Pradesh',
+					 'Jammu & Kashmir' => 'Jammu & Kashmir',
+					 'Jharkhand' => 'Jharkhand',
+					 'Karnataka' => 'Karnataka',
+					 'Kerala' => 'Kerala',
+					 'Madhya Pradesh' => 'Madhya Pradesh',
+					 'Maharashtra' => 'Maharashtra',
+					 'Manipur' => 'Manipur',
+					 'Meghalaya' => 'Meghalaya',
+					 'Mizoram' => 'Mizoram',
+					 'Nagaland' => 'Nagaland',
+					 'Odisha' => 'Odisha',
+					 'Punjab' => 'Punjab',
+					 'Rajasthan' => 'Rajasthan',
+					 'Sikkim' => 'Sikkim',
+					 'Tamil Nadu' => 'Tamil Nadu',
+					 'Telangana' => 'Telangana',
+					 'Tripura' => 'Tripura',
+					 'Uttarakhand' => 'Uttarakhand',
+					 'Uttar Pradesh'=> 'Uttar Pradesh',
+					 'West Bengal' => 'West Bengal',
+					 'Andaman & Nicobar' => 'Andaman & Nicobar',
+					 'Chandigarh' => 'Chandigarh',
+					 'Dadra and Nagar Haveli' => 'Dadra and Nagar Haveli',
+					 'Daman & Diu' => 'Daman & Diu',
+					 'Delhi' => 'Delhi',
+					 'Lakshadweep' => 'Lakshadweep',
+					 'Puducherry' => 'Puducherry',
+					 'Others' => 'Others',
+                ),
+                '#required' => TRUE,
+    
   );
   $form['faculty'] = array(
     '#type' => 'hidden',
@@ -1233,6 +1289,12 @@ function book_proposal_form($form_state, $row1=NULL, $row2=NULL, $row3=NULL)
 
 function book_proposal_form_validate($form, &$form_state)
 {
+if($form_state['values']['city']== ''){
+   form_set_error('city', t('Invalid city/village'));
+   }
+   if($form_state['values']['state']== ''){
+   form_set_error('state', t('Invalid state'));
+   }
   /* mobile */
   if (!preg_match('/^[0-9\ \+]{0,15}$/', $form_state['values']['mobile']))
     form_set_error('mobile', t('Invalid mobile number'));
@@ -1313,7 +1375,7 @@ function book_proposal_form_submit($form, &$form_state)
   //var_dump($form_state['values']);
   
   $query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_version, operating_system, teacher_email) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."')";
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, city, state, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status,  scilab_version, operating_system, teacher_email) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".$form_state['values']['city']."','".$form_state['values']['state']."' ,'".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."')";
 
 	$result = db_query($query);
   if (!$result)
@@ -2472,6 +2534,57 @@ function book_proposal_nonaicte_form($form_state)
     '#maxlength' => 50,
     '#required' => TRUE,
   );
+  $form['city'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City/Village'),
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#required' => TRUE,
+  );
+  $form['states'] = array(
+    '#type' => 'select',
+    '#title' => t('State'),
+    '#options' => array (
+					 'Andhra Pradesh' => 'Andhra Pradesh',
+					 'Arunachal Pradesh' => 'Arunachal Pradesh',
+					 'Assam' => 'Assam',
+					 'Bihar' => 'Bihar',
+					 'Chhattisgarh' => 'Chhattisgarh',
+					 'Goa' => 'Goa',
+					 'Gujarat' => 'Gujarat',
+					 'Haryana' => 'Haryana',
+					 'Himachal Pradesh' => 'Himachal Pradesh',
+					 'Jammu & Kashmir' => 'Jammu & Kashmir',
+					 'Jharkhand' => 'Jharkhand',
+					 'Karnataka' => 'Karnataka',
+					 'Kerala' => 'Kerala',
+					 'Madhya Pradesh' => 'Madhya Pradesh',
+					 'Maharashtra' => 'Maharashtra',
+					 'Manipur' => 'Manipur',
+					 'Meghalaya' => 'Meghalaya',
+					 'Mizoram' => 'Mizoram',
+					 'Nagaland' => 'Nagaland',
+					 'Odisha' => 'Odisha',
+					 'Punjab' => 'Punjab',
+					 'Rajasthan' => 'Rajasthan',
+					 'Sikkim' => 'Sikkim',
+					 'Tamil Nadu' => 'Tamil Nadu',
+					 'Telangana' => 'Telangana',
+					 'Tripura' => 'Tripura',
+					 'Uttarakhand' => 'Uttarakhand',
+					 'Uttar Pradesh'=> 'Uttar Pradesh',
+					 'West Bengal' => 'West Bengal',
+					 'Andaman & Nicobar' => 'Andaman & Nicobar',
+					 'Chandigarh' => 'Chandigarh',
+					 'Dadra and Nagar Haveli' => 'Dadra and Nagar Haveli',
+					 'Daman & Diu' => 'Daman & Diu',
+					 'Delhi' => 'Delhi',
+					 'Lakshadweep' => 'Lakshadweep',
+					 'Puducherry' => 'Puducherry',
+					 'Others' => 'Others',
+                ),
+    '#required' => TRUE,
+  );
   $form['faculty'] = array(
     '#type' => 'hidden',
     '#value' => 'None',
@@ -2637,7 +2750,15 @@ function book_proposal_nonaicte_form($form_state)
   }
   return $form;
 }
-
+function book_proposal_nonaicte_form_validate($form, &$form_state)
+{
+if($form_state['values']['city']== ''){
+   form_set_error('city', t('Invalid city/village'));
+   }
+   if($form_state['values']['state']== ''){
+   form_set_error('state', t('Invalid state'));
+   }
+}
 
 function book_proposal_nonaicte_form_submit($form, &$form_state)
 {
@@ -2682,7 +2803,7 @@ function book_proposal_nonaicte_form_submit($form, &$form_state)
   }
   
   $query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, proposal_type, reason ) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$form_state['values']['reference']."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."','".$form_state['values']['proposal_type']."','".$my_reason."')";
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, proposal_type, reason ) VALUES (".$user->uid.", 0, '".ucwords(strtolower($form_state['values']['full_name']))."', '".$form_state['values']['mobile']."', '".$form_state['values']['gender']."', '".$form_state['values']['how_project']."', '".$form_state['values']['course']."', '".$form_state['values']['branch']."', '".$form_state['values']['university']."', '".$form_state['values']['city']."','".$form_state['values']['state']."' ,'".ucwords(strtolower($form_state['values']['faculty']))."', '".ucwords(strtolower($form_state['values']['reviewer']))."', '".$form_state['values']['reference']."', '".$completion_date_timestamp."', '".time()."', 0, 0, '".$scilab_version."', '".$form_state['values']['operating_system']."', '".$form_state['values']['faculty_email']."','".$form_state['values']['proposal_type']."','".$my_reason."')";
 
   $result = db_query($query);
   if (!$result)
