@@ -2545,6 +2545,7 @@ function book_proposal_nonaicte_form($form_state)
     '#type' => 'select',
     '#title' => t('State'),
     '#options' => array (
+                '' => 'Please select....',
 					 'Andhra Pradesh' => 'Andhra Pradesh',
 					 'Arunachal Pradesh' => 'Arunachal Pradesh',
 					 'Assam' => 'Assam',
