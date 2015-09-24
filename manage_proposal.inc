@@ -5,8 +5,16 @@ function _proposal_pending()
 {
   /* get pending proposals to be approved */
   $pending_rows = array();
-  $pending_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 ORDER BY id DESC");
-  while ($pending_data = db_fetch_object($pending_q))
+
+  /*$pending_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 ORDER BY id DESC");*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('proposal_status', 0);
+	$query->orderBy('id', 'DESC');
+	$pending_q = $query->execute();
+
+  while ($pending_data = $pending_q->fetchObject())
   {
     $pending_rows[$pending_data->id] = array(date('d-m-Y', $pending_data->creation_date), l($pending_data->full_name, 'user/' . $pending_data->uid), date('d-m-Y', $pending_data->completion_date), l('Approve', 'manage_proposal/approve/' . $pending_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $pending_data->id));
   }
@@ -19,7 +27,7 @@ function _proposal_pending()
   }
 
   $pending_header = array('Date of Submission', 'Contributor Name', 'Date of Completion', 'Action');
-  $output = theme_table($pending_header, $pending_rows);
+  $output = theme('table',array('header'=>$pending_header, 'rows'=>$pending_rows));
   return $output; 
 }
 
@@ -35,16 +43,42 @@ function _proposal_all()
   }
   /* get pending proposals to be approved */
   $proposal_rows = array();
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC");
-  while ($proposal_data = db_fetch_object($proposal_q))
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC");*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->orderBy('id', 'DESC');
+	$proposal_q = $query->execute();
+
+  while ($proposal_data = $proposal_q->fetchObject())
   {
     /* get preference */
-    $preference_q = db_query("SELECT * FROM textbook_companion_preference WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);   
-    $preference_data = db_fetch_object($preference_q);
+
+    /*$preference_q = db_query("SELECT * FROM textbook_companion_preference WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);   
+    $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$preference_q = $query->execute();
+	$preference_data=$preference_q->fetchObject();
+
     if(!$preference_data){
-          $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = 1 LIMIT 1", $proposal_data->id);  
-          $preference_data = db_fetch_object($preference_q);
-    }
+
+         /* $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = 1 LIMIT 1", $proposal_data->id);  
+          $preference_data = db_fetch_object($preference_q);*/
+
+  	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('pref_number', 1);
+	$query->range(0, 1);
+	$preference_q = $query->execute();
+	$preference_data =$preference_q->fetchObject();
+ }
 
     $proposal_status = '';
     switch ($proposal_data->proposal_status)
@@ -75,7 +109,7 @@ function _proposal_all()
   }
 
   $proposal_header = array('Date of Submission', 'Title of the Book', 'Contributor Name', 'Expected Date of Completion', 'Status', 'Action');
-  $output = theme_table($proposal_header, $proposal_rows);
+  $output = theme('table',array('header'=>$proposal_header, 'rows'=>$proposal_rows));
   return $output; 
 }
 
@@ -83,8 +117,17 @@ function _category_all()
 {
   /* get pending proposals to be approved */
   $preference_rows = array();
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 ORDER BY id DESC");
-  while ($preference_data = db_fetch_object($preference_q))
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 ORDER BY id DESC");*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('approval_status', 1);
+	$query->orderBy('id', 'DESC');
+	$preference_q = $query->execute();
+
+
+  while ($preference_data =$preference_q->fetchObject())
   {
   	switch ($preference_data->category)
   	{
@@ -108,7 +151,7 @@ function _category_all()
   }
 
   $preference_header = array('Book', 'ISBN', 'Publisher', 'Edition', 'Year', 'Category', 'Status');
-  $output = theme_table($preference_header, $preference_rows);
+  $output = theme('table',array('header'=>$preference_header, 'rows'=>$preference_rows));
   return $output; 
 }
 
@@ -116,16 +159,24 @@ function _category_all()
 /************************** PROPOSAL APPROVAL FORM ****************************/
 /******************************************************************************/
 
-function proposal_approval_form($form_state)
+function proposal_approval_form($form,$form_state)
 {
   global $user;
 
   /* get current proposal */
   $proposal_id = arg(2);
-  $result = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 and id = %d", $proposal_id);
+
+  /*$result = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 and id = %d", $proposal_id);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('proposal_status', 0);
+	$query->condition('id', $proposal_id);
+	$result = $query->execute();
+
   if ($result)
   {
-    if ($row = db_fetch_object($result))
+    if ($row =$result->fetchObject())
     {
       /* everything ok */
     } else {
@@ -141,79 +192,103 @@ function proposal_approval_form($form_state)
 
   $form['full_name'] = array(
     '#type' => 'item',
-    '#value' => l($row->full_name, 'user/' . $row->uid),
+    '#markup' => l($row->full_name, 'user/' . $row->uid),
     '#title' => t('Contributor Name'),
   );
   $form['email'] = array(
     '#type' => 'item',
-    '#value' => user_load($row->uid)->mail,
+    '#markup' => user_load($row->uid)->mail,
     '#title' => t('Email'),
   );
   $form['mobile'] = array(
     '#type' => 'item',
-    '#value' => $row->mobile,
+    '#markup' => $row->mobile,
     '#title' => t('Mobile'),
   );
   $form['how_project'] = array(
     '#type' => 'item',
-    '#value' => $row->how_project,
+    '#markup' => $row->how_project,
     '#title' => t('How did you come to know about this project'),
   );
   $form['course'] = array(
     '#type' => 'item',
-    '#value' => $row->course,
+    '#markup' => $row->course,
     '#title' => t('Course'),
   );
   $form['branch'] = array(
     '#type' => 'item',
-    '#value' => $row->branch,
+    '#markup' => $row->branch,
     '#title' => t('Department/Branch'),
   );
   $form['university'] = array(
     '#type' => 'item',
-    '#value' => $row->university,
+    '#markup' => $row->university,
     '#title' => t('University/Institute'),
+  );
+  $form['city'] = array(
+    '#type' => 'item',
+    '#markup' => $row->city,
+    '#title' => t('City'),
+  );
+  $form['pincode'] = array(
+    '#type' => 'item',
+    '#markup' => $row->pincode,
+    '#title' => t('Pincode'),
+  );
+ $form['all_state'] = array(
+    '#type' => 'item',
+    '#markup' => $row->state,
+    '#title' => t('State'),
   );
   $form['faculty'] = array(
     '#type' => 'item',
-    '#value' => $row->faculty,
+    '#markup' => $row->faculty,
     '#title' => t('College Teacher/Professor'),
   );
   $form['reviewer'] = array(
     '#type' => 'item',
-    '#value' => $row->reviewer,
+    '#markup' => $row->reviewer,
     '#title' => t('Reviewer'),
   );
   $form['completion_date'] = array(
     '#type' => 'item',
-    '#value' => date('d-m-Y', $row->completion_date),
+    '#markup' => date('d-m-Y', $row->completion_date),
     '#title' => t('Expected Date of Completion'),
   );
   $form['operating_system'] = array(
     '#type' => 'item',
-    '#value' => $row->operating_system,
+    '#markup' => $row->operating_system,
     '#title' => t('Operating System'),
   );
   $form['scilab_version'] = array(
     '#type' => 'item',
-    '#value' => $row->scilab_version,
+    '#markup' => $row->scilab_version,
     '#title' => t('Scilab Version'),
   );
   $form['reference'] = array(
     '#type' => 'item',
-    '#value' => $row->reference,
+    '#markup' => $row->reference,
     '#title' => t('References'),
   );
   $form['reason'] = array(
     '#type' => 'item',
-    '#value' => $row->reason,
+    '#markup' => $row->reason,
     '#title' => t('Reasons'),
   );
 
   /* get book preference */
   $preference_rows = array();
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d ORDER BY pref_number ASC", $proposal_id);
-  while ($preference_data = db_fetch_object($preference_q))
+
+  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = :proposal_id ORDER BY pref_number ASC", array(':proposal_id' => $proposal_id));
+
+	/*$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->orderBy('pref_number', 'ASC');
+	$preference_q = $query->execute();*/
+
+
+  while ($preference_data = $preference_q->fetchObject())
   {
     $preference_rows[$preference_data->id] = $preference_data->book . ' (Written by ' . $preference_data->author . ')';
   }
@@ -245,10 +320,15 @@ function proposal_approval_form($form_state)
     '#title' => t('Reason for disapproval'),
   );
 
-  $form['proposal_id'] = array(
+  $form['proposal_type'] = array(
+    '#type' => 'hidden',
+    '#value' => $row->proposal_type,
+  );
+   $form['proposal_id'] = array(
     '#type' => 'hidden',
     '#value' => $proposal_id,
   );
+
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -268,10 +348,18 @@ function proposal_approval_form_submit($form, &$form_state)
 
   /* get current proposal */
   $proposal_id = $form_state['values']['proposal_id'];
-  $result = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 and id = %d", $proposal_id);
+
+  $result = db_query("SELECT * FROM {textbook_companion_proposal} WHERE proposal_status = 0 and id = :proposal_id",array(':proposal_id' => $proposal_id));
+
+	/*$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('proposal_status', 0);
+	$query->condition('id',$proposal_id);
+	$result = $query->execute();*/
+
   if ($result)
   {
-    if ($row = db_fetch_object($result))
+    if ($row = $result->fetchObject())
     {
       /* everything ok */
     } else {
@@ -288,16 +376,48 @@ function proposal_approval_form_submit($form, &$form_state)
   /* disapprove */
   if ($form_state['values']['disapprove'])
   {
-    db_query("UPDATE {textbook_companion_proposal} SET approver_uid = %d, approval_date = %d, proposal_status = 2, message = '%s' WHERE id = %d", $user->uid, time(), $form_state['values']['message'], $proposal_id);
-    db_query("UPDATE {textbook_companion_preference} SET approval_status = 2 WHERE proposal_id = %d", $proposal_id);
+//var_dump(array(':approver_uid' => $user->uid,':approver_date'=> time(), ':message' => $form_state['values']['message'], ':id' =>$proposal_id));die;
+             db_query("UPDATE {textbook_companion_proposal} SET approver_uid = :approver_uid, approval_date = :approval_date, proposal_status = 2, message = :message WHERE id = :id", array(':approver_uid' => $user->uid,':approval_date'=> time(), ':message' => $form_state['values']['message'], ':id' =>$proposal_id));
+
+	/*$query = db_update('textbook_companion_proposal');
+	$query->fields(array(
+  	'approver_uid' => $user->uid,
+  	'approval_date' => $current_date,
+  	'proposal_status' => 2,
+  	'message' => $form_state['values']['message'],
+	));
+	$query->condition('id', $proposal_id);
+	$num_updated = $query->execute();
+var_dump($num_updated);die;*/
+    db_query("UPDATE {textbook_companion_preference} SET approval_status = 2 WHERE proposal_id = :id",array(':id' => $proposal_id));
+
+	/*$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'approval_status' => 2,
+	));
+	$query->condition('proposal_id',$proposal_id);
+	$num_updated = $query->execute();
+*/
 
     /* unlock all the aicte books */
+if($form_state['values']['proposal_type']==0){
     $query = "
       UPDATE textbook_companion_aicte
       SET status = 0, uid = 0, proposal_id = 0, preference_id = 0
-      WHERE proposal_id = {$proposal_id}
+      WHERE proposal_id = {:proposal_id}
     ";
-  db_query($query);
+  db_query($query, array(':proposal_id' => $proposal_id));
+
+	/*$query = db_update('textbook_companion_aicte');
+	$query->fields(array(
+  		'status' => 0,
+  		'uid' => 0,
+  		'proposal_id' => 0,
+  		'preference_id' => 0,
+	));
+	$query->condition('proposal_id', $proposal_id);
+	$num_updated = $query->execute();*/
+}
     /* sending email */
     $book_user = user_load($row->uid);
     $param['proposal_disapproved']['proposal_id'] = $proposal_id;
@@ -313,16 +433,52 @@ function proposal_approval_form_submit($form, &$form_state)
 
   /* get book preference and set the status */
   $preference_id = $form_state['values']['book_preference'];
-  db_query("UPDATE {textbook_companion_proposal} SET approver_uid = %d, approval_date = %d, proposal_status = 1 WHERE id = %d", $user->uid, time(), $proposal_id);
-  db_query("UPDATE {textbook_companion_preference} SET approval_status = 1 WHERE id = %d", $preference_id);
+
+  /*db_query("UPDATE {textbook_companion_proposal} SET approver_uid = %d, approval_date = %d, proposal_status = 1 WHERE id = %d", $user->uid, time(), $proposal_id);*/
+
+	$query = db_update('textbook_companion_proposal');
+	$query->fields(array(
+  		'approver_uid' => $user->uid,
+  		'approval_date' => time(),
+  		'proposal_status' => 1,
+		));
+	$query->condition('id', $proposal_id);
+	$num_updated = $query->execute();
+
+  /*db_query("UPDATE {textbook_companion_preference} SET approval_status = 1 WHERE id = %d", $preference_id);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  	'approval_status' => 1,
+	));
+	$query->condition('id', $preference_id);
+	$num_updated = $query->execute();
 
   /* unlock aicte books except the one which was approved out of 3 nos */
-  $query = "
+
+ /* $query = "
     UPDATE textbook_companion_aicte
     SET status = 0, uid = 0, proposal_id = 0, preference_id = 0
     WHERE proposal_id = {$proposal_id} AND preference_id != {$preference_id}
   ";
-  db_query($query);
+  db_query($query);*/
+  
+    $query = "
+    UPDATE textbook_companion_aicte
+    SET status = 0, uid = 0, proposal_id = 0, preference_id = 0
+    WHERE proposal_id = {:proposal_id} AND preference_id != {:preference_id}
+  ";
+  db_query($query,array(':proposal_id' => $proposal_id, ':preference_id'=> $preference_id));
+	/*$query = db_update('textbook_companion_aicte');
+	$query->fields(array(
+  		'status' => 0,
+  		'uid' => 0,
+  		'proposal_id' => 0,
+  		'preference_id' => 0,
+		));
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('preference_id', $preference_id, '<>');
+	$num_updated = $query->execute();
 
   /* sending email */
   $book_user = user_load($row->uid);
@@ -348,8 +504,15 @@ function proposal_status_form($form_state)
 
   /* get current proposal */
   $proposal_id = arg(2);
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);
-  if (!$proposal_data = db_fetch_object($proposal_q))
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id', $proposal_id);
+	$proposal_q = $query->execute();
+
+  if (!$proposal_data = $proposal_q->fetchObject())
   {
     drupal_set_message(t('Invalid proposal selected. Please try again.'), 'error');
     drupal_goto('manage_proposal');
@@ -358,74 +521,90 @@ function proposal_status_form($form_state)
 
   $form['full_name'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->full_name,
+    '#markup' => $proposal_data->full_name,
     '#title' => t('Contributor Name'),
   );
   $form['email'] = array(
     '#type' => 'item',
-    '#value' => user_load($proposal_data->uid)->mail,
+    '#markup' => user_load($proposal_data->uid)->mail,
     '#title' => t('Email'),
   );
   $form['mobile'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->mobile,
+    '#markup' => $proposal_data->mobile,
     '#title' => t('Mobile'),
   );
   $form['how_project'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->how_project,
+    '#markup' => $proposal_data->how_project,
     '#title' => t('How did you come to know about this project'),
   );
   $form['course'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->course,
+    '#markup' => $proposal_data->course,
     '#title' => t('Course'),
   );
   $form['branch'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->branch,
+    '#markup' => $proposal_data->branch,
     '#title' => t('Department/Branch'),
   );
   $form['university'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->university,
+    '#markup' => $proposal_data->university,
     '#title' => t('University/Institute'),
   );
+ $form['city'] = array(
+    '#type' => 'item',
+    '#markup' => $proposal_data->city,
+    '#title' => t('City'),
+  );
+ $form['pincode'] = array(
+    '#type' => 'item',
+    '#markup' => $proposal_data->pincode,
+    '#title' => t('Pincode'),
+  );
+ $form['all_state'] = array(
+    '#type' => 'item',
+    '#markup' => $proposal_data->state,
+    '#title' => t('State'),
+  );
+
   $form['faculty'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->faculty,
+    '#markup' => $proposal_data->faculty,
     '#title' => t('College Teacher/Professor'),
   );
   $form['reviewer'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->reviewer,
+    '#markup' => $proposal_data->reviewer,
     '#title' => t('Reviewer'),
   );
   $form['completion_date'] = array(
     '#type' => 'item',
-    '#value' => date('d-m-Y', $proposal_data->completion_date),
+    '#markup' => date('d-m-Y', $proposal_data->completion_date),
     '#title' => t('Expected Date of Completion'),
   );
   $form['operating_system'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->operating_system,
+    '#markup' => $proposal_data->operating_system,
     '#title' => t('Operating System'),
   );
   $form['scilab_version'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->scilab_version,
+    '#markup' => $proposal_data->scilab_version,
     '#title' => t('Scilab Version'),
   );
   if($proposal_data->proposal_type == 1)
   {
   $form['reason'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->reason,
+    '#markup' => $proposal_data->reason,
     '#title' => t('Reason'),
   );
   $form['reference'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->reference,
+    '#markup' => $proposal_data->reference,
     '#title' => t('References'),
   );    
   }
@@ -433,8 +612,16 @@ function proposal_status_form($form_state)
 
   /* get book preference */
   $preference_html = '<ul>';
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d ORDER BY pref_number ASC", $proposal_id);
-  while ($preference_data = db_fetch_object($preference_q))
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d ORDER BY pref_number ASC", $proposal_id);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->orderBy('pref_number', 'ASC');
+	$preference_q = $query->execute();
+
+  while ($preference_data =$preference_q->fetchObject())
   {
     if ($preference_data->approval_status == 1)
       $preference_html .= '<li><strong>' . $preference_data->book . ' (Written by ' . $preference_data->author . ')  - Approved Book</strong></li>';
@@ -445,7 +632,7 @@ function proposal_status_form($form_state)
 
   $form['book_preference'] = array(
       '#type' => 'item',
-      '#value' => $preference_html,
+      '#markup' => $preference_html,
       '#title' => t('Book Preferences'),
   );
 
@@ -461,14 +648,14 @@ function proposal_status_form($form_state)
   }
   $form['proposal_status'] = array(
       '#type' => 'item',
-      '#value' => $proposal_status,
+      '#markup' => $proposal_status,
       '#title' => t('Proposal Status'),
   );
 
   if ($proposal_data->proposal_status == 2) {
     $form['message'] = array(
       '#type' => 'item',
-      '#value' => $proposal_data->message,
+      '#markup' => $proposal_data->message,
       '#title' => t('Reason for disapproval'),
     );
   }
@@ -486,7 +673,7 @@ function proposal_status_form($form_state)
   {
     $form['approve'] = array(
       '#type' => 'item',
-      '#value' => l('Click here', 'manage_proposal/approve/' . $proposal_id),
+      '#markup' => l('Click here', 'manage_proposal/approve/' . $proposal_id),
       '#title' => t('Approve'),
     );
   }
@@ -514,8 +701,15 @@ function proposal_status_form_submit($form, &$form_state)
 
   /* get current proposal */
   $proposal_id = $form_state['values']['proposal_id'];
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);
-  if (!$proposal_data = db_fetch_object($proposal_q))
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id', $proposal_id);
+	$proposal_q = $query->execute();
+
+  if (!$proposal_data = $proposal_q->fetchObject())
   {
     drupal_set_message(t('Invalid proposal selected. Please try again.'), 'error');
     drupal_goto('manage_proposal');
@@ -525,7 +719,15 @@ function proposal_status_form_submit($form, &$form_state)
   /* set the book status to completed */
   if ($form_state['values']['completed'] == 1)
   {
-    db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);
+
+    /*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
+
+	$query = db_update('textbook_companion_proposal');
+	$query->fields(array(
+  		'proposal_status' => 3,
+	));
+	$query->condition('id', $proposal_id);
+	$num_updated = $query->execute();
 
     /* sending email */
     $book_user = user_load($proposal_data->uid);
@@ -552,10 +754,16 @@ function proposal_edit_form($form_state,$nonaicte_book)
 
   /* get current proposal */
   $proposal_id = arg(2);
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id', $proposal_id);
+	$proposal_q = $query->execute();
+
   if ($proposal_q)
   {
-    $proposal_data = db_fetch_object($proposal_q);
+    $proposal_data = $proposal_q->fetchObject();
     if (!$proposal_data)
     {
       drupal_set_message(t('Invalid proposal selected. Please try again.'), 'error');
@@ -570,12 +778,38 @@ function proposal_edit_form($form_state,$nonaicte_book)
 
   $user_data = user_load($proposal_data->uid);
 
-  $preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 1);
-  $preference1_data = db_fetch_object($preference1_q);
-  $preference2_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 2);
-  $preference2_data = db_fetch_object($preference2_q);
-  $preference3_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 3);
-  $preference3_data = db_fetch_object($preference3_q);
+ /* $preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 1);
+  $preference1_data = db_fetch_object($preference1_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number', 1);
+	$query->range(0, 1);
+	$preference1_q = $query->execute();
+	$preference1_data =$preference1_q->fetchObject();
+
+  /*$preference2_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 2);
+  $preference2_data = db_fetch_object($preference2_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number',  2);
+	$query->range(0, 1);
+	$preference2_q = $query->execute();
+	$preference2_data =$preference2_q->fetchObject();
+
+  /*$preference3_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 3);
+  $preference3_data = db_fetch_object($preference3_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number', 3);
+	$query->range(0, 1);
+	$preference3_q = $query->execute();
+	$preference3_data =$preference3_q->fetchObject();
 
   $form['full_name'] = array(
     '#type' => 'textfield',
@@ -632,7 +866,7 @@ function proposal_edit_form($form_state,$nonaicte_book)
                         'Civil Engineering' => 'Civil Engineering',
                         'Physics' => 'Physics',
                         'Applied Physics' =>'Applied Physics',
-                        ' Nuclear Technology and Biotechnology' => ' Nuclear Technology and Biotechnology',
+                        'Nuclear Technology and Biotechnology' => ' Nuclear Technology and Biotechnology',
                         'Mathematics' => 'Mathematics',
                         'Others' => 'Others'),
     '#required' => TRUE,
@@ -648,23 +882,34 @@ function proposal_edit_form($form_state,$nonaicte_book)
   );
   $form['city'] = array(
     '#type' => 'textfield',
-    '#title' => t('City/Village'),
-    '#size' => 50,
-    '#maxlength' => 50,
+    '#title' => t('City/ Village'),
+    '#size' => 80,
+    '#maxlength' => 150,
     '#required' => TRUE,
+    '#attributes' =>array('placeholder' =>'Insert location of your institute/ university....'),
     '#default_value' => $proposal_data->city,
-  );
-  $form['states'] = array(
-    '#type' => 'select',
+
+ );
+$form['pincode'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Pincode'),
+    '#size' => 30,
+    '#maxlength' => 6,
+    '#required' => TRUE,
+    '#attributes' =>array('placeholder' =>'Insert pincode of your city/ village....'),
+    '#default_value' => $proposal_data->pincode,
+);
+$form['all_state'] = array(
+    '#type' => 'select',    
     '#title' => t('State'),
-    '#options' => array (
-    				 '' => 'Please select...',
-					 'Andhra Pradesh' => 'Andhra Pradesh',
+    '#options' => array(
+    				 '0' => 'Please select...',
+					 'Andhra Pradesh' => t('Andhra Pradesh'),
 					 'Arunachal Pradesh' => 'Arunachal Pradesh',
 					 'Assam' => 'Assam',
 					 'Bihar' => 'Bihar',
-					 'CT' => 'Chhattisgarh',
-					 'Chhattisgarh' => 'Goa',
+					 'Chhattisgarh' => 'Chhattisgarh',
+					 'Goa' => 'Goa',
 					 'Gujarat' => 'Gujarat',
 					 'Haryana' => 'Haryana',
 					 'Himachal Pradesh' => 'Himachal Pradesh',
@@ -698,8 +943,10 @@ function proposal_edit_form($form_state,$nonaicte_book)
 					 'Others' => 'Others',
                 ),
     '#required' => TRUE,
+    '#tree' => TRUE,
+    '#validated' => TRUE,
     '#default_value' => $proposal_data->state,
-  );
+);
   $form['faculty'] = array(
     '#type' => 'textfield',
     '#title' => t('College Teacher/Professor'),
@@ -921,15 +1168,8 @@ if($preference3_data){
   return $form;
 }
 
-function proposal_edit_form_validate($form, &$form_state, &$nonaicte_book)
-
+function proposal_edit_form_validate($form, &$form_state)
 {
-   if($form_state['values']['city']== ''){
-   form_set_error('city', t('Invalid city/village'));
-   }
-   if($form_state['values']['state']== ''){
-   form_set_error('state', t('Invalid state'));
-   }
 
   /* mobile */
   if (!preg_match('/^[0-9\ \+]{0,15}$/', $form_state['values']['mobile']))
@@ -997,10 +1237,28 @@ function proposal_edit_form_submit($form, &$form_state)
   $proposal_id = $form_state['values']['hidden_proposal_id'];
 
   
-  $query = "UPDATE {textbook_companion_proposal} SET full_name = '".$form_state['values']['full_name']."', mobile = '".$form_state['values']['mobile']."', how_project = '".$form_state['values']['how_project']."', course = '".$form_state['values']['course']."', branch = '".$form_state['values']['branch']."', university = '".$form_state['values']['university']."', city = '".$form_state['values']['city']."', state = '".$form_state['values']['state']."', faculty = '".$form_state['values']['faculty']."', reviewer = '".$form_state['values']['reviewer']."', completion_date = $completion_date_timestamp, operating_system= '".$form_state['values']['operating_system']."', scilab_version= '".$form_state['values']['scilab_version']."' WHERE id =".$proposal_id;
+  /*$query = "UPDATE {textbook_companion_proposal} SET full_name = '".$form_state['values']['full_name']."', mobile = '".$form_state['values']['mobile']."', how_project = '".$form_state['values']['how_project']."', course = '".$form_state['values']['course']."', branch = '".$form_state['values']['branch']."', university = '".$form_state['values']['university']."', faculty = '".$form_state['values']['faculty']."', reviewer = '".$form_state['values']['reviewer']."', completion_date = $completion_date_timestamp, operating_system= '".$form_state['values']['operating_system']."', scilab_version= '".$form_state['values']['scilab_version']."' WHERE id =".$proposal_id;
+  db_query($query);*/
 
-
-  db_query($query);
+$query = db_update('textbook_companion_proposal');
+	$query->fields(array(
+  		'full_name' => $form_state['values']['full_name'],
+  		'mobile' => $form_state['values'][ 'mobile'],
+  		'how_project' => $form_state['values']['how_project'],
+  		'course' => $form_state['values']['course'],
+  		'branch' => $form_state['values']['branch'],
+  		'university' => $form_state['values']['university'],
+  		'city' => $form_state['values']['city'],
+                'pincode' => $form_state['values']['pincode'],
+                'state' => $form_state['values']['all_state'],
+		'faculty' => $form_state['values']['faculty'],
+  		'reviewer' => $form_state['values']['reviewer'],
+  		'completion_date' => $completion_date_timestamp,
+  		'operating_system' => $form_state['values']['operating_system'],
+  		'scilab_version' => $form_state['values']['scilab_version'],
+		));
+	$query->condition('id', $proposal_id);
+	$num_updated = $query->execute();
 
 
 /*db_query("UPDATE {textbook_companion_proposal} SET full_name = '%s', mobile = '%s', how_project = '%s', course = '%s', branch = '%s', university = '%s', faculty = '%s', reviewer = '%s', completion_date = %d, operating_system= '%s', scilab_version= '%s' WHERE id = %d",
@@ -1017,56 +1275,131 @@ function proposal_edit_form_submit($form, &$form_state)
     $form_state['values']['scilab_version'],
     $proposal_id); */
 
-  $preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 1);
-  $preference1_data = db_fetch_object($preference1_q);
+
+
+  /*$preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 1);
+  $preference1_data = db_fetch_object($preference1_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number', 1);
+	$query->range(0, 1);
+	$preference1_q = $query->execute();
+	$preference1_data =$preference1_q->fetchObject();
+
   if ($preference1_data)
   	$preference1_id = $preference1_data->id;
-  $preference2_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 2);
-  $preference2_data = db_fetch_object($preference2_q);
+
+  /*$preference2_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 2);
+  $preference2_data = db_fetch_object($preference2_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number', 2);
+	$query->range(0, 1);
+	$preference2_q = $query->execute();
+	$preference2_data = $preference2_q->fetchObject();
+
   if ($preference2_data)
   	$preference2_id = $preference2_data->id;
-  $preference3_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 3);
-  $preference3_data = db_fetch_object($preference3_q);
+
+  /*$preference3_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $proposal_id, 3);
+  $preference3_data = db_fetch_object($preference3_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_id);
+	$query->condition('pref_number', 3);
+	$query->range(0, 1);
+	$preference3_q = $query->execute();
+	$preference3_data =$preference3_q->fetchObject();
+
   if ($preference3_data)
   	$preference3_id = $preference3_data->id;
 
   if ($preference1_data)
   {
     del_book_pdf($preference1_data->id);
-		db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
+
+		/*db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
 			$form_state['values']['book1'],
 			$form_state['values']['author1'],
 			$form_state['values']['isbn1'],
 			$form_state['values']['publisher1'],
 			$form_state['values']['edition1'],
 			$form_state['values']['year1'],
-			$preference1_id);
+			$preference1_id);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'book' => $form_state['values']['book1'],
+  		'author' => $form_state['values']['author1'],
+  		'isbn' => $form_state['values']['isbn1'],
+  		'publisher' => $form_state['values']['publisher1'],
+  		'edition' => $form_state['values']['edition1'],
+  		'year' => $form_state['values']['year1'],
+	));
+	$query->condition('id', $preference1_id);
+	$num_updated = $query->execute();
+
 	}
   if ($preference2_data)
   {
     del_book_pdf($preference2_data->id);
-		db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
+
+		/*db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
 			$form_state['values']['book2'],
 			$form_state['values']['author2'],
 			$form_state['values']['isbn2'],
 			$form_state['values']['publisher2'],
 			$form_state['values']['edition2'],
 			$form_state['values']['year2'],
-			$preference2_id);
+			$preference2_id);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'book' => $form_state['values']['book2'],
+  		'author' => $form_state['values']['author2'],
+  		'isbn' => $form_state['values']['isbn2'],
+  		'publisher' => $form_state['values']['publisher2'],
+  		'edition' => $form_state['values']['edition2'],
+  		'year' => $form_state['values']['year2'],
+	));
+	$query->condition('id', $preference2_id);
+	$num_updated = $query->execute();
+
 	}
   if ($preference3_data)
   {
     del_book_pdf($preference3_data->id);
-		db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
+
+		/*db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = %d, year = %d WHERE id = %d",
 			$form_state['values']['book3'],
 			$form_state['values']['author3'],
 			$form_state['values']['isbn3'],
 			$form_state['values']['publisher3'],
 			$form_state['values']['edition3'],
 			$form_state['values']['year3'],
-			$preference3_id);
+			$preference3_id);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'book' => $form_state['values']['book3'],
+  		'author' => $form_state['values']['author3'],
+  		'isbn' => $form_state['values']['isbn3'],
+  		'publisher' => $form_state['values']['publisher3'],
+  		'edition' => $form_state['values']['edition3'],
+  		'year' => $form_state['values']['year3'],
+	));
+	$query->condition('id',$preference3_id);
+	$num_updated = $query->execute();
+
+
 	}
   drupal_set_message(t('Proposal Updated'), 'status');
+  drupal_goto('manage_proposal/');
 }
 
 
@@ -1079,8 +1412,16 @@ function category_edit_form($form_state)
 {
   /* get current proposal */
   $preference_id = arg(3);
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);
-  $preference_data = db_fetch_object($preference_q);
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('id', $preference_id);
+	$preference_q = $query->execute();
+	$preference_data = $preference_q->fetchObject();
+
 	if (!$preference_data)
 	{
 		drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
@@ -1091,32 +1432,32 @@ function category_edit_form($form_state)
   $form['book'] = array(
     '#type' => 'item',
     '#title' => t('Title of the book'),
-    '#value' => $preference_data->book,
+    '#markup' => $preference_data->book,
   );
   $form['author'] = array(
     '#type' => 'item',
     '#title' => t('Author Name'),
-    '#value' => $preference_data->author,
+    '#markup' => $preference_data->author,
   );
   $form['isbn'] = array(
     '#type' => 'item',
     '#title' => t('ISBN No'),
-    '#value' => $preference_data->isbn,
+    '#markup' => $preference_data->isbn,
   );
   $form['publisher'] = array(
     '#type' => 'item',
     '#title' => t('Publisher & Place'),
-    '#value' => $preference_data->publisher,
+    '#markup' => $preference_data->publisher,
   );
   $form['edition'] = array(
     '#type' => 'item',
     '#title' => t('Edition'),
-    '#value' => $preference_data->edition,
+    '#markup' => $preference_data->edition,
   );
   $form['year'] = array(
     '#type' => 'item',
     '#title' => t('Year of pulication'),
-    '#value' => $preference_data->year,
+    '#markup' => $preference_data->year,
   );
 
   $form['category'] = array(
@@ -1155,8 +1496,16 @@ function category_edit_form_submit($form, &$form_state)
 {
   /* get current proposal */
   $preference_id = (int)arg(3);
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);
-  $preference_data = db_fetch_object($preference_q);
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('id', $preference_id);
+	$preference_q = $query->execute();
+	$preference_data =$preference_q->fetchObject();
+
 	if (!$preference_data)
 	{
 		drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
@@ -1164,7 +1513,15 @@ function category_edit_form_submit($form, &$form_state)
 		return;
 	}
 
-  db_query("UPDATE {textbook_companion_preference} SET category = %d WHERE id = %d", $form_state['values']['category'], $preference_data->id);
+  /*db_query("UPDATE {textbook_companion_preference} SET category = %d WHERE id = %d", $form_state['values']['category'], $preference_data->id);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'category' => $form_state['values']['category'],
+	));
+	$query->condition('id', $preference_data->id);
+	$num_updated = $query->execute();
+
 
   drupal_set_message(t('Book Category Updated'), 'status');
   drupal_goto('manage_proposal/category');
@@ -1178,9 +1535,17 @@ function _data_entry_proposal_all()
 {
   /* get pending proposals to be approved */
   $proposal_rows = array();
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 ORDER BY book ASC");
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 ORDER BY book ASC");*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('approval_status', 1);
+	$query->orderBy('book', 'ASC');
+	$preference_q = $query->execute();
+
   $sno = 1;
-  while ($preference_data = db_fetch_object($preference_q))
+  while ($preference_data = $preference_q->fetchObject())
   {
     $proposal_rows[] = array($sno++, $preference_data->book, $preference_data->author, $preference_data->isbn, l('Edit', 'dataentry_edit/' . $preference_data->id));
   }
@@ -1193,7 +1558,7 @@ function _data_entry_proposal_all()
   }
 
   $proposal_header = array('SNO', 'Title of the Book', 'Author', 'ISBN', '');
-  $output = theme_table($proposal_header, $proposal_rows);
+  $output = theme('table',array('header'=>$proposal_header,'rows'=>$proposal_rows));
   return $output; 
 }
 
@@ -1205,12 +1570,18 @@ function dataentry_edit($id = NULL) {
 	}
 }
 
-function dataentry_edit_form($form_state, $id)
+function dataentry_edit_form($form,$form_state, $id)
 {
   global $user;
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('id', $id);
+	$preference_q = $query->execute();
+	$preference_data =$preference_q->fetchObject();
   
   $form['id'] = array(
   	'#type' => 'hidden',
@@ -1276,7 +1647,20 @@ function dataentry_edit_form($form_state, $id)
 
 function dataentry_edit_form_submit($form, &$form_state)
 {
-  db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = '%s', year = %d WHERE id = %d", $_POST['book'], $_POST['author'], $_POST['isbn'], $_POST['publisher'], $_POST['edition'], $_POST['year'], $_POST['id']);
+  /*db_query("UPDATE {textbook_companion_preference} SET book = '%s', author = '%s', isbn = '%s', publisher = '%s', edition = '%s', year = %d WHERE id = %d", $_POST['book'], $_POST['author'], $_POST['isbn'], $_POST['publisher'], $_POST['edition'], $_POST['year'], $_POST['id']);*/
+
+	$query = db_update('textbook_companion_preference');
+	$query->fields(array(
+  		'book' => $_POST['book'],
+  		'author' => $_POST['author'],
+  		'isbn' => $_POST['isbn'],
+  		'publisher' =>  $_POST['publisher'],
+  		'edition' => $_POST['edition'],
+ 		 'year' => $_POST['year'],
+	));
+	$query->condition('id', $_POST['id']);
+	$num_updated = $query->execute();
+
   drupal_set_message('Book details updated successfully');
   drupal_goto('dataentry_book');
 }
@@ -1285,29 +1669,65 @@ function dataentry_edit_form_submit($form, &$form_state)
 function _failed_all($preference_id=0, $confirm="") {
   $page_content = "";
   if($preference_id && $confirm == "yes"){
-    $query = "
+    /*$query = "
       SELECT *, pro.id as proposal_id FROM textbook_companion_proposal pro
       LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
       LEFT JOIN users usr ON usr.uid = pro.uid
       WHERE pre.id = {$preference_id}
     ";
     $result = db_query($query);
-    $row = db_fetch_object($result);
+    $row = db_fetch_object($result);*/
+/*
+	$query = db_select('textbook_companion_proposal', 'pro');
+	$query->fields('pro');
+	$query->fields('pro', array('id'));
+	$query->addField('pro','id','proposal_id');
+	$query->leftJoin('textbook_companion_preference', 'pre', 'pre.proposal_id = pro.id');
+	$query->leftJoin('users', 'usr', 'usr.uid = pro.uid');
+	$query->condition('pre.id', $preference_id);
+	$result = $query->execute();
+	$row =$result->fetchObject();
+*/
+
+  $query = "
+      SELECT *, pro.id as proposal_id FROM textbook_companion_proposal pro
+      LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
+      LEFT JOIN users usr ON usr.uid = pro.uid
+      WHERE pre.id = {:preference_id}
+    ";
+    $result = db_query($query, array(':preference_id' => $preference_id ));
+    $row = $result->fetchObject();
     
     /* increment failed_reminder */
-    $query = "
+
+    /*$query = "
       UPDATE textbook_companion_proposal
       SET failed_reminder = failed_reminder + 1
       WHERE id = {$row->proposal_id}
     ";
-    db_query($query);
+    db_query($query);*/
+
+	/*$query = db_update('textbook_companion_proposal');
+	$query->fields(array(
+  		'failed_reminder' => 'failed_reminder + 1',
+	));
+	$query->condition('id', '$row->proposal_id');
+	$num_updated = $query->execute();
+*/
+
+ $query = "
+      UPDATE textbook_companion_proposal
+      SET failed_reminder = failed_reminder + 1
+      WHERE id = {:id}
+    ";
+    db_query($query, array(':id' => $row->proposal_id));
 
     /* sending mail */
     $to = $row->mail;
     $subject = "Failed to upload the TBC codes on time";
     $body = "
     <p>
-      Dear {$row->name},<br><br>
+      Dear {$row->full_name},<br><br>
       This is to inform you that you have failed to upload the TBC codes on time.<br>
       Please note that the time you have taken is way past the deadline as well.<br>
       Kindly upload the TBC codes on the interface within 5 days from now.<br>
@@ -1317,27 +1737,24 @@ function _failed_all($preference_id=0, $confirm="") {
     </p>
     ";
 
-    $message = array(
-      "to" => $to,
-      "subject" => $subject,
-      "body" => $body,
-      "headers" => array(
-        "From" => "textbook@scilab.in",
-        "Bcc" => "textbook@scilab.in, lavitha89@gmail.com, bhavani.jalkrish@gmail.com, rush2jrp@gmail.com",
-        "Content-Type" => "text/html; charset=UTF-8; format=flowed"
-      )
-    );
-    drupal_mail_send($message);
+    $message = $body;        
+    //drupal_mail($message);
+    //drupal_mail('', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+    $from = variable_get('textbook_companion_from_email', NULL);
+    $bcc = variable_get('textbook_companion_emails_fail_rem_bcc', NULL);
+    fail_rem_send_mail( $from, $to, $bcc, $subject, $message);
     drupal_set_message("Reminder sent successfully.");
     drupal_goto("manage_proposal/failed");
   } else if($preference_id) {
     $query = "
       SELECT * FROM textbook_companion_preference pre
       LEFT JOIN textbook_companion_proposal pro ON pro.id = pre.proposal_id
-      WHERE pre.id = {$preference_id}
+      WHERE pre.id = {:preference_id}
     ";
-    $result = db_query($query);
-    $row = db_fetch_object($result);
+    $result = db_query($query, array(':preference_id' => $preference_id));
+    /*$row = db_fetch_object($result);*/	
+	$row =$result->fetchObject();
+
     $page_content .= "Are you sure you want to notify?<br><br>";
     $page_content .= "Book: <b>{$row->book}</b><br>";
     $page_content .= "Author: <b>{$row->author}</b><br>";
@@ -1346,34 +1763,83 @@ function _failed_all($preference_id=0, $confirm="") {
     $page_content .= l("Yes", "manage_proposal/failed/{$preference_id}/yes") . " | ";
     $page_content .= l("Cancel", "manage_proposal/failed");
   } else {
-    $query = "
+
+    /*$query = "
       SELECT * FROM textbook_companion_proposal pro
       LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
       LEFT JOIN users usr ON usr.uid = pro.uid
       WHERE pro.proposal_status = 1 AND pre.approval_status = 1 AND pro.completion_date < %d
       ORDER BY failed_reminder
     ";
-    $result = db_query($query, time());
-    
+    $result = db_query($query, time());*/
+  /*  
+	$query = db_select('textbook_companion_proposal', 'pro');
+	$query->fields('pro');
+	$query->leftJoin('textbook_companion_preference', 'pre', 'pre.proposal_id = pro.id');
+	$query->leftJoin('users', 'usr', 'usr.uid = pro.uid');
+	$query->condition('pro.proposal_status', 1);
+	$query->condition('pre.approval_status', 1);
+	$query->condition('pro.completion_date', time(), '<');
+	$query->orderBy('failed_reminder', 'ASC');
+	$result = $query->execute();
+*/
+$query = "
+      SELECT * FROM textbook_companion_proposal pro
+      LEFT JOIN textbook_companion_preference pre ON pre.proposal_id = pro.id
+      LEFT JOIN users usr ON usr.uid = pro.uid
+      WHERE pro.proposal_status = 1 AND pre.approval_status = 1 AND pro.completion_date < :completion_date
+      ORDER BY failed_reminder
+    ";
+    $result = db_query($query, array(':completion_date' => time()));
+
     $headers = array(
       "Date of Submission", "Book", "Contributor Name",
       "Expected Completion Date", "Remainders", "Action"
     );
     $rows = array();
   
-    while ($row = db_fetch_object($result)) {
+    while ($row = $result->fetchObject()) {
       $item  =array(
         date("d-m-Y", $row->creation_date),
         "{$row->book}<br><i>by</i> {$row->author}",
-        $row->name,
+        $row->full_name,
         date("d-m-Y", $row->completion_date),
         $row->failed_reminder,
         l("Remind", "manage_proposal/failed/{$row->id}")
       );
       array_push($rows, $item);
     }
-    $page_content .= theme("table", $headers, $rows);
+   $page_content .= theme('table', array('header' => $headers, 'rows' => $rows ));
+
   }
   
   return $page_content;
 }
+/**
+     * Simple wrapper function for drupal_mail() to avoid extraneous code.
+    */
+    function fail_rem_send_mail($from, $to, $bcc, $subject, $message) {
+        $my_module = 'textbook_companion';
+        $my_mail_token = microtime();
+        $message = array(
+            'id' => $my_module . '_' . $my_mail_token,
+            'to' => $to,
+            'subject' => $subject,
+            'body' => array($message),
+            'headers' => array(
+                'From' => $from, 
+                'Sender' => $from, 
+                'Return-Path' => $from,
+                'Bcc' => $bcc,
+            ),
+        );
+        $system = drupal_mail_system($my_module, $my_mail_token);
+        $message = $system->format($message);
+        if ($system->mail($message)) {
+            return TRUE;
+        }
+        else {
+            return FALSE;
+        }
+    }
+

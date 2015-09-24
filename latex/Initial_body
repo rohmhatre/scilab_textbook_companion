@@ -1,6 +1,7 @@
 \nonstopmode
 \documentclass[12pt]{report} 
 \usepackage{hyperref}
+\usepackage{bookmark}
 \hypersetup{colorlinks=true,linkcolor=blue}
 \usepackage{theorem,graphicx}
 \usepackage{listings,alltt}

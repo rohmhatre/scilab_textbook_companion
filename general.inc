@@ -6,8 +6,18 @@ function list_chapters()
   global $user;
 
   /************************ start approve book details ************************/
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data =$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -40,8 +50,17 @@ function list_chapters()
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data =$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -57,12 +76,28 @@ function list_chapters()
 
   /* get chapter list */
   $chapter_rows = array();
-  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = %d ORDER BY number ASC", $preference_data->id);
-  while ($chapter_data = db_fetch_object($chapter_q))
+
+  /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = %d ORDER BY number ASC", $preference_data->id);*/
+
+	$query = db_select('textbook_companion_chapter');
+	$query->fields('textbook_companion_chapter');
+	$query->condition('preference_id', $preference_data->id);
+	$query->orderBy('number', 'ASC');
+	$chapter_q = $query->execute();
+
+  while ($chapter_data = $chapter_q->fetchObject())
   {
     /* get example list */
-    $example_q = db_query("SELECT count(*) as example_count FROM {textbook_companion_example} WHERE chapter_id = %d", $chapter_data->id);
-    $example_data = db_fetch_object($example_q);
+
+   /* $example_q = db_query("SELECT count(*) as example_count FROM {textbook_companion_example} WHERE chapter_id = %d", $chapter_data->id);
+    $example_data = db_fetch_object($example_q);*/
+
+	$query = db_select('textbook_companion_example');
+	$query->addExpression('count(*)', 'example_count');
+	$query->condition('chapter_id', $chapter_data->id);
+	$result = $query->execute();
+	$example_data =$result->fetchObject();
+
     $chapter_rows[] = array($chapter_data->number, $chapter_data->name . ' (' . l('Edit', 'textbook_companion/code/chapter/edit/' . $chapter_data->id) . ')', $example_data->example_count, l('View', 'textbook_companion/code/list_examples/' . $chapter_data->id));
   }
 
@@ -73,8 +108,8 @@ function list_chapters()
     return $return_html;
   }
 
-  $chapter_header = array('Chapter No.', 'Title of the Chapter', 'Uploaded Examples', 'Actions');
-  $return_html .= theme_table($chapter_header, $chapter_rows);
+    $chapter_header = array('Chapter No.', 'Title of the Chapter', 'Uploaded Examples', 'Actions');
+    $return_html .= theme('table', array('header' => $chapter_header, 'rows' => $chapter_rows));
   return $return_html; 
 }
 
@@ -83,8 +118,18 @@ function list_examples()
   global $user;
 
   /************************ start approve book details ************************/
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data =$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -117,8 +162,17 @@ function list_examples()
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data =$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -129,8 +183,17 @@ function list_examples()
 
   /* get chapter details */
   $chapter_id = arg(3);
-  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d AND preference_id = %d LIMIT 1", $chapter_id, $preference_data->id);
-  if ($chapter_data = db_fetch_object($chapter_q))
+
+  /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d AND preference_id = %d LIMIT 1", $chapter_id, $preference_data->id);*/
+
+	$query = db_select('textbook_companion_chapter');
+	$query->fields('textbook_companion_chapter');
+	$query->condition('id', $chapter_id);
+	$query->condition('preference_id',$preference_data->id);
+	$query->range(0, 1);
+	$chapter_q = $query->execute();
+
+  if ($chapter_data = $chapter_q->fetchObject())
   {
     $return_html = '<br />';
     $return_html .= '<strong>Title of the Book:</strong><br />' . $preference_data->book . '<br /><br />';
@@ -147,11 +210,18 @@ function list_examples()
 
   /* get example list */
   $example_rows = array();
-  $example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d ORDER BY
+
+  /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d ORDER BY
     CAST(SUBSTRING_INDEX(number, '.', 1) AS BINARY) ASC,
     CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(number , '.', 2), '.', -1) AS UNSIGNED) ASC,
-    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(number , '.', -1), '.', 1) AS UNSIGNED) ASC", $chapter_id);
-  while ($example_data = db_fetch_object($example_q))
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(number , '.', -1), '.', 1) AS UNSIGNED) ASC", $chapter_id);*/
+
+	$query = db_select('textbook_companion_example');
+	$query->fields('textbook_companion_example');
+	$query->condition('chapter_id', $chapter_id);
+	$example_q= $query->execute();
+
+  while ($example_data = $example_q->fetchObject())
   {
     /* approval status */
     $approval_status = '';
@@ -164,8 +234,16 @@ function list_examples()
 
     /* example files */
     $example_files = '';
-    $example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d ORDER BY filetype", $example_data->id);
-    while ($example_files_data = db_fetch_object($example_files_q))
+
+    /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d ORDER BY filetype", $example_data->id);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('example_id', $example_data->id);
+	$query->orderBy('filetype', 'ASC');
+	$example_files_q = $query->execute();
+
+    while ($example_files_data = $example_files_q->fetchObject())
     {
       $file_type = '';
       switch ($example_files_data->filetype)
@@ -179,11 +257,20 @@ function list_examples()
     }
     /* dependency files */
     $dependency_files = '';
+
     $dependency_files_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename
       FROM {textbook_companion_example_dependency} example_dependency JOIN {textbook_companion_dependency_files} dependency
       ON example_dependency.dependency_id = dependency.id
-      WHERE example_dependency.example_id = %d", $example_data->id);
-    while ($dependency_files_data = db_fetch_object($dependency_files_q))
+      WHERE example_dependency.example_id = :example_id", array(':example_id' => $example_data->id));
+
+	/*$query = db_select('textbook_companion_example_dependency', 'example_dependency');
+	$query->fields('dependency', array('id', 'filename'));
+	$query->innerJoin('textbook_companion_dependency_files', 'dependency', 'example_dependency.dependency_id = dependency.id');
+	$query->condition('example_dependency.example_id', $example_data->id);
+	$dependency_files_q = $query->execute();*/
+
+
+    while ($dependency_files_data = $dependency_files_q->fetchObject())
     {
       $dependency_files .= l($dependency_files_data->dependency_filename, 'download/dependency/' . $dependency_files_data->dependency_id) . ' (Dependency)<br />';
     }
@@ -198,6 +285,6 @@ function list_examples()
   }
 
   $example_header = array('Example No.', 'Caption', 'Status', 'Files', 'Action');
-  $return_html .= theme_table($example_header, $example_rows);
+  $return_html .= theme('table',array('header'=>$example_header,'rows'=>$example_rows));
   return $return_html;
 }                                                       

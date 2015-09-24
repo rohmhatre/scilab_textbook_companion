@@ -1,9 +1,9 @@
 <?php
 // $Id$
 
-function textbook_companion_search_form()
+function textbook_companion_search_form($form,&$form_state)
 {
-  $form['#redirect'] = FALSE;
+ // $form['#redirect'] = FALSE;
   $form['search'] = array(
       '#type' => 'textfield',
       '#title' => t('Search'),
@@ -24,51 +24,93 @@ function textbook_companion_search_form()
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Search')
+    '#value' => t('Search'),
+    '#ajax' => array(
+		 'callback' => 'textbook_companion_search_ajax_callback',
+		),
   );
 
   $form['cancel'] = array(
-    '#type' => 'markup',
-    '#value' => l(t('Cancel'), ''),
+    '#type' => 'item',
+    '#markup' => l(t('Cancel'), ''),
   );
+  $form['search_results'] = array(
+          '#type' => 'item',
+        '#prefix' => '<div id ="search-result">',
+         // '#title' => t('Search results for "') . $_POST['search'] . '"',
+          '#markup' => '',
+        '#suffix' => '</div>',
+      );
 
-  if ($_POST)
-  {
-    $output = '';
-    $search_rows = array();
-    $search_query = '';
-    if ($_POST['search_by_title'] && $_POST['search_by_author'])
-      $search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND (book LIKE '%%%s%%' OR author LIKE '%%%s%%')", $_POST['search'], $_POST['search']);
-    else if ($_POST['search_by_title'])
-      $search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND book LIKE '%%%s%%'", $_POST['search']);
-    else if ($_POST['search_by_author'])
-      $search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND author LIKE '%%%s%%'", $_POST['search']);
-    else
-      drupal_set_message('Please select whether to search by Title and/or Author of the Book.', 'error');
-    while ($search_data = db_fetch_object($search_q))
+  return $form;
+}
+function textbook_companion_search_ajax_callback($form,$form_state){
+ 	if ($form_state['values']['search_by_title'] && $form_state['values']['search_by_author']){
+
+      	$search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND (book LIKE :book OR author LIKE :author)", array(':book' => '%%'.$form_state['values']['search'].'%%',':author' =>'%%'.$form_state['values']['search'].'%%'));
+while ($search_data = $search_q->fetchObject())
     {
-      $search_rows[] = array(l($search_data->book, 'textbook_run/' . $search_data->id), $search_data->author); 
+      $search_rows[] = array(l($search_data->book, 'textbook_run/' . $search_data->id), $search_data->author);
     }
+
     if ($search_rows)
     {
       $search_header = array('Title of the Book', 'Author Name');
-      $output .= theme_table($search_header, $search_rows);
-      $form['search_results'] = array(
-          '#type' => 'item',
-          '#title' => t('Search results for "') . $_POST['search'] . '"',
-          '#value' => $output,
-      );
-    } else {
-      $form['search_results'] = array(
-          '#type' => 'item',
-          '#title' => t('Search results for "') . $_POST['search'] . '"',
-          '#value' => 'No results found',
-      );
-    }
-  }
-  return $form;
-}
+      $output .= theme('table',array('header'=>$search_header, 'rows'=>$search_rows));
+      $form['search_results']['#markup'] = $output;
+      $form['search_results']['#title'] =  t('Search results for "') . $_POST['search'] . '"';
 
+      }
+     else{
+      $form['search_results']['#title'] =  t('Search results for "') . $_POST['search'] . '" is not available';
+   
+ }
+
+  	}elseif ($form_state['values']['search_by_title']){
+      	
+	$search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND book LIKE :search",array(':search' => '%%'.$form_state['values']['search'].'%%'));
+ 	
+	}else if ($form_state['values']['search_by_author']){
+                                           
+      	$search_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 AND author LIKE :search",array(':search' => '%%'.$form_state['values']['search'].'%%'));  
+
+}
+/*while ($search_data = $search_q->fetchObject())
+    {
+      $search_rows[] = array(l($search_data->book, 'textbook_run/' . $search_data->id), $search_data->author);
+    }
+
+    if ($search_rows)
+    {
+      $search_header = array('Title of the Book', 'Author Name');
+      $output .= theme('table',array('header'=>$search_header, 'rows'=>$search_rows));
+      $form_state['search_result'] = $output;
+      }
+     else{
+     $form_state['search_result'] = 'not available';
+
+     }*/
+
+     $commands[] = ajax_command_replace("#search-result", drupal_render($form['search_results']));
+
+     return array('#type' => 'ajax', '#commands' => $commands);
+}
+function textbook_search_display($search_q){
+while ($search_data = $search_q->fetchObject())
+    {
+      $search_rows[] = array(l($search_data->book, 'textbook_run/' . $search_data->id), $search_data->author);
+    }
+
+    if ($search_rows)
+    {
+      $search_header = array('Title of the Book', 'Author Name');
+      $output .= theme('table',array('header'=>$search_header, 'rows'=>$search_rows));
+      }
+ else{$output = 'not available'; }
+    return $output;
+      
+
+}
 /******************************************************************************/
 /**************************** BROWSE BY FORMS *********************************/
 /******************************************************************************/
@@ -84,8 +126,16 @@ function textbook_companion_browse_book()
     return $return_html;
   }
   $book_rows = array();
-  $book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE book like '%s%%' AND approval_status = 1", $query_character);
-  while ($book_data = db_fetch_object($book_q))
+
+  /*$book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE book like '%s%%' AND approval_status = 1", $query_character);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('book', ''.$query_character.'%%', 'like');
+	$query->condition('approval_status', 1);
+	$book_q = $query->execute();
+
+  while ($book_data = $book_q->fetchObject())
   {
     $book_rows[] = array(l($book_data->book, 'textbook_run/' . $book_data->id), $book_data->author);
   }
@@ -94,7 +144,7 @@ function textbook_companion_browse_book()
     $return_html .= "Sorry no books are available with that title";
   } else {
       $book_header = array('Title of the Book', 'Author Name');
-      $return_html .= theme_table($book_header, $book_rows);
+      $return_html .= theme('table',array('headers'=>$book_header,'rows'=> $book_rows));
   }
   return $return_html;
 }
@@ -110,8 +160,17 @@ function textbook_companion_browse_author()
     return $return_html;
   }
   $book_rows = array();
-  $book_q = db_query("SELECT pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as id FROM {textbook_companion_preference} pe RIGHT JOIN  {textbook_companion_proposal} po on pe.proposal_id=po.id  WHERE po.proposal_status=3 and pe.approval_status = 1", $query_character);
-  while ($book_data = db_fetch_object($book_q))
+
+  /*$book_q = db_query("SELECT pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as id FROM {textbook_companion_preference} pe RIGHT JOIN  {textbook_companion_proposal} po on pe.proposal_id=po.id  WHERE po.proposal_status=3 and pe.approval_status = 1", $query_character);*/
+
+	$query = db_select('textbook_companion_preference', 'pe');
+	$query->fields('pe', array('book', 'author', 'publisher', 'year', 'id'));
+	$query->rightJoin('textbook_companion_proposal', 'po', 'pe.proposal_id = po.id');
+	$query->condition('po.proposal_status', 3);
+	$query->condition('pe.approval_status', 1);
+	$book_q = $query->execute();
+
+  while ($book_data = $book_q->fetchObject())
   {
     /* Initial's fix algorithm */
     preg_match_all("/{$query_character}[a-z]+/", $book_data->author, $matches);
@@ -145,7 +204,7 @@ function textbook_companion_browse_author()
     $return_html .= "Sorry no books are available with that author's name";
   } else {
       $book_header = array('Title of the Book', 'Author Name');
-      $return_html .= theme_table($book_header, $book_rows);
+      $return_html .= theme('table',array('headers'=>$book_header,'rows'=>$book_rows));
   }
   return $return_html;
 }
@@ -163,12 +222,23 @@ function textbook_companion_browse_student()
     return $return_html;
   }
   $book_rows = array();
-  $student_q = db_query("
+
+  /*$student_q = db_query("
                         SELECT po.full_name, pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
                         FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
                         WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND full_name LIKE '%s%%'
-                        ", $query_character);  
-  while ($student_data = db_fetch_object($student_q))
+                        ", $query_character);*/
+
+	$query = db_select('textbook_companion_preference', 'pe');
+	$query->fields('po', array('full_name', 'approval_date'));
+	$query->fields('pe', array('book', 'author', 'publisher', 'year', 'id'));
+	$query->leftJoin('textbook_companion_proposal', 'po', 'pe.proposal_id = po.id');
+	$query->condition('po.proposal_status', 3);
+	$query->condition('pe.approval_status', 1);
+	$query->condition('full_name', ''.$query_character.'%%', 'LIKE');
+	$student_q = $query->execute();
+ 
+  while ($student_data = $student_q->fetchObject())
   {   
         $book_rows[] = array(l($student_data->book, 'textbook_run/' . $student_data->pe_id), $student_data->full_name);   
   }
@@ -177,7 +247,7 @@ function textbook_companion_browse_student()
     $return_html .= "Sorry no books are available with that student's name";
   } else {
       $book_header = array('Title of the Book', 'Student Name');
-      $return_html .= theme_table($book_header, $book_rows);
+      $return_html .= theme('table',array('headers'=>$book_header, 'rows'=>$book_rows));
   }
   return $return_html;
 }
@@ -197,8 +267,20 @@ function _browse_list($type)
 function _list_of_colleges()
 {
   $college_names = array('0' => '--- select ---');
-  $college_names_q = db_query("SELECT DISTINCT university FROM {textbook_companion_proposal} WHERE proposal_status=1 OR proposal_status=3 ORDER BY university ASC");
-  while ($college_names_data = db_fetch_object($college_names_q))
+
+  /*$college_names_q = db_query("SELECT DISTINCT university FROM {textbook_companion_proposal} WHERE proposal_status=1 OR proposal_status=3 ORDER BY university ASC");*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query =distinct();
+	$query->fields('university', array(''));
+	$or = db_or();
+	$or->condition('proposal_status', 1);
+	$or->condition('proposal_status', 3);
+	$query->condition($or);
+	$query->orderBy('university', 'ASC');
+	$college_names_q = $query->execute();
+
+  while ($college_names_data = $college_names_q->fetchObject())
   {
     $college_names[$college_names_data->university] = $college_names_data->university;
   }
@@ -206,11 +288,26 @@ function _list_of_colleges()
 }
 
 function _list_books_by_college($college) {
-	$query = "SELECT pro.full_name, pro.proposal_status, pre.id as preid, pre.book, pre.isbn FROM textbook_companion_proposal pro, textbook_companion_preference pre WHERE pro.university='".$college."' AND (pro.proposal_status=1 OR pro.proposal_status=3) AND pre.proposal_id=pro.id AND pre.approval_status=1";
-	$result = db_query($query);
+
+	/*$query = "SELECT pro.full_name, pro.proposal_status, pre.id as preid, pre.book, pre.isbn FROM textbook_companion_proposal pro, textbook_companion_preference pre WHERE pro.university='".$college."' AND (pro.proposal_status=1 OR pro.proposal_status=3) AND pre.proposal_id=pro.id AND pre.approval_status=1";
+	$result = db_query($query);*/
+
+	$query = db_select('textbook_companion_proposal', 'pro');
+	$query->fields('pro', array('full_name', 'proposal_status'));
+	$query->fields('pre', array('id', 'book', 'isbn'));
+	$query->condition('pro.university', $college);
+
+	$or = db_or();
+	$or->condition('pro.proposal_status', 1);
+	$or->condition('pro.proposal_status', 3);
+	$query->condition($or);
+	$query->condition('pre.proposal_id', 'pro.id');
+	$query->condition('pre.approval_status', 1);
+	$result = $query->execute();
+
 	$output = '<table><tr><th>SNO</th><th>Name</th><th>Book</th><th>ISBN</th><th>Status</th></tr>';
 	$sno = 1;
-	while($row = db_fetch_object($result)) {
+	while($row = $result->fetchObject()) {
 		
 		if($row->proposal_status == 1) {
 			$output .= '<tr><td>'.$sno++.'</td><td>'.$row->full_name.'</td><td>'.$row->book.'</td><td>'.str_replace("-", "", $row->isbn).'</td><td style="color: orange;">Approved</td>';

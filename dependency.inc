@@ -6,8 +6,18 @@ function upload_dependency_form($form_state)
   global $user;
 
   /************************ start approve book details ************************/
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data =$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -40,8 +50,16 @@ function upload_dependency_form($form_state)
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data=$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -54,18 +72,18 @@ function upload_dependency_form($form_state)
 
   $form['book_details']['book'] = array(
     '#type' => 'item',
-    '#value' => $preference_data->book,
+    '#markup' => $preference_data->book,
     '#title' => t('Title of the Book'),
   );
   $form['contributor_name'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->full_name,
+    '#markup' => $proposal_data->full_name,
     '#title' => t('Contributor Name'),
   );
 
   $form['existing_depfile'] = array(
     '#type' => 'item',
-    '#value' => _list_existing_dependency($preference_data->id),
+    '#markup' => _list_existing_dependency($preference_data->id),
     '#title' => t('List of existing dependency files for this book'),
   );
 
@@ -109,8 +127,18 @@ function upload_dependency_form_validate($form, &$form_state)
   global $user;
 
   /* get approved book details */
-  $book_q = db_query("SELECT pro.id as pro_id, pre.id as pre_id, pre.book as pre_book, pro.full_name as pro_full_name FROM {textbook_companion_proposal} pro JOIN {textbook_companion_preference} pre ON pro.id = pre.proposal_id WHERE pro.proposal_status = 1 AND pre.approval_status = 1 AND pro.uid = %d", $user->uid);
-  $book_data = db_fetch_object($book_q);
+  /*$book_q = db_query("SELECT pro.id as pro_id, pre.id as pre_id, pre.book as pre_book, pro.full_name as pro_full_name FROM {textbook_companion_proposal} pro JOIN {textbook_companion_preference} pre ON pro.id = pre.proposal_id WHERE pro.proposal_status = 1 AND pre.approval_status = 1 AND pro.uid = %d", $user->uid);
+  $book_data = db_fetch_object($book_q);*/
+
+	$query = db_select('textbook_companion_proposal', 'pro');
+	$query->fields('pro', array('id', 'full_name'));
+	$query->fields('pre', array('id', 'book'));
+	$query->innerJoin('textbook_companion_preference', 'pre', 'pro.id = pre.proposal_id');
+	$query->condition('pro.proposal_status', 1);
+	$query->condition('pre.approval_status', 1);
+	$query->condition('pro.uid', $user->uid);
+	$result = $query->execute();
+	$book_data=$result->fetchObject();
 
   if (isset($_FILES['files']))
   {
@@ -127,7 +155,15 @@ function upload_dependency_form_validate($form, &$form_state)
            form_set_error($file_form_name, t('File size cannot be zero.'));
 
          /* check if file already exists */
-         $dep_exists_data = db_fetch_object(db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE filename = '%s'", $_FILES['files']['name'][$file_form_name]));
+
+         /*$dep_exists_data = db_fetch_object(db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE filename = '%s'", $_FILES['files']['name'][$file_form_name]));*/
+
+		$query = db_select('textbook_companion_dependency_files');
+		$query->fields('textbook_companion_dependency_files');
+		$query->condition('filename', $_FILES['files']['name'][$file_form_name]);
+		$result = $query->execute();
+		$dep_exists_data=$result->fetchObject();
+
          if ($dep_exists_data)
            form_set_error($file_form_name, t('Dependency file with the same name has already been uploaded in this or some other book. Please rename the file and try again.'));
 
@@ -145,8 +181,18 @@ function upload_dependency_form_submit($form, &$form_state) {
   $root_path = textbook_companion_path();
 
   /* get approved book details */
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data=$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -179,8 +225,17 @@ function upload_dependency_form_submit($form, &$form_state) {
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data=$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -211,7 +266,7 @@ function upload_dependency_form_submit($form, &$form_state) {
       if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $root_path . $dest_path . $_FILES['files']['name'][$file_form_name]))
       {
         /* for uploaded files making an entry in the database */
-        db_query("INSERT INTO {textbook_companion_dependency_files} (preference_id, filename, filepath, filemime, filesize, caption, description, timestamp)
+       /* db_query("INSERT INTO {textbook_companion_dependency_files} (preference_id, filename, filepath, filemime, filesize, caption, description, timestamp)
           VALUES (%d, '%s', '%s', '%s', %d, '%s', '%s', %d)",
           $preference_id,
           $_FILES['files']['name'][$file_form_name],
@@ -221,9 +276,27 @@ function upload_dependency_form_submit($form, &$form_state) {
           $form_state['values'][$file_form_name . '_caption'],
           $form_state['values'][$file_form_name . '_description'],
           time()
-          );
+          );*/
+	$query = "INSERT INTO {textbook_companion_dependency_files} (preference_id, filename, filepath, filemime, filesize, caption, 	description, timestamp)
+          VALUES (:preference_id, :filename, :filepath, :filemime, :filesize, :caption, :description, :timestamp)";
+			$args = array(
+			":preference_id"=>$preference_id,
+			":filename"=>$_FILES['files']['name'][$file_form_name],
+			":filepath"=>$dest_path . $_FILES['files']['name'][$file_form_name],
+			":filemime"=>$_FILES['files']['type'][$file_form_name],
+			":filesize"=>$_FILES['files']['size'][$file_form_name],
+			":caption"=>$form_state['values'][$file_form_name . '_caption'],
+			":description"=>$form_state['values'][$file_form_name . '_description'],
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
+
         drupal_set_message($file_name . ' uploaded successfully.', 'status');
-        $dependency_ids[] = db_last_insert_id('textbook_companion_dependency_files', 'id');
+
+        //$dependency_ids[] = db_last_insert_id('textbook_companion_dependency_files', 'id');
+	$dependency_ids[]=$result;
+
         $dependency_names[] =  $_FILES['files']['name'][$file_form_name];
         $file_upload_counter++;
       } else {
@@ -252,8 +325,14 @@ function _list_existing_dependency($book_id)
 {
   // $return_html = '<ul>';
   $return_html = "";
-  $query = "SELECT * FROM textbook_companion_dependency_files WHERE preference_id = %d ORDER BY filename ASC";
-  $result = db_query($query, $book_id);
+  /*$query = "SELECT * FROM textbook_companion_dependency_files WHERE preference_id = %d ORDER BY filename ASC";
+  $result = db_query($query, $book_id);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('preference_id', $book_id);
+	$query->orderBy('filename', 'ASC');
+	$result = $query->execute();
 
   // $counter = 0;
   // while ($row = db_fetch_object($query))
@@ -272,7 +351,7 @@ function _list_existing_dependency($book_id)
     "File", "Action",
   );
   $rows = array();
-  while($row = db_fetch_object($result)) {
+  while($row = $result->fetchObject()) {
     $item = array(
       l($row->filename . $temp_caption, 'download/dependency/' . $row->id),
       l("Edit", "textbook_companion/code/edit_dep/{$row->id}") 
@@ -280,7 +359,7 @@ function _list_existing_dependency($book_id)
     );
     array_push($rows, $item);
   }
-  $return_html .= theme("table", $headers, $rows);
+   $return_html .= theme("table",array("headers"=>$headers, "rows"=>$rows));
   return $return_html;
 }
 
@@ -291,8 +370,18 @@ function edit_dependency_form($form_state, $dependency_id=0)
   global $user;
 
   /************************ start approve book details ************************/
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+  
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data=$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -325,8 +414,17 @@ function edit_dependency_form($form_state, $dependency_id=0)
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data=$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -335,12 +433,20 @@ function edit_dependency_form($form_state, $dependency_id=0)
   }
   /************************ end approve book details **************************/
   /* fetching the default values */
-  $query = "
+
+  /*$query = "
     SELECT * FROM {textbook_companion_dependency_files}
     WHERE id = {$dependency_id}
   ";
   $result = db_query($query);
-  $row = db_fetch_object($result);
+  $row = db_fetch_object($result);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$result = $query->execute();
+	$row=$result->fetchObject();
+
 
   $form['#attributes'] = array('enctype' => "multipart/form-data");
 
@@ -405,13 +511,19 @@ function edit_dependency_form_validate($form, &$form_state)
            form_set_error($file_form_name, t('File size cannot be zero.'));
 
         /* check if file already exists */
-         $dep_exists_data = db_fetch_object(
+         /*$dep_exists_data = db_fetch_object(
            db_query(
              "SELECT * FROM {textbook_companion_dependency_files} WHERE filename = '%s' AND id != %d",
              $_FILES['files']['name'][$file_form_name],
              $form_state["values"]["dependency_id"]
            )
-         );
+         );*/
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('filename', $_FILES['files']['name'][$file_form_name]);
+	$query->condition('id', $form_state["values"]["dependency_id"], '<>');
+	$result = $query->execute();
+	$dep_exists_data=$result->fetchObject();
 
         if ($dep_exists_data)
           form_set_error($file_form_name, t('Dendency file with the same name has already been uploaded in this or some other book. Please rename the file and try again.'));
@@ -430,8 +542,19 @@ function edit_dependency_form_submit($form, &$form_state) {
   $root_path = textbook_companion_path();
 
   /* get approved book details */
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data=$result->fetchObject();
+
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -464,8 +587,17 @@ function edit_dependency_form_submit($form, &$form_state) {
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data=$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -489,12 +621,20 @@ function edit_dependency_form_submit($form, &$form_state) {
   $dependency_names = array();
 
   /* deleting old dependency file if the filename changed */
-  $query = "
+
+  /*$query = "
     SELECT * FROM textbook_companion_dependency_files 
     WHERE id = %d
   ";
   $result = db_query($query, $form_state["values"]["dependency_id"]);
-  $row = db_fetch_object($result);
+  $row = db_fetch_object($result);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('id', $form_state["values"]["dependency_id"]);
+	$result = $query->execute();
+	$row = $result->fetchObject();
+
   if($row->filename != $_FILES["files"]["name"][$file_form_name] && $_FILES["files"]["name"][$file_form_name]) {
     unlink($root_path . $dest_path . $row->filename);
   }
@@ -510,7 +650,7 @@ function edit_dependency_form_submit($form, &$form_state) {
       if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $root_path . $dest_path . $_FILES['files']['name'][$file_form_name]))
       {
         /* updating uploaded file entry in the database */
-        db_query(
+        /*db_query(
           "UPDATE {textbook_companion_dependency_files} SET
           filename = '%s', filepath = '%s', filemime = '%s', filesize = %d,
           caption = '%s', description = '%s', timestamp = %s
@@ -523,7 +663,21 @@ function edit_dependency_form_submit($form, &$form_state) {
           $form_state['values'][$file_form_name . '_description'],
           time(),
           $form_state["values"]["dependency_id"]
-        );
+        );*/
+
+	$query = db_update('textbook_companion_dependency_files');
+	$query->fields(array(
+  	'filename' => $_FILES['files']['name'][$file_form_name],
+  	'filepath' =>  $dest_path . $_FILES['files']['name'][$file_form_name],
+  	'filemime' =>  $_FILES['files']['type'][$file_form_name],
+  	'filesize' => $_FILES['files']['size'][$file_form_name],
+  	'caption' => $form_state['values'][$file_form_name . '_caption'],
+  	'description' => $form_state['values'][$file_form_name . '_description'],
+  	'timestamp' =>time(),
+	));
+	$query->condition('id', $form_state["values"]["dependency_id"]);
+	$num_updated = $query->execute();
+
       
         drupal_set_message($file_name . ' uploaded successfully.', 'status');
         $dependency_ids[] = db_last_insert_id('textbook_companion_dependency_files', 'id');
@@ -567,8 +721,18 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
   global $user;
 
   /************************ start approve book details ************************/
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d ORDER BY id DESC LIMIT 1", $user->uid);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $user->uid);
+	$query->orderBy('id', 'DESC');
+	$query->range(0, 1);
+	$result = $query->execute();
+	$proposal_data=	$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
@@ -601,8 +765,18 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
     }
   }
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-  $preference_data = db_fetch_object($preference_q);
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data =$result->fetchObject();
+
+
   if (!$preference_data)
   {
     drupal_set_message(t('Invalid Book Preference status. Please contact site administrator for further information.'), 'error');
@@ -613,12 +787,19 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
   $page_content = "";
   if($dependency_id && $confirm == "yes") {
     /* removing the dependency file from filesystem */
-    $query = "
+
+    /*$query = "
       SELECT * FROM {textbook_companion_dependency_files}
       WHERE id = {$dependency_id}
     ";
     $result = db_query($query);
-    $row = db_fetch_object($result);
+    $row = db_fetch_object($result);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$result = $query->execute();
+	$row=$result->fetchObject();
 
     if($preference_data->id == $row->preference_id) {
       $root_path = textbook_companion_path();
@@ -627,18 +808,28 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
       unlink($root_path . $dest_path . $row->filename);
 
       /* deleting entry in textbook_companion_dependency_files */
-      $query = "
+
+      /*$query = "
         DELETE FROM {textbook_companion_dependency_files}
         WHERE id = {$dependency_id}
         ";
-      db_query($query);
+      db_query($query);*/
+
+	$query = db_delete('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$num_deleted = $query->execute();
 
       /* deleting entries from textbook_companion_example_dependency */
-      $query = "
+
+      /*$query = "
         DELETE FROM {textbook_companion_example_dependency}
         WHERE dependency_id = {$dependency_id}
         ";
-      db_query($query);
+      db_query($query);*/
+
+	$query = db_delete('textbook_companion_example_dependency');
+	$query->condition('dependency_id', $dependency_id);
+	$num_deleted = $query->execute();
 
       drupal_set_message("Dependency deleted successfully.");
       drupal_goto("textbook_companion/code/upload_dep");
@@ -647,12 +838,18 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
       drupal_goto("textbook_companion/code/upload_dep");
     }
   } else if($dependency_id) {
-    $query = "
+    /*$query = "
       SELECT * FROM {textbook_companion_dependency_files}
       WHERE id = %d
     ";
     $result = db_query($query, $dependency_id);
-    $row = db_fetch_object($result);
+    $row = db_fetch_object($result);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$result = $query->execute();
+	$row =$result->fetchObject();
 
 
     if($preference_data->id == $row->preference_id) {
@@ -660,14 +857,22 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
       $page_content .= "Dependency filename: <b>{$row->filename}</b><br><br>";
 
       /* fetching the examples linked to this dependency */
-      $query = "
+      
+	/*$query = "
         SELECT * FROM textbook_companion_example_dependency dep
         LEFT JOIN textbook_companion_example exa ON exa.id = dep.example_id
         WHERE dep.id = %d
       ";
-      $result = db_query($query, $dependency_id);
+      $result = db_query($query, $dependency_id);*/
+
+	$query = db_select('textbook_companion_example_dependency', 'dep');
+	$query->fields('dep');
+	$query->leftJoin('textbook_companion_example', 'exa', 'exa.id = dep.example_id');
+	$query->condition('dep.id', $dependency_id);
+	$result = $query->execute();
+
       $list = "";
-      while($row = db_fetch_object($result)) {
+      while($row = $result->fetchObject()) {
         $list .= "<li>Example {$row->number}</li>";
       }
       if($list) {

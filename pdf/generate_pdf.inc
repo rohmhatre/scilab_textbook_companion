@@ -1,14 +1,15 @@
 <?php
+
 	function generate_pdf()
-	{
-		require('fpdf/fpdf.php');
+	{       $mpath = drupal_get_path('module', 'textbook_companion');
+		require($mpath.'/pdf/fpdf/fpdf.php');
 		global $user;
 		$x = $user->uid;
 		$proposal_id = arg(2);
-		$query2 = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status=1 AND  proposal_id=".$proposal_id);
-		$data2 = db_fetch_object($query2);
-		$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id=".$proposal_id);
-		$data3 = db_fetch_object($query3);
+		$query2 = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status=1 AND  proposal_id= :prop_id", array(':prop_id' => $proposal_id));
+		$data2 = $query2->fetchObject();
+		$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id= :prop_id", array(':prop_id' =>$proposal_id));
+		$data3 = $query3->fetchObject();
   		//var_dump($data3->gender);
 		$gender = array('salutation' => 'Mr. /Ms.', 'gender' => 'He/She');
 		if($data3->gender){
@@ -106,7 +107,29 @@
 			$pdf->Cell(200,0,' Date: '.$cur_date.'',0,1,'L');
 	 	        //$pdf->Cell(200,0,' Date: 28th August, 2013',0,1,'L');
 			$pdf->Cell(200,15,'Email: textbook@scilab.in', 0,1,'L');
-			$pdf->Output();
+    			$filename = str_replace(' ','-', $data3->full_name).'-Scilab-Textbook-Certificate.pdf';
+
+			$file = $path.'/pdf/temp_certificate/'.$proposal_id.'_'.$filename;
+
+			$pdf->Output($file, 'F');
+
+                        header("Content-Type: application/octet-stream");
+			header("Content-Disposition: attachment; filename=" . $filename);   
+			header("Content-Type: application/octet-stream");
+			header("Content-Type: application/download");
+			header("Content-Description: File Transfer");            
+			header("Content-Length: " . filesize($file));
+			flush(); // this doesn't really matter.
+			$fp = fopen($file, "r");
+			while (!feof($fp))
+			{
+    				echo fread($fp, 65536);
+                               	flush(); // this is essential for large downloads
+			} 
+		     	fclose($fp); 
+			unlink($file);
+                        drupal_goto('certificate');
+                        return;
 		/*}
 		else
 		{

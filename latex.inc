@@ -3,6 +3,10 @@
 function textbook_companion_download_book()
 {
   $preference_id = arg(2);
+// drupal_set_message('This feature is currently unavailabe. We will resumes it shorty.','error');
+//drupal_goto('textbook_run/'. $preference_id);
+
+//exit;
   _latex_copy_script_file();
   $full_book = arg(3);
   if ($full_book == "1")
@@ -26,8 +30,8 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
   $eol = "\n";
   $sep = "#";
 
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);
-  $preference_data = db_fetch_object($preference_q);
+  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = :id", array(':id' => $preference_id));
+  $preference_data = $preference_q->fetchObject();
   if (!$preference_data)
   {
     drupal_set_message('Invalid book specified.', 'error');
@@ -45,42 +49,50 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
   	del_book_pdf($preference_data->id);
 
   /* check if book already generated */
+//var_dump(file_exists($dir_path . "book_" . $preference_data->id . ".pdf"));die;
+
   if (file_exists($dir_path . "book_" . $preference_data->id . ".pdf"))
   {
 		/* download zip file */
+                ob_clean();
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Cache-Control: public"); 
+		header("Content-Description: File Transfer");
 		header('Content-Type: application/pdf');
 		header('Content-disposition: attachment; filename="' . $preference_data->book . '_' . $preference_data->author . '.pdf"');
 		header('Content-Length: ' . filesize($dir_path . "book_" . $preference_data->id . ".pdf"));
-		header("Content-Transfer-Encoding: binary");
-		header('Expires: 0');
-		header('Pragma: no-cache');
-		ob_end_flush();
-		ob_clean();
-		flush();
+		//header("Content-Transfer-Encoding: binary");
+		//header('Expires: 0');
+		//header('Pragma: no-cache');
+		//ob_end_flush();
+		//ob_clean();
+		//flush();
 
 		readfile($dir_path . "book_" . $preference_data->id . ".pdf");
 		return;
   }
 
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
-  $proposal_data = db_fetch_object($proposal_q);
+  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = :id", array(':id' => $preference_data->proposal_id));
+  $proposal_data = $proposal_q->fetchObject();
   if (!$proposal_data)
   {
     drupal_set_message('Could not fetch contributors information for the book specified.', 'error');
   }
   $contributor_filedata .= $proposal_data->full_name . $sep . $proposal_data->course . $sep . $proposal_data->branch . $sep . $proposal_data->university . $sep . $proposal_data->faculty . $sep . $proposal_data->reviewer . $eol;
 
-  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = %d ORDER BY number DESC", $preference_data->id);
-  while ($chapter_data = db_fetch_object($chapter_q))
+  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = :id ORDER BY number DESC", array(':id' => $preference_data->id));
+  while ($chapter_data = $chapter_q->fetchObject())
   {
   	if ($full_book)
-  		$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d ORDER BY number DESC", $chapter_data->id);
+  		$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = :id ORDER BY number DESC", array(':id' => $chapter_data->id));
   	else
-    	$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d AND approval_status = 1 ORDER BY number DESC", $chapter_data->id);
-    while ($example_data = db_fetch_object($example_q))
+    	$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = :id AND approval_status = 1 ORDER BY number DESC", array(':id' => $chapter_data->id));
+    while ($example_data = $example_q->fetchObject())
     {
-      $example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_data->id);
-      while ($example_files_data = db_fetch_object($example_files_q))
+      $example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = :id", array(':id' => $example_data->id));
+      while ($example_files_data = $example_files_q->fetchObject())
       {
         $latex_filedata .= $chapter_data->number . $sep;
         $latex_filedata .= $chapter_data->name . $sep;
@@ -93,11 +105,11 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
         $latex_filedata .= $example_files_data->id;
         $latex_filedata .= $eol;
       }
-      $dependency_files_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE example_id = %d", $example_data->id);
-      while ($dependency_files_data = db_fetch_object($dependency_files_q))
+      $dependency_files_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE example_id = :id",array(':id' => $example_data->id));
+      while ($dependency_files_data = $dependency_files_q->fetchObject())
       {
-        $dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = %d LIMIT 1", $dependency_files_data->dependency_id);
-        if ($dependency_data = db_fetch_object($dependency_q))
+        $dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = :id LIMIT 1", array(':id' => $dependency_files_data->dependency_id));
+        if ($dependency_data = $dependency_q->fetchObject())
         {
           $latex_filedata .= $chapter_data->number . $sep;
           $latex_filedata .= $chapter_data->name . $sep;
@@ -117,8 +129,8 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
   }
 
   foreach ($depedency_list as $row => $data) {
-    $dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = %d LIMIT 1", $row);
-    if ($dependency_data = db_fetch_object($dependency_q))
+    $dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = :id LIMIT 1", array(':id' =>$row));
+    if ($dependency_data = $dependency_q->fetchObject())
     {
       $latex_dep_filedata .= $dependency_data->filename . $sep;
       $latex_dep_filedata .= $dependency_data->filepath . $sep;
@@ -153,6 +165,7 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
   $fd = fopen($dir_path . $latex_dep_filename, 'w');
   fwrite($fd, $latex_dep_filedata);
   fclose($fd);
+//var_dump($dir_path . "book_" . $preference_data->id . ".pdf");die;
 
   if (_latex_run_script($book_filename, $contributor_filename, $latex_filename, $latex_dep_filename, $pdf_filename))
   {
@@ -163,11 +176,12 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
 		header("Content-Transfer-Encoding: binary");
                 header('Expires: 0');
                 header('Pragma: no-cache');
+                       
+
+	       @readfile($dir_path . $pdf_filename);
                 ob_end_flush();
                 ob_clean();
                 flush();
-
-		readfile($dir_path . $pdf_filename);
 	} else {
 		drupal_set_message("Error occurred when generating the PDF version of the Book.", 'error');
 	}
@@ -191,15 +205,18 @@ function _latex_run_script($book_filename, $contributor_filename, $latex_filenam
 
   chdir("uploads");
   chdir("latex");
-
-  $sh_command = "./pdf_creator.sh " . $book_filename . " " . $contributor_filename . " " . $latex_filename . " " . $latex_dep_filename;
+//var_dump($book_filename . " " . $contributor_filename . " " . $latex_filename . " " . $latex_dep_filename);die;
+  $sh_command = "./pdf_creator.sh " . $book_filename . " " . $contributor_filename . " " . $latex_filename . " " . $latex_dep_filename . " " . $pdf_filename;
   exec($sh_command);
-  exec("mv TEX_final.pdf " . $pdf_filename);
-
-  if ($ret == 0)
+// var_dump(exec($sh_command));die; 
+//exec("mv TEX_final.pdf " , $pdf_filename);
+  // rename('TEX_final.pdf', $pdf_filename);
+//var_dump($pdf_filename);die;
+  if ($ret == 0){
     return TRUE;
-  else
+ } else{
     return FALSE;
+}
 }
 
 function textbook_companion_delete_book()
@@ -210,4 +227,5 @@ function textbook_companion_delete_book()
 	drupal_goto('code_approval/bulk');
 	return;
 }
+
 

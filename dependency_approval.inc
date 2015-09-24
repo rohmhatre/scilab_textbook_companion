@@ -113,21 +113,57 @@ function textbook_companion_dependency_approval_form_submit($form, &$form_state)
     {
       if ($form_state['values']['run']['delete_dependency'] == "1")
       {
-        $example_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE dependency_id = %d", $form_state['values']['run']['dependency']);
-        if ($example_data = db_fetch_object($example_q)) {
+        /*$example_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE dependency_id = %d", $form_state['values']['run']['dependency']);*/
 
-          $example_id_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE dependency_id = %d", $form_state['values']['run']['dependency']);
-          while ($example_id_data = db_fetch_object($example_id_q)) {
-            $example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d", $example_id_data->example_id);
-            $example_data = db_fetch_object($example_q);
-            $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
-            $chapter_data = db_fetch_object($chapter_q);
-            $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
-            $preference_data = db_fetch_object($preference_q);
+	$query = db_select('textbook_companion_example_dependency');
+	$query->fields('textbook_companion_example_dependency');
+	$query->condition('dependency_id', $form_state['values']['run']['dependency']);
+	$example_q = $query->execute();
+
+        if ($example_data = $example_q->fetchObject()) {
+
+          /*$example_id_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE dependency_id = %d", $form_state['values']['run']['dependency']);*/
+		
+	$query = db_select('textbook_companion_example_dependency');
+	$query->fields('textbook_companion_example_dependency');
+	$query->condition('dependency_id', $form_state['values']['run']['dependency']);
+	$example_id_q = $query->execute();
+
+          while ($example_id_data = $example_id_q->fetchObject()) {
+
+            /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d", $example_id_data->example_id);
+            $example_data = db_fetch_object($example_q);*/
+	
+		$query = db_select('textbook_companion_example');
+		$query->fields('textbook_companion_example');
+		$query->condition('id', $example_id_data->example_id);
+		$result = $query->execute();
+		$example_data=$result->fetchObject();
+
+            /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
+            $chapter_data = db_fetch_object($chapter_q);*/
+
+		$query = db_select('textbook_companion_chapter');
+		$query->fields('textbook_companion_chapter');
+		$query->condition('id', $example_data->chapter_id);
+		$result = $query->execute();
+		$chapter_data =$result->fetchObject();
+
+
+            /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
+            $preference_data = db_fetch_object($preference_q);*/
+
+		$query = db_select('textbook_companion_preference');
+		$query->fields('textbook_companion_preference');
+		$query->condition('id', $chapter_data->preference_id);
+		$result = $query->execute();
+		$preference_data =$result->fetchObject();
+
+
             $example_list[] = array($preference_data->book, $chapter_data->number, $example_data->number);
           }
           $example_list_header = array('Book', 'Chapter', 'Code');
-          $example = theme_table($example_list_header, $example_list);
+          $example = theme('table',array('headers'=>$example_list_header, 'rows'=>$example_list));
 
           drupal_set_message('Cannot delete dependency since it is linked with following examples. Delete these examples first before deleting the dependency file :' . $example, 'error');
 
@@ -154,8 +190,16 @@ function textbook_companion_dependency_approval_form_submit($form, &$form_state)
 function _textbook_companion_list_of_dependencies()
 {
   $dependencies = array('0' => 'Please select...');
-  $dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} ORDER BY filename ASC");
-  while ($dependency_data = db_fetch_object($dependency_q))
+
+  /*$dependency_q = db_query("SELECT * FROM {textbook_companion_dependency_files} ORDER BY filename ASC");*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->orderBy('filename', 'ASC');
+	$dependency_q = $query->execute();
+
+
+  while ($dependency_data =$dependency_q->fetchObject())
   {
     $dependencies[$dependency_data->id] = $dependency_data->filename . ' (' . $dependency_data->filepath . ')';
   }
@@ -168,8 +212,15 @@ function textbook_companion_delete_dependency($dependency_id)
   $root_path = textbook_companion_path();
   $status = TRUE;
 
-  $dependency_files_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = %d", $dependency_id);
-  $dependency_files_data = db_fetch_object($dependency_files_q);
+  /*$dependency_files_q = db_query("SELECT * FROM {textbook_companion_dependency_files} WHERE id = %d", $dependency_id);
+  $dependency_files_data = db_fetch_object($dependency_files_q);*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$result = $query->execute();
+	$dependency_files_data=$result->fetchObject();
+
   if (!$dependency_files_data)
   {
     drupal_set_message(t('Invalid dependency.'), 'error');
@@ -199,7 +250,13 @@ function textbook_companion_delete_dependency($dependency_id)
       drupal_set_message('Error sending email message.', 'error');
   } else {
     /* deleting dependency files database entries */
-    db_query("DELETE FROM {textbook_companion_dependency_files} WHERE id = %d", $dependency_id);
+
+    /*db_query("DELETE FROM {textbook_companion_dependency_files} WHERE id = %d", $dependency_id);*/
+
+	$query = db_delete('textbook_companion_dependency_files');
+	$query->condition('id', $dependency_id);
+	$num_deleted = $query->execute();
+
   }
   return $status;
 }

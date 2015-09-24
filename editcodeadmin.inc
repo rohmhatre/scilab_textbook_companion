@@ -11,8 +11,16 @@ function upload_examples_admin_edit_form($form_state)
   $example_id = arg(2);
 
   /* get example details */
-  $example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d LIMIT 1", $example_id);
-  $example_data = db_fetch_object($example_q);
+
+  /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d LIMIT 1", $example_id);
+  $example_data = db_fetch_object($example_q);*/
+	$query = db_select('textbook_companion_example');
+	$query->fields('textbook_companion_example');
+	$query->condition('id', $example_id);
+	$query->range(0, 1);
+	$example_q = $query->execute();
+	$example_data=$example_q->fetchObject();
+
   if (!$example_q)
   {
     drupal_set_message(t("Invalid example selected."), 'error');
@@ -27,8 +35,14 @@ function upload_examples_admin_edit_form($form_state)
   $xcos1_file = ""; $xcos1_id = 0;
   $xcos2_file = ""; $xcos2_id = 0;
 
-  $example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_id);
-  while ($example_files_data = db_fetch_object($example_files_q))
+  /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_id);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('example_id', $example_id);
+	$example_files_q  = $query->execute();
+
+  while ($example_files_data = $example_files_q->fetchObject())
   {
     if ($example_files_data->filetype == "S")
     {
@@ -60,8 +74,15 @@ function upload_examples_admin_edit_form($form_state)
    }
 
   /* get chapter details */
-  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
-  $chapter_data = db_fetch_object($chapter_q);
+
+  /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
+  $chapter_data = db_fetch_object($chapter_q);*/
+	$query = db_select('textbook_companion_chapter');
+	$query->fields('textbook_companion_chapter');
+	$query->condition('id', $example_data->chapter_id);
+	$result = $query->execute();
+	$chapter_data =$result->fetchObject();
+
   if (!$chapter_data)
   {
     drupal_set_message(t("Invalid chapter selected."), 'error');
@@ -70,8 +91,16 @@ function upload_examples_admin_edit_form($form_state)
   }
 
   /* get preference details */
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
-  $preference_data = db_fetch_object($preference_q);
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('id', $chapter_data->preference_id);
+	$result = $query->execute();
+	$preference_data =$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t("Invalid book selected."), 'error');
@@ -80,8 +109,16 @@ function upload_examples_admin_edit_form($form_state)
   }
 
   /* get proposal details */
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
+  $proposal_data = db_fetch_object($proposal_q);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id', $preference_data->proposal_id);
+	$result = $query->execute();
+	$proposal_data =$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message(t("Invalid proposal selected."), 'error');
@@ -92,11 +129,11 @@ function upload_examples_admin_edit_form($form_state)
   $user_data = user_load($proposal_data->uid);
 
   /* add javascript for automatic book title, check if example uploaded, dependency selection effects */
-  $chapter_name_js = " $(document).ready(function() {
+ /* $chapter_name_js = " $(document).ready(function() {
     $('#edit-existing-depfile-dep-book-title').change(function() {
       var dep_selected = ''; 
       /* showing and hiding relevant files */
-      $('.form-checkboxes .option').hide();
+   /*   $('.form-checkboxes .option').hide();
       $('.form-checkboxes .option').each(function(index) {
         var activeClass = $('#edit-existing-depfile-dep-book-title').val();
         if ($(this).children().hasClass(activeClass)) {
@@ -107,7 +144,7 @@ function upload_examples_admin_edit_form($form_state)
         }
       });
       /* showing list of already existing dependencies */
-      $('#existing_depfile_selected').html(dep_selected);
+     /* $('#existing_depfile_selected').html(dep_selected);
     });
 
     $('.form-checkboxes .option').change(function() {
@@ -116,34 +153,34 @@ function upload_examples_admin_edit_form($form_state)
     $('#edit-existing-depfile-dep-book-title').trigger('change');
   });";
   drupal_add_js($chapter_name_js, 'inline', 'header');
-
+*/
   $form['#redirect'] = 'code_approval/bulk';
   $form['#attributes'] = array('enctype' => "multipart/form-data");
 
   $form['book_details']['book'] = array(
     '#type' => 'item',
-    '#value' => $preference_data->book,
+    '#markup' => $preference_data->book,
     '#title' => t('Title of the Book'),
   );
   $form['contributor_name'] = array(
     '#type' => 'item',
-    '#value' => $proposal_data->full_name,
+    '#markup' => $proposal_data->full_name,
     '#title' => t('Contributor Name'),
   );
   $form['number'] = array(
     '#type' => 'item',
     '#title' => t('Chapter No'),
-    '#value' => $chapter_data->number,
+    '#markup' => $chapter_data->number,
   );
   $form['name'] = array(
     '#type' => 'item',
     '#title' => t('Title of the Chapter'),
-    '#value' => $chapter_data->name,
+    '#markup' => $chapter_data->name,
   );
   $form['example_number'] = array(
     '#type' => 'item',
     '#title' => t('Example No'),
-    '#value' => $example_data->number,
+    '#markup' => $example_data->number,
   );
   $form['example_caption'] = array(
     '#type' => 'textfield',
@@ -171,7 +208,7 @@ function upload_examples_admin_edit_form($form_state)
     $form['sourcefile']['cur_source'] = array(
       '#type' => 'item',
       '#title' => t('Existing Main or Source File'),
-      '#value' => $source_file,
+      '#markup' => $source_file,
     );
     $form['sourcefile']['cur_source_checkbox'] = array(
       '#type' => 'checkbox',
@@ -206,8 +243,14 @@ function upload_examples_admin_edit_form($form_state)
   /************ START OF EXISTING DEPENDENCIES **************/
   
   $dependency_files = array();
-  $dependency_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE example_id = %d", $example_data->id);
-  while ($dependency_data = db_fetch_object($dependency_q))
+
+  /*$dependency_q = db_query("SELECT * FROM {textbook_companion_example_dependency} WHERE example_id = %d", $example_data->id);*/
+	$query = db_select('textbook_companion_example_dependency');
+	$query->fields('textbook_companion_example_dependency');
+	$query->condition('example_id', $example_data->id);
+	$dependency_q = $query->execute();
+
+  while ($dependency_data = $dependency_q->fetchObject())
   {
     $dependency_files[] = $dependency_data->dependency_id;
   }
@@ -227,7 +270,7 @@ function upload_examples_admin_edit_form($form_state)
   $form['existing_depfile']['selected'] = array(
     '#type' => 'item',
     '#title' => t('Existing Dependency Files Selected'),
-    '#value' => '<div id="existing_depfile_selected"></div>',
+    '#markup' => '<div id="existing_depfile_selected"></div>',
   );
   
   $form['existing_depfile']['dep_book_title'] = array(
@@ -248,7 +291,7 @@ function upload_examples_admin_edit_form($form_state)
 
   $form['existing_depfile']['dep_upload'] = array(
     '#type' => 'item',
-    '#value' => l('Upload New Depedency Files', 'textbook_companion/code/upload_dep'),
+    '#markup' => l('Upload New Depedency Files', 'textbook_companion/code/upload_dep'),
   );
   /************ END OF EXISTING DEPENDENCIES **************/
   
@@ -263,7 +306,7 @@ function upload_examples_admin_edit_form($form_state)
     $form['result']['cur_result1'] = array(
       '#type' => 'item',
       '#title' => t('Existing Result File 1'),
-      '#value' => $result1_file,
+      '#markup' => $result1_file,
     );
     $form['result']['cur_result1_checkbox'] = array(
       '#type' => 'checkbox',
@@ -292,7 +335,7 @@ function upload_examples_admin_edit_form($form_state)
   
   $form['result']['br'] = array(
   '#type' => 'item',
-  '#value' => "<br />",
+  '#markup' => "<br />",
   );
   
   if ($result2_file)
@@ -300,7 +343,7 @@ function upload_examples_admin_edit_form($form_state)
     $form['result']['cur_result2'] = array(
       '#type' => 'item',
       '#title' => t('Existing Result File 2'),
-      '#value' => $result2_file,
+      '#markup' => $result2_file,
     );
     $form['result']['cur_result2_checkbox'] = array(
       '#type' => 'checkbox',
@@ -337,7 +380,7 @@ function upload_examples_admin_edit_form($form_state)
     $form['xcos']['cur_xcos1'] = array(
       '#type' => 'item',
       '#title' => t('Existing xcos File 1'),
-      '#value' => $xcos1_file,
+      '#markup' => $xcos1_file,
     );
     $form['xcos']['cur_xcos1_checkbox'] = array(
       '#type' => 'checkbox',
@@ -366,7 +409,7 @@ function upload_examples_admin_edit_form($form_state)
 
   $form['xcos']['br'] = array(
     '#type' => 'item',
-    '#value' => "<br />",
+    '#markup' => "<br />",
   );
 
   if ($xcos2_file)
@@ -374,7 +417,7 @@ function upload_examples_admin_edit_form($form_state)
     $form['xcos']['cur_xcos2'] = array(
       '#type' => 'item',
       '#title' => t('Existing xcos File 2'),
-      '#value' => $xcos2_file,
+      '#markup' => $xcos2_file,
     );
     $form['xcos']['cur_xcos2_checkbox'] = array(
       '#type' => 'checkbox',
@@ -508,8 +551,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $example_id = arg(2);
 
   /* get example details */
-  $example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d LIMIT 1", $example_id);
-  $example_data = db_fetch_object($example_q);
+  /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE id = %d LIMIT 1", $example_id);
+  $example_data = db_fetch_object($example_q);*/
+
+	$query = db_select('textbook_companion_example');
+	$query->fields('textbook_companion_example');
+	$query->condition('id', $example_id);
+	$query->range(0, 1);
+	$example_q = $query->execute();
+	$example_data =$example_q->fetchObject();
+
   if (!$example_q)
   {
     drupal_set_message(t("Invalid example selected."), 'error');
@@ -518,8 +569,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   }
 
   /* get chapter details */
-  $chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
-  $chapter_data = db_fetch_object($chapter_q);
+
+  /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $example_data->chapter_id);
+  $chapter_data = db_fetch_object($chapter_q);*/
+
+	$query = db_select('textbook_companion_chapter');
+	$query->fields('textbook_companion_chapter');
+	$query->condition('id', $example_data->chapter_id);
+	$chapter_q = $query->execute();
+	$chapter_data = $chapter_q->fetchObject();
+
   if (!$chapter_data)
   {
     drupal_set_message(t("Invalid chapter selected."), 'error');
@@ -528,8 +587,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   }
 
   /* get preference details */
-  $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
-  $preference_data = db_fetch_object($preference_q);
+
+  /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $chapter_data->preference_id);
+  $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('id', $chapter_data->preference_id);
+	$result = $query->execute();
+ 	$preference_data =$result->fetchObject();
+
   if (!$preference_data)
   {
     drupal_set_message(t("Invalid book selected."), 'error');
@@ -538,8 +605,15 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   }
 
   /* get proposal details */
-  $proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
-  $proposal_data = db_fetch_object($proposal_q);
+
+  /*$proposal_q = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id = %d", $preference_data->proposal_id);
+  $proposal_data = db_fetch_object($proposal_q);*/
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id',  $preference_data->proposal_id);
+	$result = $query->execute();
+	$proposal_data =$result->fetchObject();
+
   if (!$proposal_data)
   {
     drupal_set_message(t("Invalid proposal selected."), 'error');
@@ -564,22 +638,46 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     mkdir($root_path . $dest_path);
 
   /* updating example caption */
-  db_query("UPDATE {textbook_companion_example} SET caption = '%s' WHERE id = %d", $form_state['values']['example_caption'], $example_id);
+
+  /*db_query("UPDATE {textbook_companion_example} SET caption = '%s' WHERE id = %d", $form_state['values']['example_caption'], $example_id);*/
+
+	$query = db_update('textbook_companion_example');
+	$query->fields(array(
+  		'caption' => $form_state['values']['example_caption'],
+	));
+	$query->condition('id', $example_id);
+	$num_updated = $query->execute();
 
   /* handling dependencies */
-  db_query("DELETE FROM {textbook_companion_example_dependency} WHERE example_id = %d", $example_data->id);
+
+  /*db_query("DELETE FROM {textbook_companion_example_dependency} WHERE example_id = %d", $example_data->id);*/
+	$query = db_delete('textbook_companion_example_dependency');
+	$query->condition('example_id', $example_data->id);
+	$num_deleted = $query->execute();
+
+
   foreach ($form_state['values']['existing_depfile']['dep_chapter_example_files'] as $row)
   {
     if ($row > 0)
     {
       /* insterting into database */
-      db_query("INSERT INTO {textbook_companion_example_dependency} (example_id, dependency_id, approval_status, timestamp)
+      /*db_query("INSERT INTO {textbook_companion_example_dependency} (example_id, dependency_id, approval_status, timestamp)
         VALUES (%d, %d, %d, %d)",
         $example_data->id,
         $row,
         0,
         time()
-      );
+      );*/
+
+	$query = "INSERT INTO {textbook_companion_example_dependency} (example_id, dependency_id, approval_status, timestamp)
+        VALUES (:example_id, :dependency_id, :approval_status, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":dependency_id"=> $row,
+			":approval_status"=>  0,
+			"::timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
     }
   }
 
@@ -587,8 +685,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $cur_file_id = $form_state['values']['cur_source_file_id'];
   if ($cur_file_id > 0)
   {
-    $file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
-    $file_data = db_fetch_object($file_q);
+    /*$file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
+    $file_data = db_fetch_object($file_q);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('id', $cur_file_id);
+	$query->condition('example_id', $example_data->id);
+	$result = $query->execute();
+	$file_data =$result->fetchObject();
+
     if (!$file_data)
     {
         drupal_set_message("Error deleting example source file. File not present in database.", 'error');
@@ -622,7 +728,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     if (move_uploaded_file($_FILES['files']['tmp_name']['sourcefile1'], $root_path . $dest_path . $_FILES['files']['name']['sourcefile1']))
     {
       /* for uploaded files making an entry in the database */
-      db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+      /*db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
         VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
         $example_data->id,
         $_FILES['files']['name']['sourcefile1'],
@@ -631,7 +737,21 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
         $_FILES['files']['size']['sourcefile1'],
         'S',
         time()
-        );
+        );*/
+
+	$query = "INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+        VALUES 	(:example_id, :filename, :filepath, :filemime, :filesize, :filetype, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":filename"=>$_FILES['files']['name']['sourcefile1'],
+			":filepath"=>$dest_path . $_FILES['files']['name']['sourcefile1'],
+			":filemime"=> $_FILES['files']['type']['sourcefile1'],
+			":filesize"=>$_FILES['files']['size']['sourcefile1'],
+			":filetype"=> 'S',
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
       drupal_set_message($_FILES['files']['name']['sourcefile1'] . ' uploaded successfully.', 'status');
     } else {
       drupal_set_message('Error uploading file : ' . $dest_path . '/' . $_FILES['files']['name']['sourcefile1'], 'error');
@@ -642,8 +762,17 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $cur_file_id = $form_state['values']['cur_result1_file_id'];
   if ($cur_file_id > 0)
   {
-    $file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
-    $file_data = db_fetch_object($file_q);
+    /*$file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
+    $file_data = db_fetch_object($file_q);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('id', $cur_file_id);
+	$query->condition('example_id', $example_data->id);
+	$result = $query->execute();
+	$file_data =$result->fetchObject();
+
+
     if (!$file_data)
     {
         drupal_set_message("Error deleting example result 1 file. File not present in database.", 'error');
@@ -677,7 +806,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     if (move_uploaded_file($_FILES['files']['tmp_name']['result1'], $root_path . $dest_path . $_FILES['files']['name']['result1']))
     {
       /* for uploaded files making an entry in the database */
-      db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+     /* db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
         VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
         $example_data->id,
         $_FILES['files']['name']['result1'],
@@ -686,7 +815,22 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
         $_FILES['files']['size']['result1'],
         'R',
         time()
-        );
+        );*/
+
+	$query = "INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+        VALUES 	(:example_id, :filename, :filepath, :filemime, :filesize, :filetype, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":filename"=>$_FILES['files']['name']['result1'],
+			":filepath"=> $dest_path . $_FILES['files']['name']['result1'],
+			":filemime"=> $_FILES['files']['type']['result1'],
+			":filesize"=>$_FILES['files']['size']['result1'],
+			":filetype"=> 'R',
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
+
       drupal_set_message($_FILES['files']['name']['result1'] . ' uploaded successfully.', 'status');
     } else {
       drupal_set_message('Error uploading file : ' . $dest_path . '/' . $_FILES['files']['name']['result1'], 'error');
@@ -697,8 +841,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $cur_file_id = $form_state['values']['cur_result2_file_id'];
   if ($cur_file_id > 0)
   {
-    $file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
-    $file_data = db_fetch_object($file_q);
+    /*$file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
+    $file_data = db_fetch_object($file_q);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('id', $cur_file_id);
+	$query->condition('example_id', $example_data->id);
+	$result = $query->execute();
+	$file_data =$result->fetchObject();
+
     if (!$file_data)
     {
         drupal_set_message("Error deleting example result 2 file. File not present in database.", 'error');
@@ -732,7 +884,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     if (move_uploaded_file($_FILES['files']['tmp_name']['result2'], $root_path . $dest_path . $_FILES['files']['name']['result2']))
     {
       /* for uploaded files making an entry in the database */
-      db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+      /*db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
         VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
         $example_data->id,
         $_FILES['files']['name']['result2'],
@@ -741,7 +893,21 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
         $_FILES['files']['size']['result2'],
         'R',
         time()
-        );
+        );*/
+
+	$query = "INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+        VALUES  (:example_id, :filename, :filepath, :filemime, :filesize, :filetype, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":filename"=>  $_FILES['files']['name']['result2'],
+			":filepath"=> $dest_path . $_FILES['files']['name']['result2'],
+			":filemime"=> $_FILES['files']['type']['result2'],
+			":filesize"=> $_FILES['files']['size']['result2'],
+			":filetype"=> 'R',
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
       drupal_set_message($_FILES['files']['name']['result2'] . ' uploaded successfully.', 'status');
     } else {
       drupal_set_message('Error uploading file : ' . $dest_path . '/' . $_FILES['files']['name']['result2'], 'error');
@@ -752,8 +918,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $cur_file_id = $form_state['values']['cur_xcos1_file_id'];
   if ($cur_file_id > 0)
   {
-    $file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
-    $file_data = db_fetch_object($file_q);
+    /*$file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
+    $file_data = db_fetch_object($file_q);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('id', $cur_file_id);
+	$query->condition('example_id', $example_data->id);
+	$result = $query->execute();
+	$file_data=$result->fetchObject();
+
     if (!$file_data)
     {
         drupal_set_message("Error deleting example xcos 1 file. File not present in database.", 'error');
@@ -787,7 +961,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     if (move_uploaded_file($_FILES['files']['tmp_name']['xcos1'], $root_path . $dest_path . $_FILES['files']['name']['xcos1']))
     {
       /* for uploaded files making an entry in the database */
-      db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+      /*db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
         VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
         $example_data->id,
         $_FILES['files']['name']['xcos1'],
@@ -796,7 +970,22 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
         $_FILES['files']['size']['xcos1'],
         'X',
         time()
-        );
+        );*/
+
+	$query = "INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+        VALUES  (:example_id, :filename, :filepath, :filemime, :filesize, :filetype, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":filename"=>$_FILES['files']['name']['xcos1'],
+			":filepath"=>$dest_path . $_FILES['files']['name']['xcos1'],
+			":filemime"=>$_FILES['files']['type']['xcos1'],
+			":filesize"=>$_FILES['files']['size']['xcos1'],
+			":filetype"=>'X',
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
+
       drupal_set_message($_FILES['files']['name']['xcos1'] . ' uploaded successfully.', 'status');
     } else {
       drupal_set_message('Error uploading file : ' . $dest_path . '/' . $_FILES['files']['name']['xcos1'], 'error');
@@ -807,8 +996,16 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $cur_file_id = $form_state['values']['cur_xcos2_file_id'];
   if ($cur_file_id > 0)
   {
-    $file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
-    $file_data = db_fetch_object($file_q);
+    /*$file_q = db_query("SELECT * FROM  {textbook_companion_example_files} WHERE id = %d AND example_id = %d", $cur_file_id, $example_data->id);
+    $file_data = db_fetch_object($file_q);*/
+
+	$query = db_select('textbook_companion_example_files');
+	$query->fields('textbook_companion_example_files');
+	$query->condition('id', $cur_file_id);
+	$query->condition('example_id', $example_data->id);
+	$result = $query->execute();
+	$file_data =$result->fetchObject();
+
     if (!$file_data)
     {
         drupal_set_message("Error deleting example xcos 2 file. File not present in database.", 'error');
@@ -842,7 +1039,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
     if (move_uploaded_file($_FILES['files']['tmp_name']['xcos2'], $root_path . $dest_path . $_FILES['files']['name']['xcos2']))
     {
       /* for uploaded files making an entry in the database */
-      db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+      /*db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
         VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
         $example_data->id,
         $_FILES['files']['name']['xcos2'],
@@ -851,7 +1048,21 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
         $_FILES['files']['size']['xcos2'],
         'X',
         time()
-        );
+        );*/
+
+	$query = "INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
+        VALUES  (:example_id, :filename, :filepath, :filemime, :filesize, :filetype, :timestamp)";
+			$args = array(
+			":example_id"=> $example_data->id, 
+			":filename"=>$_FILES['files']['name']['xcos2'],
+			":filepath"=>$dest_path . $_FILES['files']['name']['xcos2'],
+			":filemime"=>$_FILES['files']['type']['xcos2'],
+			":filesize"=>$_FILES['files']['size']['xcos2'],
+			":filetype"=>'X',
+			":timestamp"=>time(),
+				);
+			$result = db_query($query, $args, array('return' => Database::RETURN_INSERT_ID));
+
       drupal_set_message($_FILES['files']['name']['xcos2'] . ' uploaded successfully.', 'status');
     } else {
       drupal_set_message('Error uploading file : ' . $dest_path . '/' . $_FILES['files']['name']['xcos2'], 'error');
@@ -875,8 +1086,17 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
 function _list_of_book_titles()
 {
   $book_titles = array('0' => 'Please select...');
-  $book_titles_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 OR approval_status = 3 ORDER BY book ASC");
-  while ($book_titles_data = db_fetch_object($book_titles_q))
+  /*$book_titles_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status = 1 OR approval_status = 3 ORDER BY book ASC");*/
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$or = db_or();
+	$or->condition('approval_status', 1);
+	$or->condition('approval_status', 3);
+	$query->condition($or);
+	$query->orderBy('book', 'ASC');
+	$book_titles_q = $query->execute();
+
+  while ($book_titles_data = $book_titles_q->fetchObject())
   {
     $book_titles[$book_titles_data->id] = $book_titles_data->book . ' (Written by ' . $book_titles_data->author . ')';
   }
@@ -887,9 +1107,15 @@ function _list_of_book_dependency_files()
 {
   $book_dependency_files = array();
   $book_dependency_files_class = array();
-  $book_dependency_files_q = db_query("SELECT * FROM {textbook_companion_dependency_files} ORDER BY filename ASC");
 
-  while ($book_dependency_files_data = db_fetch_object($book_dependency_files_q))
+  /*$book_dependency_files_q = db_query("SELECT * FROM {textbook_companion_dependency_files} ORDER BY filename ASC");*/
+
+	$query = db_select('textbook_companion_dependency_files');
+	$query->fields('textbook_companion_dependency_files');
+	$query->orderBy('filename', 'ASC');
+	$book_dependency_files_q = $query->execute();
+
+  while ($book_dependency_files_data = $book_dependency_files_q->fetchObject())
   {
     $temp_caption = '';
     if ($book_dependency_files_data->caption)

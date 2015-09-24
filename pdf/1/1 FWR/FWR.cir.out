@@ -1,0 +1,21 @@
+* eeschema netlist version 1.1 (spice format) creation date: 12/15/2014 4:07:39 pm
+
+v1  1 0 sine(0 5 50 0 0)
+* Plotting option vplot8_1
+r1  2 3 10k
+d4  0 2 1n4007
+d3  3 0 1n4007
+d2  1 2 1n4007
+d1  3 1 1n4007
+
+.tran  1e-03 100e-03 0e-00
+
+* Control Statements 
+.control
+run
+plot v(2)-v(3) 
+plot v(1) 
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+.endc
+.end

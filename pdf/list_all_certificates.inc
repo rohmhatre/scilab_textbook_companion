@@ -53,8 +53,8 @@
 function _list_all_certificates()
 	{
 		global $user;
-		$query_id =db_query("SELECT id FROM textbook_companion_proposal WHERE proposal_status=3 AND uid=".$user->uid);
-		$exist_id = db_fetch_object($query_id);
+		$query_id =db_query("SELECT id FROM textbook_companion_proposal WHERE proposal_status=3 AND uid= :uid", array(':uid' => $user->uid));
+		$exist_id = $query_id->fetchObject();
 		if($exist_id->id)
 		{
 			if($exist_id->id<3)
@@ -67,8 +67,8 @@ function _list_all_certificates()
 		$search_rows = array();
 		global $output;
 		$output = '';
-		$query3 = db_query("SELECT prop.id,pref.isbn,pref.book,pref.author FROM textbook_companion_proposal as prop,textbook_companion_preference as pref WHERE prop.proposal_status=3 AND pref.approval_status=1 AND pref.proposal_id=prop.id AND prop.uid=".$user->uid);
-		while ($search_data3 = db_fetch_object($query3))
+		$query3 = db_query("SELECT prop.id,pref.isbn,pref.book,pref.author FROM textbook_companion_proposal as prop,textbook_companion_preference as pref WHERE prop.proposal_status=3 AND pref.approval_status=1 AND pref.proposal_id=prop.id AND prop.uid= :uid",array(':uid' => $user->uid));
+		while ($search_data3 = $query3->fetchObject())
 		{
 			if($search_data3->id)
 			{
@@ -78,7 +78,7 @@ function _list_all_certificates()
 		if($search_rows)
 		{
 			$search_header = array('ISBN', 'Book Name', 'Author', 'Download Certificates');
-			$output = theme_table($search_header, $search_rows);
+			$output = theme('table',array('header'=>$search_header, 'rows'=>$search_rows));
 			return $output;
 		}
 		else
