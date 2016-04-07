@@ -253,11 +253,19 @@ function code_approval_form_submit($form, &$form_state)
 	$num_updated = $query->execute();
 
 
-      /* sending email */
+    /* sending email */
       $email_to = $user_data->mail;
-      $param['example_approved']['example_id'] = $ex_data['example_id'];
-      $param['example_approved']['user_id'] = $user_data->uid;
-      if (!drupal_mail('textbook_companion', 'example_approved', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+      $from = variable_get('textbook_companion_from_email', '');
+      $bcc= variable_get('textbook_companion_emails', '');
+      $cc=variable_get('textbook_companion_cc_emails', '');
+      $params['example_approved']['example_id'] = $ex_data['example_id'];
+      $params['example_approved']['user_id'] = $user_data->uid;
+      $params['example_approved']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
+
+      if (!drupal_mail('textbook_companion', 'example_approved', $email_to, language_default(), $params, $from, TRUE))
         drupal_set_message('Error sending email message.', 'error');
 
     } else if ($ex_data['approved'] == "1") {
@@ -265,11 +273,21 @@ function code_approval_form_submit($form, &$form_state)
       {
         /* sending email */
         $email_to = $user_data->mail;
-        $param['example_disapproved']['example_number'] = $example_data->number;
-        $param['example_disapproved']['example_caption'] = $example_data->caption;
-        $param['example_disapproved']['user_id'] = $user_data->uid;
-        $param['example_disapproved']['message'] = $ex_data['message'];
-        if (!drupal_mail('textbook_companion', 'example_disapproved', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+	$from = variable_get('textbook_companion_from_email', '');
+      	$bcc= variable_get('textbook_companion_emails', '');
+      	$cc=variable_get('textbook_companion_cc_emails', '');
+	$params['example_disapproved']['preference_id'] = $chapter_data->preference_id;
+	$params['example_disapproved']['chapter_id'] = $example_data->chapter_id;
+        $params['example_disapproved']['example_number'] = $example_data->number;
+        $params['example_disapproved']['example_caption'] = $example_data->caption;
+        $params['example_disapproved']['user_id'] = $user_data->uid;
+        $params['example_disapproved']['message'] = $ex_data['message'];
+	$params['example_disapproved']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
+
+        if (!drupal_mail('textbook_companion', 'example_disapproved', $email_to, language_default(), $params, $from, TRUE))
           drupal_set_message('Error sending email message.', 'error');
       } else {
         drupal_set_message('Error disapproving and deleting example. Please contact administrator.', 'error');
@@ -279,6 +297,7 @@ function code_approval_form_submit($form, &$form_state)
   drupal_set_message('Updated successfully.', 'status');
   drupal_goto('code_approval');
 }
+
 
 
 /******************************************************************************/
@@ -730,9 +749,9 @@ Reason for dis-approval:
       			if ($email_subject)
       			{
         			$email_to = $user->mail;
-        			$param['standard']['subject'] = $email_subject;
-        			$param['standard']['body'] = $email_body;
-        			if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+        			$params['standard']['subject'] = $email_subject;
+        			$params['standard']['body'] = $email_body;
+        			if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
           				drupal_set_message('Error sending email message.', 'error');
       			}
 
