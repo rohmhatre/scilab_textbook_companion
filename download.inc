@@ -135,6 +135,7 @@ function textbook_companion_download_example()
 function textbook_companion_download_chapter()
 {
   $chapter_id = arg(2);
+ // var_dump($chapter_id);die;
   $root_path = textbook_companion_path();
 
   /* get example data */
@@ -296,5 +297,25 @@ $zip->addFile($root_path . $dependency_file_data->filepath, $BK_PATH . $CH_PATH 
     drupal_set_message("There are no examples in this book to download", 'error');
     drupal_goto('textbook_run');
   }
+}
+
+function textbook_companion_download_sample_code()
+{
+  $proposal_id = arg(2);
+  $root_path = textbook_companion_samplecode_path();
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('id', $proposal_id);
+	$query->range(0, 1);
+	$result = $query->execute();
+
+	$example_file_data =$result->fetchObject();
+	$samplecodename=substr($example_file_data->samplefilepath, strrpos($example_file_data->samplefilepath, '/') + 1);
+  header('Content-Type: application/zip');
+  header('Content-disposition: attachment; filename="'.$samplecodename.'"');
+  header('Content-Length: ' . filesize($root_path . $example_file_data->samplefilepath));
+  ob_clean();
+  readfile($root_path . $example_file_data->samplefilepath);
 }
    

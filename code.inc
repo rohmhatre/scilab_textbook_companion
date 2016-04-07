@@ -671,9 +671,17 @@ function upload_examples_form_submit($form, &$form_state) {
 
   /* sending email */
   $email_to = $user->mail;
-  $param['example_uploaded']['example_id'] = $example_id;
-  $param['example_uploaded']['user_id'] = $user->uid;
-  if (!drupal_mail('textbook_companion', 'example_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+  $from = variable_get('textbook_companion_from_email', '');
+  $bcc= variable_get('textbook_companion_emails', '');
+  $cc=variable_get('textbook_companion_cc_emails', '');
+  $params['example_uploaded']['example_id'] = $example_id;
+  $params['example_uploaded']['user_id'] = $user->uid;
+  $params['example_uploaded']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
+  
+  if (!drupal_mail('textbook_companion', 'example_uploaded', $email_to, language_default(), $param, $from, TRUE))
     drupal_set_message('Error sending email message.', 'error');
 
   drupal_goto('textbook_companion/code');
@@ -771,14 +779,20 @@ function _upload_examples_delete()
 
     /* sending email */
     $email_to = $user->mail;
-    $param['example_deleted_user']['book_title'] = $preference_data->book;
-    $param['example_deleted_user']['chapter_title'] = $chapter_data->name;
-    $param['example_deleted_user']['example_number'] = $example_data->number;
-    $param['example_deleted_user']['example_caption'] = $example_data->caption;
+    $from = variable_get('textbook_companion_from_email', '');
+    $bcc= variable_get('textbook_companion_emails', '');
+    $cc=variable_get('textbook_companion_cc_emails', '');
+    $params['example_deleted_user']['book_title'] = $preference_data->book;
+    $params['example_deleted_user']['chapter_title'] = $chapter_data->name;
+    $params['example_deleted_user']['example_number'] = $example_data->number;
+    $params['example_deleted_user']['example_caption'] = $example_data->caption;
+    $params['example_deleted_user']['user_id'] = $user->uid;
+    $params['example_deleted_user']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
 
-    $param['example_deleted_user']['user_id'] = $user->uid;
-
-    if (!drupal_mail('textbook_companion', 'example_deleted_user', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+    if (!drupal_mail('textbook_companion', 'example_deleted_user', $email_to, language_default(), $param, $from, TRUE))
       drupal_set_message('Error sending email message.', 'error');
   } else {
     drupal_set_message('Error deleting example.', 'status');

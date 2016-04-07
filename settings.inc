@@ -30,7 +30,15 @@ function textbook_companion_settings_form($form_state)
     '#required' => TRUE,
     '#default_value' => variable_get('textbook_companion_emails_all', ''),
   );
-
+$form['cc_emails'] = array(
+    '#type' => 'textfield',
+    '#title' => t('(Cc) Notification emails'),
+    '#description' => t('Specify emails id for Cc option of mail system with comma separated'),
+    '#size' => 50,
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#default_value' => variable_get('textbook_companion_cc_emails', ''),
+  ); 
   $form['from_email'] = array(
     '#type' => 'textfield',
     '#title' => t('Outgoing from email address'),
@@ -49,6 +57,15 @@ function textbook_companion_settings_form($form_state)
     '#maxlength' => 255,
     '#required' => TRUE,
     '#default_value' => variable_get('textbook_companion_source_extensions', ''),
+  );
+  $form['extensions']['sample_source_file'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Allowed sample source file extensions'),
+    '#description' => t('A comma separated list WITHOUT SPACE of source file extensions that are permitted to be uploaded on the server'),
+    '#size' => 50,
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#default_value' => variable_get('textbook_companion_sample_source_file_extensions', ''),
   );
   $form['extensions']['dependency'] = array(
     '#type' => 'textfield',
@@ -93,10 +110,12 @@ function textbook_companion_settings_form_validate($form, &$form_state)
 function textbook_companion_settings_form_submit($form, &$form_state)
 {
   variable_set('textbook_companion_emails', $form_state['values']['emails']);
+  variable_set('textbook_companion_cc_emails', $form_state['values']['cc_emails']);
   variable_set('textbook_companion_emails_fail_rem_bcc', $form_state['values']['bcc_emails_rem']);
   variable_set('textbook_companion_emails_all', $form_state['values']['to_emails']);
   variable_set('textbook_companion_from_email', $form_state['values']['from_email']);
   variable_set('textbook_companion_source_extensions', $form_state['values']['source']);
+  variable_set('textbook_companion_sample_source_file_extensions', $form_state['values']['sample_source_file']);
   variable_set('textbook_companion_dependency_extensions', $form_state['values']['dependency']);
   variable_set('textbook_companion_result_extensions', $form_state['values']['result']);
   variable_set('textbook_companion_xcos_extensions', $form_state['values']['xcos']);
