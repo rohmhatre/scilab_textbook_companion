@@ -10,11 +10,12 @@ function textbook_companion_search_form($form,&$form_state)
       '#size' => 48,
   );
  
-  $form['search_by'] = array(
+  $form['sort_by'] = array(
       '#type' => 'radios',
       '#default_value' => TRUE,
-      '#title' => t('Search by'),
+      '#title' => t('Sort by'),
       '#options' => array('title'=>t('Title'),'author'=>t('Author'),'contributor'=>t('Contributor')),
+      '#default_value' => 'title',
   );
 
   $form['submit'] = array(
@@ -39,11 +40,19 @@ function textbook_companion_search_form($form,&$form_state)
   return $form;
 }
 function textbook_companion_search_ajax_callback($form,$form_state){
- 	if ($form_state['values']['search_by'] == 'title' ){
+    if ($form_state['values']['sort_by'] == 'title' ){
+          $search_q = db_query("
+          SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author,
+          pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
+          FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
+          WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND
+          (book LIKE :book OR author LIKE :author OR po.full_name LIKE :contributor) ORDER BY pe.book ASC
+          ",
+          array(":book" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":author" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":contributor" => '%%'.trim($form_state['values']['search']).'%%'
+                  ));
 
-      	$search_q = db_query("SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
-                        FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
-                        WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND book LIKE :book ORDER BY pe.book ASC", array(":book" => '%%'.trim($form_state['values']['search']).'%%'));
 while ($search_data = $search_q->fetchObject())
     {
       $search_rows[] = array(l($search_data->book, 'textbook_run/' . $search_data->pref_id), $search_data->author, $search_data->full_name);
@@ -62,11 +71,18 @@ while ($search_data = $search_q->fetchObject())
    
  }
 
-  	}elseif ($form_state['values']['search_by'] =='author'){      	
-	
-      	$search_q = db_query("SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
-                        FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
-                        WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND author LIKE :author ORDER BY pe.author ASC", array(":author" => '%%'.trim($form_state['values']['search']).'%%'));
+    }elseif ($form_state['values']['sort_by'] =='author'){
+                        $search_q = db_query("
+          SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author,
+          pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
+          FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
+          WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND
+          (book LIKE :book OR author LIKE :author OR po.full_name LIKE :contributor) ORDER BY pe.author ASC
+          ",
+          array(":book" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":author" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":contributor" => '%%'.trim($form_state['values']['search']).'%%'
+                  ));
 while ($search_data = $search_q->fetchObject())
     {
       $search_rows[] = array($search_data->author,l($search_data->book, 'textbook_run/' . $search_data->pref_id),  $search_data->full_name);
@@ -85,11 +101,18 @@ while ($search_data = $search_q->fetchObject())
    
  }
  	
-	}else if ($form_state['values']['search_by']== 'contributor'){
-                                           
-      	$search_q = db_query("SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author, pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
-                        FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
-                        WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND po.full_name LIKE :contributor ORDER BY po.full_name ASC", array(":contributor" => '%%'.trim($form_state['values']['search']).'%%'));
+	}else if ($form_state['values']['sort_by']== 'contributor'){
+                        $search_q = db_query("
+          SELECT pe.id AS pref_id, po.full_name, pe.book as book, pe.author as author,
+          pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
+          FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
+          WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND
+          (book LIKE :book OR author LIKE :author OR po.full_name LIKE :contributor) ORDER BY po.full_name ASC
+          ",
+          array(":book" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":author" => '%%'.trim($form_state['values']['search']).'%%',
+                 ":contributor" => '%%'.trim($form_state['values']['search']).'%%'
+                  ));
 while ($search_data = $search_q->fetchObject())
     {
       $search_rows[] = array($search_data->full_name, l($search_data->book, 'textbook_run/' . $search_data->pref_id),  $search_data->author);
