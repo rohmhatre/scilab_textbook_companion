@@ -2129,7 +2129,7 @@ Best Wishes,
 
 	$query = db_select('textbook_companion_proposal');
 	$query->fields('textbook_companion_proposal');
-	$query->condition('id', $params['proposal_received']['proposal_id']);
+	$query->condition('id', $params['nonaicte_proposal_received']['proposal_id']);
 	$query->range(0, 1);
 	$result = $query->execute();
 	$proposal_data =$result->fetchObject();
@@ -2146,17 +2146,13 @@ Best Wishes,
                 WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
                ";
       $args = array(
-                    ':proposal_id' => $params['proposal_received']['proposal_id'],
+                    ':proposal_id' => $params['nonaicte_proposal_received']['proposal_id'],
                     ':pref_number' => 1,                    
       );
       $preference1_q = db_query($query,$args);
       $preference1_data = $preference1_q->fetchObject();
-
-	
-	
-
-      $user_data = user_load($params['proposal_received']['user_id']);
-      $message['headers'] = $params['proposal_received']['headers']; 
+      $user_data = user_load($params['nonaicte_proposal_received']['user_id']);
+      $message['headers'] = $params['nonaicte_proposal_received']['headers'];
       $message['subject'] = t('[!site_name] Your book proposal has been received', array('!site_name' => variable_get('site_name', '')),array('language' => $language->language));
       $message['body'] =array('body' => t('
 Dear !user_name,
@@ -2173,7 +2169,7 @@ College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' .  $proposal_data->reviewer . '
 Expected date of completion : ' .  date('d-m-Y', $proposal_data->completion_date) . '
 
-Your Non AICTE Book Preferences :
+Your Non AICTE Book Preferences:
 
 Book Preference :-
 Title of the book : ' . $preference1_data->book . '
@@ -2185,7 +2181,7 @@ Year of publication : ' . $preference1_data->year . '
 Category : ' . $preference1_data->category_name . '
 
 
-Uploaded Sample Code :'.$samplecodefilename.'
+Uploaded Sample Code : '.$samplecodefilename.'
 
 Your proposal is under review and you will soon receive an email from us regarding the same.
 
@@ -2198,7 +2194,7 @@ case 'nonaicte_proposal_to_pi':
 
 	$query = db_select('textbook_companion_proposal');
 	$query->fields('textbook_companion_proposal');
-	$query->condition('id', $params['proposal_received']['proposal_id']);
+	$query->condition('id', $params['nonaicte_proposal_received']['proposal_id']);
 	$query->range(0, 1);
 	$result = $query->execute();
 	$proposal_data=$result->fetchObject();
@@ -2207,7 +2203,7 @@ case 'nonaicte_proposal_to_pi':
 
 	$query = db_select('textbook_companion_preference');
 	$query->fields('textbook_companion_preference');
-	$query->condition('proposal_id', $params['proposal_received']['proposal_id']);
+	$query->condition('proposal_id', $params['nonaicte_proposal_received']['proposal_id']);
 	$query->condition('pref_number', 1);
 	$query->range(0, 1);
 	$result = $query->execute();
@@ -2247,8 +2243,6 @@ Best Wishes,
 
 !site_name', array('!site_name' => variable_get('site_name', ''), '!user_name' => $user_data->name), array('language' => $language->language)));
       break;
-
-
 
     case 'proposal_approved':     
 

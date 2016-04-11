@@ -418,7 +418,7 @@ if($form_state['values']['proposal_type']==0){
     			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
     
 
-    if (!drupal_mail('textbook_companion', 'proposal_disapproved', $email_to , language_default(), $param,$from, TRUE))
+    if (!drupal_mail('textbook_companion', 'proposal_disapproved', $email_to , language_default(), $params,$from, TRUE))
       drupal_set_message('Error sending email message.', 'error');
 
     drupal_set_message('Book proposal dis-approved. User has been notified of the dis-approval.', 'error');
@@ -468,7 +468,7 @@ if($form_state['values']['proposal_type']==0){
     			'Content-Transfer-Encoding' => '8Bit',
     			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
   
-  if (!drupal_mail('textbook_companion', 'proposal_approved', $email_to , language_default(), $param, $from, TRUE))
+  if (!drupal_mail('textbook_companion', 'proposal_approved', $email_to , language_default(), $params, $from, TRUE))
     drupal_set_message('Error sending email message.', 'error');
 
   drupal_set_message('Book proposal approved. User has been notified of the approval', 'status');
@@ -1668,7 +1668,7 @@ function _failed_all($preference_id=0, $confirm="") {
 
     $message = $body;        
     //drupal_mail($message);
-    //drupal_mail('', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+    //drupal_mail('', 'standard', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
     $from = variable_get('textbook_companion_from_email', NULL);
     $bcc = variable_get('textbook_companion_emails_fail_rem_bcc', NULL);
     fail_rem_send_mail( $from, $to, $bcc, $subject, $message);
