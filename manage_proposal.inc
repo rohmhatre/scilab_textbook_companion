@@ -270,9 +270,13 @@ function proposal_approval_form($form,&$form_state)
     '#markup' => $row->scilab_version,
     '#title' => t('Scilab Version'),
   );
+  /************************** reference link filter *******************/
+    $url = '~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i'; 
+    $reference = preg_replace($url, '<a href="$0" target="_blank" title="$0">$0</a>', $row->reference);
+/******************************/
   $form['reference'] = array(
     '#type' => 'item',
-    '#markup' => $row->reference,
+    '#markup' => $reference,
     '#title' => t('References'),
   );
   $form['reason'] = array(

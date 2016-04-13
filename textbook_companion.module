@@ -3496,8 +3496,6 @@ function book_proposal_nonaicte_form_validate($form, &$form_state)
 
   if (!preg_match('/^\d+(?:\.\d+)+/', $form_state['values']['version']))
     form_set_error('version', t('Please enter correct version in speacifed format'));
-    
-  
 
  if($form_state['values']['country']=='Others'){
          if($form_state['values']['other_country']== ''){
