@@ -77,7 +77,7 @@ while ($search_data = $search_q->fetchObject())
           pe.publisher as publisher, pe.year as year, pe.id as pe_id, po.approval_date as approval_date
           FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
           WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND
-          (book LIKE :book OR author LIKE :author OR po.full_name LIKE :contributor) ORDER BY pe.author ASC
+          (book LIKE :book OR author LIKE :author OR po.full_name LIKE :contributor) ORDER BY author ASC
           ",
           array(":book" => '%%'.trim($form_state['values']['search']).'%%',
                  ":author" => '%%'.trim($form_state['values']['search']).'%%',
