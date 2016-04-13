@@ -443,7 +443,7 @@ function bulk_approval_form($form,$form_state)
 }
 
 function bulk_approval_submit_validate($form, &$form_state){
-var_dump('test');
+//var_dump('test');
 if(($form_state['values']['book_actions'] == 0) && ($form_state['values']['chapter_actions']== 0) && ($form_state['values']['example_actions'] == 0))
         drupal_set_message("Wrong selection of action. Please select any one action1", 'error');
         return;
