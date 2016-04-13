@@ -2585,7 +2585,8 @@ array('language' => $language->language)));
 
     case 'feedback_received':
        // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
+     // $message['headers'] += $tbc_bcc_emails;
+      $message['headers'] = $params['feedback_received']['headers'];
       $user_data = user_load($params['feedback_received']['user_id']);
 
       $message['subject'] = t('[!site_name] We have received your feedback', array('!site_name' => variable_get('site_name', '')), array('language' => $language->language));
@@ -2608,8 +2609,8 @@ Best Wishes,
 
     case 'internshipform':
       // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
-
+      //$message['headers'] += $tbc_bcc_emails;
+      $message['headers'] = $params['internshipform']['headers'];
       $user_data = user_load($params['internshipform']['user_id']);
 
       $message['subject'] = t('[!site_name] We have received your feedback', array('!site_name' => variable_get('site_name', '')), array('language' => $language->language));
@@ -2629,7 +2630,8 @@ Best Wishes,
 
 case 'copyrighttransferform':
       // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
+      //$message['headers'] += $tbc_bcc_emails;
+      $message['headers'] = $params['copyrighttransferform']['headers'];
 
       $user_data = user_load($params['copyrighttransferform']['user_id']);
 
@@ -2650,8 +2652,8 @@ Best Wishes,
 
 case 'undertakingform':
       // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
-
+      //$message['headers'] += $tbc_bcc_emails;
+      $message['headers'] = $params['undertakingform']['headers'];
       $user_data = user_load($params['undertakingform']['user_id']);
 
       $message['subject'] = t('[!site_name] We have received your feedback', array('!site_name' => variable_get('site_name', '')), array('language' => $language->language));
@@ -2672,10 +2674,10 @@ Best Wishes,
    
 case 'remark':
       // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
+      //$message['headers'] += $tbc_bcc_emails;
 
       $user_data = user_load($params['remark']['user_id']);
-
+      $message['headers'] = $params['remark']['headers'];
       $message['subject'] = t('[!site_name] A remark has been given.Please check your contact detail form', array('!site_name' => variable_get('site_name', '')), array('language' => $language->language));
       $message['body'] =array('body' => t('
 Dear !user_name,
@@ -2693,10 +2695,11 @@ Best Wishes,
 
     case 'cheque_sent':
       // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
+     // $message['headers'] += $tbc_bcc_emails;
 
       $user_data = user_load($params['cheque_sent']['user_id']);
-
+      $message['headers'] = $params['cheque_sent']['headers'];
+       
      $message['subject'] = t('[!site_name] We have received your feedback', array('!site_name' => variable_get('site_name', '')), array('language' => $language->language));
       $message['body'] =array('body' => t('
 Dear !user_name,
@@ -2715,7 +2718,8 @@ Best Wishes,
 
     case 'standard':
        // bcc to textbook_companion_emails
-      $message['headers'] += $tbc_bcc_emails;
+      //$message['headers'] += $tbc_bcc_emails;
+      $message['headers'] = $params['standard']['headers'];
       $message['subject'] = $params['standard']['subject'];
       $message['body'] = $params['standard']['body'];
       break;
