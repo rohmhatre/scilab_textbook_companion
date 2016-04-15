@@ -37,6 +37,7 @@ xmlrpc.php
 /themes
 
 # Ignore vim temp. files
+*.bak
 *.swo
 *.swp
 *~

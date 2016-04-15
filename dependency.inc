@@ -1,7 +1,7 @@
 <?php
 // $Id$
 
-function upload_dependency_form($form_state)
+function upload_dependency_form($form,&$form_state)
 {
   global $user;
 
@@ -20,7 +20,7 @@ function upload_dependency_form($form_state)
 
   if (!$proposal_data)
   {
-    drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
+    drupal_set_message("Please submit a " . l('proposal', 'book_proposal') . ".", 'error');
     drupal_goto('');
   }
   if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
@@ -33,12 +33,12 @@ function upload_dependency_form($form_state)
       return;
       break;
     case 2:
-      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'proposal') . '.'), 'error');
+      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'book_proposal') . '.'), 'error');
       drupal_goto('');
       return;
       break;
     case 3:
-      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'proposal') . '.'), 'status');
+      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'book_proposal') . '.'), 'status');
       drupal_goto('');
       return;
       break;
@@ -195,7 +195,7 @@ function upload_dependency_form_submit($form, &$form_state) {
 
   if (!$proposal_data)
   {
-    drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
+    drupal_set_message("Please submit a " . l('proposal', 'book_proposal') . ".", 'error');
     drupal_goto('');
   }
   if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
@@ -208,12 +208,12 @@ function upload_dependency_form_submit($form, &$form_state) {
       return;
       break;
     case 2:
-      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'proposal') . '.'), 'error');
+      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'book_proposal') . '.'), 'error');
       drupal_goto('');
       return;
       break;
     case 3:
-      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'proposal') . '.'), 'status');
+      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'book_proposal') . '.'), 'status');
       drupal_goto('');
       return;
       break;
@@ -310,8 +310,8 @@ function upload_dependency_form_submit($form, &$form_state) {
     drupal_set_message('Dependencies uploaded successfully.', 'status');
   
     /* sending email */
-    $param['dependency_uploaded']['user_id'] = $user->uid;
-    $param['dependency_uploaded']['dependency_names'] = $dependency_names;
+    $params['dependency_uploaded']['user_id'] = $user->uid;
+    $params['dependency_uploaded']['dependency_names'] = $dependency_names;
 
     $email_to = $user->mail;
     if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
@@ -333,19 +333,6 @@ function _list_existing_dependency($book_id)
 	$query->condition('preference_id', $book_id);
 	$query->orderBy('filename', 'ASC');
 	$result = $query->execute();
-
-  // $counter = 0;
-  // while ($row = db_fetch_object($query))
-  // {
-  //   $temp_caption = '';
-  //   if ($row->caption)
-  //     $temp_caption = ' (' . $row->caption . ')';
-  //   $return_html .= '<li>' . l($row->filename . $temp_caption, 'download/dependency/' . $row->id) . '</li>';
-  //   $counter++;
-  // }
-  // if ($counter == 0)
-  //   $return_html .= '<li>(None)</li>';
-  // $return_html .= '</ul>';
 
   $headers = array(
     "File", "Action",
@@ -694,11 +681,18 @@ function edit_dependency_form_submit($form, &$form_state) {
     drupal_set_message('Dependencies uploaded successfully.', 'status');
   
     /* sending email */
-    $param['dependency_uploaded']['user_id'] = $user->uid;
-    $param['dependency_uploaded']['dependency_names'] = $dependency_names;
+    $from = variable_get('textbook_companion_from_email', '');
+    $bcc= variable_get('textbook_companion_emails', '');
+    $cc=variable_get('textbook_companion_cc_emails', '');
+    $params['dependency_uploaded']['user_id'] = $user->uid;
+    $params['dependency_uploaded']['dependency_names'] = $dependency_names;
+    $params['dependency_uploaded']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
 
     $email_to = $user->mail;
-    if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+    if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $params, $from, TRUE))
       drupal_set_message('Error sending email message.', 'error');
   }
 
@@ -735,7 +729,7 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
 
   if (!$proposal_data)
   {
-    drupal_set_message("Please submit a " . l('proposal', 'proposal') . ".", 'error');
+    drupal_set_message("Please submit a " . l('proposal', 'book_proposal') . ".", 'error');
     drupal_goto('');
   }
   if ($proposal_data->proposal_status  != 1 && $proposal_data->proposal_status  != 4)
@@ -748,12 +742,12 @@ function delete_dependency($dependency_id = 0, $confirm = "") {
       return;
       break;
     case 2:
-      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'proposal') . '.'), 'error');
+      drupal_set_message(t('Your proposal has been dis-approved. Please create another proposal ' . l('here', 'book_proposal') . '.'), 'error');
       drupal_goto('');
       return;
       break;
     case 3:
-      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'proposal') . '.'), 'status');
+      drupal_set_message(t('Congratulations! You have completed your last book proposal. You have to create another proposal ' . l('here', 'book_proposal') . '.'), 'status');
       drupal_goto('');
       return;
       break;

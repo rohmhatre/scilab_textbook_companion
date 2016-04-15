@@ -226,15 +226,13 @@ $(document).ready(function(){
       '#options' => _list_of_book_titles(),
   );*/
   
-  
-  
-   $form['existing_depfile']['dep_book'] = array(
+   list($files_options, $files_options_class) = _list_of_book_dependency_files($preference_data->id);
+
+$form['existing_depfile']['dep_book'] = array(
       '#type' => 'item',
       '#title' => t('Dependency Files'),
     
   );
-
-  list($files_options, $files_options_class) = _list_of_book_dependency_files();
   $form['existing_depfile']['dep_chapter_example_files'] = array(
       '#type' => 'checkboxes',
       //'#title' => t('Dependency Files'),
@@ -243,8 +241,7 @@ $(document).ready(function(){
       '#prefix' => '<div id="ckb" style="height:500px;overflow:auto;">',
       '#suffix' =>'</div>',
       '#multiple' => TRUE,
-  );
-
+      );
   $form['existing_depfile']['dep_upload'] = array(
       '#type' => 'item',          
       '#markup' => '<hr style="color:red">'. l('Upload New Depedency Files', 'textbook_companion/code/upload_dep'),
@@ -671,9 +668,17 @@ function upload_examples_form_submit($form, &$form_state) {
 
   /* sending email */
   $email_to = $user->mail;
-  $param['example_uploaded']['example_id'] = $example_id;
-  $param['example_uploaded']['user_id'] = $user->uid;
-  if (!drupal_mail('textbook_companion', 'example_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+  $from = variable_get('textbook_companion_from_email', '');
+  $bcc= variable_get('textbook_companion_emails', '');
+  $cc=variable_get('textbook_companion_cc_emails', '');
+  $params['example_uploaded']['example_id'] = $example_id;
+  $params['example_uploaded']['user_id'] = $user->uid;
+  $params['example_uploaded']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
+  
+  if (!drupal_mail('textbook_companion', 'example_uploaded', $email_to, language_default(), $params, $from, TRUE))
     drupal_set_message('Error sending email message.', 'error');
 
   drupal_goto('textbook_companion/code');
@@ -771,14 +776,20 @@ function _upload_examples_delete()
 
     /* sending email */
     $email_to = $user->mail;
-    $param['example_deleted_user']['book_title'] = $preference_data->book;
-    $param['example_deleted_user']['chapter_title'] = $chapter_data->name;
-    $param['example_deleted_user']['example_number'] = $example_data->number;
-    $param['example_deleted_user']['example_caption'] = $example_data->caption;
+    $from = variable_get('textbook_companion_from_email', '');
+    $bcc= variable_get('textbook_companion_emails', '');
+    $cc=variable_get('textbook_companion_cc_emails', '');
+    $params['example_deleted_user']['book_title'] = $preference_data->book;
+    $params['example_deleted_user']['chapter_title'] = $chapter_data->name;
+    $params['example_deleted_user']['example_number'] = $example_data->number;
+    $params['example_deleted_user']['example_caption'] = $example_data->caption;
+    $params['example_deleted_user']['user_id'] = $user->uid;
+    $params['example_deleted_user']['headers']=array('From'=>$from,'MIME-Version'=> '1.0',
+    			'Content-Type'=> 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    			'Content-Transfer-Encoding' => '8Bit',
+    			'X-Mailer'=> 'Drupal','Cc' => $cc, 'Bcc' => $bcc);
 
-    $param['example_deleted_user']['user_id'] = $user->uid;
-
-    if (!drupal_mail('textbook_companion', 'example_deleted_user', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+    if (!drupal_mail('textbook_companion', 'example_deleted_user', $email_to, language_default(), $params, $from, TRUE))
       drupal_set_message('Error sending email message.', 'error');
   } else {
     drupal_set_message('Error deleting example.', 'status');
@@ -815,38 +826,27 @@ function _list_of_book_titles()
   return $book_titles;
 }
 
-function _list_of_book_dependency_files()
+function _list_of_book_dependency_files($book_id)
 {
+  global $user;
   $book_dependency_files = array();
   $book_dependency_files_class = array();
 
-  /*$book_dependency_files_q = db_query("SELECT * FROM {textbook_companion_dependency_files} ORDER BY filename ASC");*/
-
-	/*$query = db_select('textbook_companion_dependency_files');
-	$query->fields('textbook_companion_dependency_files');
-	$query->orderBy('filename', 'ASC');*/
-	
-/*	$query = db_select('textbook_companion_dependency_files', 'tcdp');
-	$query->fields('tcdp');
-	$query->fields('tcp', array('book', 'author','publisher', 'edition', 'year'));
-	$query->leftJoin('textbook_companion_preference', 'tcp', 'tcdp.preference_id = tcp.id');
-	$result = $query->execute();*/
-	
-	$book_dependency_files_q = db_query("
-                                            select * from {textbook_companion_dependency_files} tcdf 
-                                            LEFT JOIN textbook_companion_preference pe on tcdf.preference_id=pe.id 
-                                            LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id 
-                                            WHERE po.proposal_status = 3 AND pe.approval_status = 1
-                                           ");
+                $query = db_select('textbook_companion_dependency_files');
+                $query->fields('textbook_companion_dependency_files');
+                $query->condition('preference_id', $book_id);
+                $query->orderBy('filename', 'ASC');
+                $book_dependency_files_q = $query->execute();
 
 
   while ($book_dependency_files_data = $book_dependency_files_q->fetchObject())
   {
+
     $temp_caption = '';
-    if ($book_dependency_files_data->caption)
-      $temp_caption .= ' ===>[Caption: ' . $book_dependency_files_data->caption . ' ' .', Book: '. $book_dependency_files_data->book .', Author: '. $book_dependency_files_data->author . ', Publisher: '. $book_dependency_files_data->publisher . ', Edition: '. $book_dependency_files_data->edition .', Year: '. $book_dependency_files_data->year.']';
+    if ($book_dependency_files_data->caption){
     $book_dependency_files[$book_dependency_files_data->id] = l($book_dependency_files_data->filename , 'download/dependency/' . $book_dependency_files_data->id, array('attributes' => array('class' => 'title'))). $temp_caption;
     $book_dependency_files_class[$book_dependency_files_data->id] = $book_dependency_files_data->preference_id;
+    }
   }
   return array($book_dependency_files, $book_dependency_files_class);
 }

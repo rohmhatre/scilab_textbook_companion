@@ -5,7 +5,7 @@
 /***************************** EDIT EXAMPLE ***********************************/
 /******************************************************************************/
 
-function upload_examples_admin_edit_form($form_state)
+function upload_examples_admin_edit_form($form, $form_state)
 {
   global $user;
   $example_id = arg(2);
@@ -1073,7 +1073,7 @@ function upload_examples_admin_edit_form_submit($form, &$form_state)
   $email_to = $user_data->mail;
   $param['example_updated_admin']['example_id'] = $example_id;
   $param['example_updated_admin']['user_id'] = $proposal_data->uid;
-  if (!drupal_mail('textbook_companion', 'example_updated_admin', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
+  if (!drupal_mail('textbook_companion', 'example_updated_admin', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
     drupal_set_message('Error sending email message.', 'error');
 
   drupal_set_message(t("Example successfully udpated."), 'status');

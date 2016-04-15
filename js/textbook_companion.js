@@ -1,6 +1,7 @@
-$( document ).ready(function() {
+(function ($) {
 //to search 
- $('#searchtext').keyup(function(event) {
+$(document).ready(function(){
+$('#searchtext').keyup(function(event) {
         var search_text = $('#searchtext').val();
         var rg = new RegExp(search_text,'i');
         $('#aicte-list-wrapper  .title , .form-item' ).each(function(){
@@ -206,5 +207,5 @@ $report_form.submit(function(e) {
     }
     e.preventDefault();
 });
-
 });
+})(jQuery);
