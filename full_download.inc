@@ -221,7 +221,7 @@ $zip->addFile($root_path . $dependency_file_data->filepath, $BK_PATH . $PENDING_
     //header('Expires: 0');
     //header('Pragma: no-cache');
     //ob_end_flush();
-    //ob_clean();
+    ob_end_clean();
     //flush();
     readfile($zip_filename);
     unlink($zip_filename);
