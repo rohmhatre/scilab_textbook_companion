@@ -1,5 +1,6 @@
 <?php
 // $Id$
+require_once('email.inc');
 /*
  * Implementation of hook_menu().
  */
@@ -836,6 +837,16 @@ function _tbc_list_of_category($category_id = NULL)
 		$category[$category_list_data->category_id] = $category_list_data->category_name;
 	} //$category_list_data = $category_list->fetchObject()
 	return $category;
+}
+function _tbc_sentence_case($string)
+{
+	$string =ucwords(strtolower($string));
+	foreach (array('-', '\'') as $delimiter) {
+		if (strpos($string, $delimiter)!==false) {
+		$string =implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+		}
+	}
+	return $string;
 }
 function textbook_companion_init()
 {
