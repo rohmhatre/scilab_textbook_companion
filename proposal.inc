@@ -1257,10 +1257,10 @@ function textbook_companion_mail($key, &$message, $params)
 			/*$preference1_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $params['proposal_received']['proposal_id'], 1);
 			$preference1_data = db_fetch_object($preference1_q);*/
 			$query = "
-                SELECT * FROM list_of_category loc
-                JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
-                WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
-               ";
+				SELECT * FROM list_of_category loc
+				JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
+				WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
+				";
 			$args = array(
 				':proposal_id' => $params['proposal_received']['proposal_id'],
 				':pref_number' => 1
@@ -1270,10 +1270,10 @@ function textbook_companion_mail($key, &$message, $params)
 			/*$preference2_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $params['proposal_received']['proposal_id'], 2);
 			$preference2_data = db_fetch_object($preference2_q);*/
 			$query = "
-                SELECT * FROM list_of_category loc
-                JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
-                WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
-               ";
+				SELECT * FROM list_of_category loc
+				JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
+				WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
+				";
 			$args = array(
 				':proposal_id' => $params['proposal_received']['proposal_id'],
 				':pref_number' => 2
@@ -1281,10 +1281,10 @@ function textbook_companion_mail($key, &$message, $params)
 			$preference2_q = db_query($query, $args);
 			$preference2_data = $preference2_q->fetchObject();
 			$query = "
-                SELECT * FROM list_of_category loc
-                JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
-                WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
-               ";
+				SELECT * FROM list_of_category loc
+				JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
+				WHERE proposal_id = :proposal_id AND pref_number = :pref_number LIMIT 1
+				";
 			$args = array(
 				':proposal_id' => $params['proposal_received']['proposal_id'],
 				':pref_number' => 3
