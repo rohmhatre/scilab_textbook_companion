@@ -6,6 +6,7 @@ cache/
 files/
 sites/*/files
 sites/*/private
+file_bck
 
 # Ignore default text files
 robots.txt
