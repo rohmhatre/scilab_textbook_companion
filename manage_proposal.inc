@@ -827,7 +827,7 @@ function proposal_status_form_submit($form, &$form_state)
 /******************************************************************************/
 /**************************** PROPOSAL EDIT FORM ******************************/
 /******************************************************************************/
-function proposal_edit_form($form, $form_state, $nonaicte_book)
+function proposal_edit_form($form, &$form_state, $nonaicte_book)
 {
 	global $user;
 	/* get current proposal */
@@ -1295,41 +1295,72 @@ function proposal_edit_form_validate($form, &$form_state)
 	/* edition */
 	if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition1']))
 		form_set_error('edition1', t('Invalid edition for Book Preference 1'));
-	if ($form_state['values']['edition2'])
+	if ($form_state['values']['book2'])
 	{
 		if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition2']))
+		{
 			form_set_error('edition2', t('Invalid edition for Book Preference 2'));
+		} //!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition2'])
+	} //$form_state['values']['book2']
+	if ($form_state['values']['book3'])
+	{
 		if (!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition3']))
+		{
 			form_set_error('edition3', t('Invalid edition for Book Preference 3'));
-	} //$form_state['values']['edition2']
+		} //!preg_match('/^[1-9][0-9]{0,1}$/', $form_state['values']['edition3'])
+	} //$form_state['values']['book3']
 	/* year of publication */
 	if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year1']))
 		form_set_error('year1', t('Invalid year of pulication for Book Preference 1'));
-	if ($form_state['values']['edition2'])
+	if ($form_state['values']['book2'])
 	{
 		if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year2']))
+		{
 			form_set_error('year2', t('Invalid year of pulication for Book Preference 2'));
+		} //!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year2'])
+	} //$form_state['values']['book2']
+	if ($form_state['values']['book3'])
+	{
 		if (!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year3']))
+		{
 			form_set_error('year3', t('Invalid year of pulication for Book Preference 3'));
-	} //$form_state['values']['edition2']
+		} //!preg_match('/^[1-3][0-9][0-9][0-9]$/', $form_state['values']['year3'])
+	} //$form_state['values']['book3']
 	/* year of publication */
 	$cur_year = date('Y');
 	if ((int) $form_state['values']['year1'] > $cur_year)
 		form_set_error('year1', t('Year of pulication should be not in the future for Book Preference 1'));
-	if ((int) $form_state['values']['year2'] > $cur_year)
-		form_set_error('year2', t('Year of pulication should be not in the future for Book Preference 2'));
-	if ((int) $form_state['values']['year3'] > $cur_year)
-		form_set_error('year3', t('Year of pulication should be not in the future for Book Preference 3'));
+	if ($form_state['values']['book2'])
+	{
+		if ((int) $form_state['values']['year2'] > $cur_year)
+		{
+			form_set_error('year2', t('Year of pulication should be not in the future for Book Preference 2'));
+		} //(int) $form_state['values']['year2'] > $cur_year
+	} //$form_state['values']['book2']
+	if ($form_state['values']['book3'])
+	{
+		if ((int) $form_state['values']['year3'] > $cur_year)
+		{
+			form_set_error('year3', t('Year of pulication should be not in the future for Book Preference 3'));
+		} //(int) $form_state['values']['year3'] > $cur_year
+	} //$form_state['values']['book3']
 	/* isbn */
 	if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn1']))
 		form_set_error('isbn1', t('Invalid ISBN for Book Preference 1'));
-	if ($form_state['values']['edition2'])
+	if ($form_state['values']['book2'])
 	{
 		if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn2']))
+		{
 			form_set_error('isbn2', t('Invalid ISBN for Book Preference 2'));
+		} //!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn2'])
+	} //$form_state['values']['book2']
+	if ($form_state['values']['book3'])
+	{
 		if (!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn3']))
+		{
 			form_set_error('isbn3', t('Invalid ISBN for Book Preference 3'));
-	} //$form_state['values']['edition2']
+		} //!preg_match('/^[0-9\-xX]+$/', $form_state['values']['isbn3'])
+	} //$form_state['values']['book3']
 	if ($form_state['values']['country'] == 'Others')
 	{
 		if ($form_state['values']['other_country'] == '')
