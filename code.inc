@@ -81,7 +81,7 @@ $(document).ready(function(){
     $('#edit-example-number').change(function() {
       $.get('" . base_path() . "textbook_companion/ajax/example_exists/' + $('#edit-number').val() + '/' + " . $preference_data->id . " + '/' + $('#edit-example-number').val(), function(data) {
         if (data) {
-         alert(data);
+         //alert(data);
         }
       });
     });
