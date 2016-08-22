@@ -58,6 +58,18 @@ function textbook_companion_mail($key, &$message, $params)
 			);
 			$preference2_q = db_query($query, $args);
 			$preference2_data = $preference2_q->fetchObject();
+			if($preference2_data->book){
+			$book_preference2 = '
+Book Preference 2 :-
+Title of the book : ' . $preference2_data->book . '
+Author name : ' . $preference2_data->author . '
+ISBN No. : ' . $preference2_data->isbn . '
+Publisher and Place : ' . $preference2_data->publisher . '
+Edition : ' . $preference2_data->edition . '
+Year of publication : ' . $preference2_data->year . '
+Category : ' . $preference2_data->category_name . '
+';
+			}
 			$query = "
 				SELECT * FROM list_of_category loc
 				JOIN textbook_companion_preference tcp ON loc.category_id = tcp.category
@@ -69,6 +81,18 @@ function textbook_companion_mail($key, &$message, $params)
 			);
 			$preference3_q = db_query($query, $args);
 			$preference3_data = $preference3_q->fetchObject();
+			if($preference3_data->book){
+			$book_preference3 = '
+Book Preference 3 :-
+Title of the book : ' . $preference3_data->book . '
+Author name : ' . $preference3_data->author . '
+ISBN No. : ' . $preference3_data->isbn . '
+Publisher and Place : ' . $preference3_data->publisher . '
+Edition : ' . $preference3_data->edition . '
+Year of publication : ' . $preference3_data->year . '
+Category : ' . $preference3_data->category_name . '
+';
+			}
 			/*$query = db_select('textbook_companion_preference');
 			$query->fields('textbook_companion_preference');
 			$query->condition('proposal_id', $params['proposal_received']['proposal_id']);
@@ -109,35 +133,20 @@ Publisher and Place : ' . $preference1_data->publisher . '
 Edition : ' . $preference1_data->edition . '
 Year of publication : ' . $preference1_data->year . '
 Category : ' . $preference1_data->category_name . '
+'. ' '.
+$book_preference2
+.' '.
+$book_preference2
+.'
 
-Book Preference 2 :-
-Title of the book : ' . $preference2_data->book . '
-Author name : ' . $preference2_data->author . '
-ISBN No. : ' . $preference2_data->isbn . '
-Publisher and Place : ' . $preference2_data->publisher . '
-Edition : ' . $preference2_data->edition . '
-Year of publication : ' . $preference2_data->year . '
-Category : ' . $preference2_data->category_name . '
-
-Book Preference 3 :-
-Title of the book : ' . $preference3_data->book . '
-Author name : ' . $preference3_data->author . '
-ISBN No. : ' . $preference3_data->isbn . '
-Publisher and Place : ' . $preference3_data->publisher . '
-Edition : ' . $preference3_data->edition . '
-Year of publication : ' . $preference3_data->year . '
-Category : ' . $preference3_data->category_name . '
-
-
-Uploaded Sample Code :' . $samplecodefilename . '
-
+Uploaded Sample Code : ' . $samplecodefilename . '
 
 Your proposal is under review and you will soon receive an email from us regarding the same.
 
-
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -175,6 +184,18 @@ Best Wishes,
 			$query->range(0, 1);
 			$result = $query->execute();
 			$preference2_data = $result->fetchObject();
+			if($preference2_data->book){
+			$book_preference2 = '
+Book Preference 2 :-
+Title of the book : ' . $preference2_data->book . '
+Author name : ' . $preference2_data->author . '
+ISBN No. : ' . $preference2_data->isbn . '
+Publisher and Place : ' . $preference2_data->publisher . '
+Edition : ' . $preference2_data->edition . '
+Year of publication : ' . $preference2_data->year . '
+Category : ' . $preference2_data->category_name . '
+';
+			}
 			/*$preference3_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND pref_number = %d LIMIT 1", $params['proposal_disapproved']['proposal_id'], 3);
 			$preference3_data = db_fetch_object($preference3_q);*/
 			$query = db_select('textbook_companion_preference');
@@ -184,6 +205,18 @@ Best Wishes,
 			$query->range(0, 1);
 			$result = $query->execute();
 			$preference3_data = $result->fetchObject();
+			if($preference3_data->book){
+			$book_preference3 = '
+Book Preference 3 :-
+Title of the book : ' . $preference3_data->book . '
+Author name : ' . $preference3_data->author . '
+ISBN No. : ' . $preference3_data->isbn . '
+Publisher and Place : ' . $preference3_data->publisher . '
+Edition : ' . $preference3_data->edition . '
+Year of publication : ' . $preference3_data->year . '
+Category : ' . $preference3_data->category_name . '
+';
+			}
 			$user_data = user_load($params['proposal_disapproved']['user_id']);
 			$message['headers'] = $params['proposal_disapproved']['headers'];
 			$message['subject'] = t('[!site_name] Your book proposal has been disapproved', array(
@@ -220,26 +253,17 @@ ISBN No. : ' . $preference1_data->isbn . '
 Publisher and Place : ' . $preference1_data->publisher . '
 Edition : ' . $preference1_data->edition . '
 Year of publication : ' . $preference1_data->year . '
+Category : ' . $preference1_data->category_name . ''.
 
-Book Preference 2 :-
-Title of the book : ' . $preference2_data->book . '
-Author name : ' . $preference2_data->author . '
-ISBN No. : ' . $preference2_data->isbn . '
-Publisher and Place : ' . $preference2_data->publisher . '
-Edition : ' . $preference2_data->edition . '
-Year of publication : ' . $preference2_data->year . '
-
-Book Preference 3 :-
-Title of the book : ' . $preference3_data->book . '
-Author name : ' . $preference3_data->author . '
-ISBN No. : ' . $preference3_data->isbn . '
-Publisher and Place : ' . $preference3_data->publisher . '
-Edition : ' . $preference3_data->edition . '
-Year of publication : ' . $preference3_data->year . '
+$book_preference2
+.' '.
+$book_preference2
+.'
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 						'!site_name' => variable_get('site_name', ''),
 						'!user_name' => $user_data->name
 					), array(
@@ -282,7 +306,8 @@ Year of publication : ' . $preference1_data->year . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 						'!site_name' => variable_get('site_name', ''),
 						'!user_name' => $user_data->name
 					), array(
@@ -365,7 +390,8 @@ Your proposal is under review and you will soon receive an email from us regardi
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -425,7 +451,8 @@ Reference :- ' . $proposal_data->reference
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -485,7 +512,8 @@ Please contact us by sending an e-mail to textbook@scilab.in in case you wish to
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -551,7 +579,8 @@ Now you should be able to propose a new book...
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -604,8 +633,8 @@ You shall be notified after the solution is reviewed
 
 Best Wishes,
 
-!site_name Team,
-FOSSEE,IIT Bombay', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -658,8 +687,8 @@ The example is still under review. You will be notified when it has been approve
 
 Best Wishes,
 
-!site_name Team,
-FOSSEE,IIT Bombay', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -695,7 +724,8 @@ Caption : ' . $example_data->caption . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -732,7 +762,8 @@ Caption : ' . $example_data->caption . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -762,7 +793,8 @@ Reason for dis-approval : ' . $params['example_disapproved']['message'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -793,7 +825,8 @@ Caption : ' . $params['example_deleted_user']['example_caption'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -821,7 +854,8 @@ You have uploaded following dependency files :
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -854,7 +888,8 @@ Your feedback :
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -884,7 +919,8 @@ Example No.: ' . $params['internshipform']['example_no'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -914,7 +950,8 @@ Example No.: ' . $params['copyrighttransferform']['example_no'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -944,7 +981,8 @@ Example No.: ' . $params['undertakingform']['example_no'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -974,7 +1012,8 @@ Example No.: ' . $params['internshipform']['example_no'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
@@ -1004,7 +1043,8 @@ Example No.: ' . $params['cheque_sent']['example_no'] . '
 
 Best Wishes,
 
-!site_name', array(
+Scilab TBC Team,
+FOSSEE, IIT Bombay', array(
 					'!site_name' => variable_get('site_name', ''),
 					'!user_name' => $user_data->name
 				), array(
