@@ -1,5 +1,14 @@
 <?php
-// $Id$
+// You can find all functions regarding manage proposal
+/*
+textbook companion proposal table column "proposal_status" field values means
+				0 = 'Pending';
+				1 = 'Approved';
+				2 = 'Dis-approved';
+				3 = 'Completed';
+				4 = 'External';
+				5 = 'Unknown';
+*/
 function _proposal_pending()
 {
 	/* get pending proposals to be approved */
@@ -363,7 +372,38 @@ function proposal_approval_form($form, &$form_state)
 		$category_data = _tbc_list_of_category($preference_data->category);
 		foreach ($category_data as $cat)
 		{
-			$preference_rows[$preference_data->id] = $preference_data->book . ' (Written by ' . $preference_data->author . ')</br>[Category: ' . $cat . ']</br>';
+			$preference_rows[$preference_data->id] = '
+				<table class="book_prefrences">
+					<tr class="even">
+						<td><strong>Book</strong></td>
+						<td>'. $preference_data->book .'</td>
+					</tr>
+					<tr class="odd">
+						<td><strong>Author</strong></td>
+						<td>'. $preference_data->author .'</td>
+					</tr>
+					<tr class="even">
+						<td><strong>Edition</strong></td>
+						<td>'. $preference_data->edition .'</td>
+					</tr>
+					<tr class="odd">
+						<td><strong>Publisher</strong></td>
+						<td>'. $preference_data->publisher .'</td>
+					</tr>
+					<tr class="even">
+						<td><strong>Year</strong></td>
+						<td>'. $preference_data->year .'</td>
+					</tr>
+					<tr class="odd">
+						<td><strong>ISBN</strong></td>
+						<td>'. $preference_data->isbn .'</td>
+					</tr>
+					<tr class="even">
+						<td><strong>Category</strong></td>
+						<td>'. $cat .'</td>
+					</tr>
+				</table><br><br> 
+			';
 		} //$category_data as $cat
 	} //$preference_data = $preference_q->fetchObject()
 	if ($row->proposal_type == 1)
@@ -393,11 +433,19 @@ function proposal_approval_form($form, &$form_state)
 	} //$row->samplefilepath != "None"
 	$form['disapprove'] = array(
 		'#type' => 'checkbox',
-		'#title' => t('Disapprove all the above book preferences')
+		'#title' => t('Disapprove all the above book preferences'),
 	);
 	$form['message'] = array(
 		'#type' => 'textarea',
-		'#title' => t('Reason for disapproval')
+		'#title' => t('Reason for disapproval'),
+		'#states' => array(
+			'visible' => array(
+				':input[name="disapprove"]' => array('checked' => TRUE),
+			),
+			'required' => array(
+				':input[name="disapprove"]' =>  array('checked' => TRUE)
+			),
+		),
 	);
 	$form['proposal_type'] = array(
 		'#type' => 'hidden',
