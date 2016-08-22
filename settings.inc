@@ -1,11 +1,11 @@
 <?php
 // $Id$
-function textbook_companion_settings_form($form_state)
+function textbook_companion_settings_form($form,&$form_state)
 {
 	$form['emails'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Notification emails'),
-		'#description' => t('A comma separated list of email addresses to receive notifications emails'),
+		'#description' => t('A comma separated list of email addresses to receive notifications emails [bcc]'),
 		'#size' => 50,
 		'#maxlength' => 255,
 		'#required' => TRUE,
@@ -32,7 +32,7 @@ function textbook_companion_settings_form($form_state)
 	$form['cc_emails'] = array(
 		'#type' => 'textfield',
 		'#title' => t('(Cc) Notification emails'),
-		'#description' => t('Specify emails id for Cc option of mail system with comma separated'),
+		'#description' => t('Specify emails id for CC option of mail system with comma separated'),
 		'#size' => 50,
 		'#maxlength' => 255,
 		'#required' => TRUE,
