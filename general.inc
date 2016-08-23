@@ -269,11 +269,12 @@ function list_examples()
 					$example_data->caption,
 					$approval_status,
 					$example_files,
-					l('Edit', 'textbook_companion/code/edit/' . $example_data->id) . ' | ' . l('Delete', 'textbook_companion/code/delete/' . $example_data->id, array(
+					l('Edit', 'textbook_companion/code/edit/' . $example_data->id)
+					/*l('Edit', 'textbook_companion/code/edit/' . $example_data->id) . ' | ' . l('Delete', 'textbook_companion/code/delete/' . $example_data->id, array(
 						'attributes' => array(
 							'onClick' => 'return confirm("Are you sure you want to delete the example?")'
 						)
-					))
+					))*/
 				),
 				'valign' => 'top'
 			);

@@ -216,16 +216,32 @@ function upload_examples_edit_form($form, $form_state)
 			'#title' => t('Existing Main or Source File'),
 			'#markup' => $source_file
 		);
-		$form['sourcefile']['cur_source_checkbox'] = array(
-			'#type' => 'checkbox',
-			'#title' => t('Delete Existing Main or Source File'),
-			'#description' => 'Check to delete the existing Main or Source file.'
+		$form['sourcefile']['source_file_action'] = array(
+			'#type' => 'radios',
+			'#options' => array('1'=>"Replace<br>", 2=>"Delete"),
+			'#title' => t('Select Action'),
+			'#required' => TRUE
 		);
 		$form['sourcefile']['sourcefile1'] = array(
 			'#type' => 'file',
 			'#title' => t('Upload New Main or Source File'),
 			'#size' => 48,
-			'#description' => t("Upload new Main or Source file above if you want to replace the existing file. Leave blank if you want to keep using the existing file. <br />") . t('Allowed file extensions : ') . variable_get('textbook_companion_source_extensions', '')
+			'#description' => t("<Strong style='color:red' >Upload new Main or Source file above, if you want to replace the existing file. Leave blank if you want to keep using the existing file.</strong> <br />") . t('Allowed file extensions : ') . variable_get('textbook_companion_source_extensions', ''),
+			'#states' => array(
+				'visible' => array(
+					':input[name="source_file_action"]' => array('value' => '1'),
+				),
+			),
+		);
+		$form['sourcefile']['cur_source_checkbox'] = array(
+			'#type' => 'checkbox',
+			'#title' => t('Delete Existing Main or Source File'),
+			'#description' => 'Check to delete the existing Main or Source file.',
+			'#states' => array(
+				'visible' => array(
+					':input[name="source_file_action"]' => array('value' => '2'),
+				),
+			),
 		);
 		$form['sourcefile']['cur_source_file_id'] = array(
 			'#type' => 'hidden',
