@@ -2,12 +2,12 @@
 // You can find all functions regarding manage proposal
 /*
 textbook companion proposal table column "proposal_status" field values means
-				0 = 'Pending';
-				1 = 'Approved';
-				2 = 'Dis-approved';
-				3 = 'Completed';
-				4 = 'External';
-				5 = 'Unknown';
+0 = 'Pending';
+1 = 'Approved';
+2 = 'Dis-approved';
+3 = 'Completed';
+4 = 'External';
+5 = 'Unknown';
 */
 function _proposal_pending()
 {
@@ -376,31 +376,31 @@ function proposal_approval_form($form, &$form_state)
 				<table class="book_prefrences">
 					<tr class="even">
 						<td><strong>Book</strong></td>
-						<td>'. $preference_data->book .'</td>
+						<td>' . $preference_data->book . '</td>
 					</tr>
 					<tr class="odd">
 						<td><strong>Author</strong></td>
-						<td>'. $preference_data->author .'</td>
+						<td>' . $preference_data->author . '</td>
 					</tr>
 					<tr class="even">
 						<td><strong>Edition</strong></td>
-						<td>'. $preference_data->edition .'</td>
+						<td>' . $preference_data->edition . '</td>
 					</tr>
 					<tr class="odd">
 						<td><strong>Publisher</strong></td>
-						<td>'. $preference_data->publisher .'</td>
+						<td>' . $preference_data->publisher . '</td>
 					</tr>
 					<tr class="even">
 						<td><strong>Year</strong></td>
-						<td>'. $preference_data->year .'</td>
+						<td>' . $preference_data->year . '</td>
 					</tr>
 					<tr class="odd">
 						<td><strong>ISBN</strong></td>
-						<td>'. $preference_data->isbn .'</td>
+						<td>' . $preference_data->isbn . '</td>
 					</tr>
 					<tr class="even">
 						<td><strong>Category</strong></td>
-						<td>'. $cat .'</td>
+						<td>' . $cat . '</td>
 					</tr>
 				</table><br><br> 
 			';
@@ -433,19 +433,23 @@ function proposal_approval_form($form, &$form_state)
 	} //$row->samplefilepath != "None"
 	$form['disapprove'] = array(
 		'#type' => 'checkbox',
-		'#title' => t('Disapprove all the above book preferences'),
+		'#title' => t('Disapprove all the above book preferences')
 	);
 	$form['message'] = array(
 		'#type' => 'textarea',
 		'#title' => t('Reason for disapproval'),
 		'#states' => array(
 			'visible' => array(
-				':input[name="disapprove"]' => array('checked' => TRUE),
+				':input[name="disapprove"]' => array(
+					'checked' => TRUE
+				)
 			),
 			'required' => array(
-				':input[name="disapprove"]' =>  array('checked' => TRUE)
-			),
-		),
+				':input[name="disapprove"]' => array(
+					'checked' => TRUE
+				)
+			)
+		)
 	);
 	$form['proposal_type'] = array(
 		'#type' => 'hidden',
@@ -814,10 +818,22 @@ function proposal_status_form_submit($form, &$form_state)
 		$num_updated = $query->execute();
 		/* sending email */
 		$book_user = user_load($proposal_data->uid);
+		$from = variable_get('textbook_companion_from_email', '');
+		$bcc = variable_get('textbook_companion_emails', '');
+		$cc = variable_get('textbook_companion_cc_emails', '');
+		$email_to = $book_user->mail;
 		$params['proposal_completed']['proposal_id'] = $proposal_id;
 		$params['proposal_completed']['user_id'] = $proposal_data->uid;
-		$email_to = $book_user->mail;
-		if (!drupal_mail('textbook_companion', 'proposal_completed', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
+		$params['proposal_completed']['headers'] = array(
+			'From' => $from,
+			'MIME-Version' => '1.0',
+			'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+			'Content-Transfer-Encoding' => '8Bit',
+			'X-Mailer' => 'Drupal',
+			'Cc' => $cc,
+			'Bcc' => $bcc
+		);
+		if (!drupal_mail('textbook_companion', 'proposal_completed', $email_to, language_default(), $params, $from, TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message('Congratulations! Book proposal has been marked as completed. User has been notified of the completion.', 'status');
 	} //$form_state['values']['completed'] == 1
