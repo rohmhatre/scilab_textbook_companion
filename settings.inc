@@ -92,6 +92,17 @@ function textbook_companion_settings_form($form,&$form_state)
 		'#required' => TRUE,
 		'#default_value' => variable_get('textbook_companion_xcos_extensions', '')
 	);
+	$form['book_prefences'] = array(
+		'#type' => 'select',
+		'#title' => t('Number of books in proposal required'),
+		'#options' => array(
+			'1' => '1',
+			'2' => '2',
+			'3' => '3'
+		),
+		'#required' => TRUE,
+		'#default_value' => variable_get('textbook_companion_book_preferences', '')
+	);
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => t('Submit')
@@ -114,5 +125,6 @@ function textbook_companion_settings_form_submit($form, &$form_state)
 	variable_set('textbook_companion_dependency_extensions', $form_state['values']['dependency']);
 	variable_set('textbook_companion_result_extensions', $form_state['values']['result']);
 	variable_set('textbook_companion_xcos_extensions', $form_state['values']['xcos']);
+	variable_set('textbook_companion_book_preferences', $form_state['values']['book_prefences']);
 	drupal_set_message(t('Settings updated'), 'status');
 }
