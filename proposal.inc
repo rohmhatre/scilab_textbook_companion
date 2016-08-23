@@ -75,14 +75,14 @@ function textbook_companion_aicte_proposal_form_validate($form, &$form_state)
 		} //$form_state["values"][$row->id] == 1
 	} //$row = $result->fetchObject()
 	/* user can choose only 3 books to propose */
-	if ($count > 3)
+	if ($count != variable_get('textbook_companion_book_preferences', ''))
 	{
-		form_set_error("", "Please select maximum <strong>3</strong> books. You currently selected <strong>{$count}</strong>");
+		form_set_error("", "Please select only <strong>1</strong> book. You currently selected <strong>{$count}</strong>");
 	} //$count > 3
 	elseif ($count == 0)
 	{
 		
-		form_set_error("", "Please select atleast <strong>1</strong> book. You currently selected <strong>{$count}</strong>");
+		form_set_error("", "Please select only <strong>1</strong> book. You currently selected <strong>{$count}</strong>");
 		
 	} //$count == 0
 	else
