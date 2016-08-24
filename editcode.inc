@@ -216,6 +216,11 @@ function upload_examples_edit_form($form, $form_state)
 			'#title' => t('Existing Main or Source File'),
 			'#markup' => $source_file
 		);
+		$form['sourcefile']['source_file_action_note'] = array(
+			'#type' => 'item',
+			'#title' => t('Note:'),
+			'#markup' => t("<Strong style='color:red' >Use Replace option to upload your corrected code. Do not delete the example if your book is under review, you can always edit and upload it by the Replace option.</strong>")
+		);
 		$form['sourcefile']['source_file_action'] = array(
 			'#type' => 'radios',
 			'#options' => array(
