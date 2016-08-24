@@ -653,6 +653,29 @@ function textbook_companion_menu()
 		),
 		'file' => 'pdf/generate_pdf.inc'
 	);
+	/*******************/
+	$items['Summer_Internship_Forms/copyright-form'] = array(
+		'title' => 'List Of All Copyright Forms for Completed books',
+		'description' => 'List Of All Copyright Forms for Completed books',
+		'page callback' => '_list_all_copyright_forms',
+		'access arguments' => array(
+			'list all certificates'
+		),
+		'file' => 'pdf/generate_form_pdf.inc'
+	);
+	$items['Summer_Internship_Forms/copyright-form/generate_pdf'] = array(
+		'title' => 'Download Copyright Forms for Completed books',
+		'description' => 'Download Copyright Forms for Completed books',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'generate_pdf'
+		),
+		'access arguments' => array(
+			'generate pdf'
+		),
+		'file' => 'pdf/generate_pdf.inc'
+	);
+	/*******************/
 	$items['manage_proposal/paper_submission'] = array(
 		'title' => 'Application Submission',
 		'description' => 'Application Submission',
