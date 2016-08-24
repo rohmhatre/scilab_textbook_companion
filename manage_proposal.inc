@@ -24,7 +24,7 @@ function _proposal_pending()
 		$pending_rows[$pending_data->id] = array(
 			date('d-m-Y', $pending_data->creation_date),
 			l($pending_data->full_name, 'user/' . $pending_data->uid),
-			date('d-m-Y', $pending_data->completion_date),
+			date('d-m-Y', $pending_data->proposed_completion_date),
 			l('Approve', 'manage_proposal/approve/' . $pending_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $pending_data->id)
 		);
 	} //$pending_data = $pending_q->fetchObject()
@@ -37,7 +37,7 @@ function _proposal_pending()
 	$pending_header = array(
 		'Date of Submission',
 		'Contributor Name',
-		'Date of Completion',
+		'Proposed Date of Completion',
 		'Action'
 	);
 	$output = theme('table', array(
@@ -116,6 +116,7 @@ function _proposal_all()
 			date('d-m-Y', $proposal_data->creation_date),
 			"{$preference_data->book} <br> <em>by {$preference_data->author}</em>",
 			l($proposal_data->full_name, 'user/' . $proposal_data->uid),
+			date('d-m-Y', $proposal_data->proposed_completion_date),
 			date('d-m-Y', $proposal_data->completion_date),
 			$proposal_status,
 			l('Status', 'manage_proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'manage_proposal/edit/' . $proposal_data->id) . _tbc_ext($proposal_status, $preference_data->id)
@@ -131,7 +132,8 @@ function _proposal_all()
 		'Date of Submission',
 		'Title of the Book',
 		'Contributor Name',
-		'Expected Date of Completion',
+		'Proposed Date of Completion',
+		'Actual Date of Completion',
 		'Status',
 		'Action'
 	);
@@ -324,10 +326,15 @@ function proposal_approval_form($form, &$form_state)
 		'#markup' => $row->reviewer,
 		'#title' => t('Reviewer')
 	);
+	$form['proposed_completion_date'] = array(
+		'#type' => 'item',
+		'#markup' => date('d-m-Y', $row->proposed_completion_date),
+		'#title' => t('Proposed Date of Completion')
+	);
 	$form['completion_date'] = array(
 		'#type' => 'item',
 		'#markup' => date('d-m-Y', $row->completion_date),
-		'#title' => t('Expected Date of Completion')
+		'#title' => t('Actual Date of Completion')
 	);
 	$form['operating_system'] = array(
 		'#type' => 'item',
@@ -677,10 +684,15 @@ function proposal_status_form($form, &$form_state)
 		'#markup' => $proposal_data->reviewer,
 		'#title' => t('Reviewer')
 	);
+	$form['proposed_completion_date'] = array(
+		'#type' => 'item',
+		'#markup' => date('d-m-Y', $proposal_data->proposed_completion_date),
+		'#title' => t('Proposed Date of Completion')
+	);
 	$form['completion_date'] = array(
 		'#type' => 'item',
 		'#markup' => date('d-m-Y', $proposal_data->completion_date),
-		'#title' => t('Expected Date of Completion')
+		'#title' => t('Actual Date of Completion')
 	);
 	$form['operating_system'] = array(
 		'#type' => 'item',
@@ -812,7 +824,8 @@ function proposal_status_form_submit($form, &$form_state)
 		/*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
 		$query = db_update('textbook_companion_proposal');
 		$query->fields(array(
-			'proposal_status' => 3
+			'proposal_status' => 3,
+			'completion_date' => time()
 		));
 		$query->condition('id', $proposal_id);
 		$num_updated = $query->execute();
@@ -1068,6 +1081,14 @@ function proposal_edit_form($form, &$form_state, $nonaicte_book)
 		'#size' => 10,
 		'#maxlength' => 10,
 		'#default_value' => date('d-m-Y', $proposal_data->completion_date)
+	);
+	$form['proposed_completion_date'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Proposed Date of Completion'),
+		'#description' => t('Input date format should be DD-MM-YYYY. Eg: 23-03-2011'),
+		'#size' => 10,
+		'#maxlength' => 10,
+		'#default_value' => date('d-m-Y', $proposal_data->proposed_completion_date)
 	);
 	list($scilab, $version) = explode(' ', $proposal_data->scilab_version);
 	$scilab_version = $version;
@@ -1427,12 +1448,14 @@ function proposal_edit_form_validate($form, &$form_state)
 	}
 	return;
 }
-/***************** proposal edit from ********************/
+/***************** proposal edit from submit ********************/
 function proposal_edit_form_submit($form, &$form_state)
 {
 	/* completion date to timestamp */
 	list($d, $m, $y) = explode('-', $form_state['values']['completion_date']);
 	$completion_date_timestamp = mktime(0, 0, 0, $m, $d, $y);
+	list($d, $m, $y) = explode('-', $form_state['values']['proposed_completion_date']);
+	$proposed_completion_date_timestamp = mktime(0, 0, 0, $m, $d, $y);
 	$scilab_version = 'scilab ' . $form_state['values']['version'];
 	$proposal_id = $form_state['values']['hidden_proposal_id'];
 	$scilab_version = 'scilab ' . $form_state['values']['version'];
@@ -1451,7 +1474,8 @@ function proposal_edit_form_submit($form, &$form_state)
 		'reviewer' => $form_state['values']['reviewer'],
 		'completion_date' => $completion_date_timestamp,
 		'operating_system' => $form_state['values']['operating_system'],
-		'scilab_version' => $scilab_version
+		'scilab_version' => $scilab_version,
+		'proposed_completion_date' => $proposed_completion_date_timestamp,
 	));
 	$query->condition('id', $proposal_id);
 	$num_updated = $query->execute();

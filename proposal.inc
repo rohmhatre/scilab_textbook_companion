@@ -1013,9 +1013,9 @@ function book_proposal_form_submit($form, &$form_state)
 	$completion_date_timestamp = mktime(0, 0, 0, $m, $d, $y);
 	$scilab_version = 'scilab ' . $form_state['values']['version'];
 	$query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, country, city, pincode, state, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, message, samplefilepath) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :country, :city, :pincode, :state, :faculty, :reviewer, :completion_date,
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, country, city, pincode, state, faculty, reviewer, completion_date, creation_date, approval_date, proposal_status, scilab_version, operating_system, teacher_email, message, samplefilepath,proposed_completion_date) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :country, :city, :pincode, :state, :faculty, :reviewer, :completion_date,
  :creation_date, :approval_date, :proposal_status, :scilab_version, :operating_system,
-:teacher_email, :message, :samplefilepath)";
+:teacher_email, :message, :samplefilepath,:proposed_completion_date)";
 	$args = array(
 		":uid" => $user->uid,
 		":approver_uid" => 0,
@@ -1040,7 +1040,8 @@ function book_proposal_form_submit($form, &$form_state)
 		":operating_system" => _tbc_sentence_case($form_state['values']['operating_system']),
 		":teacher_email" => $form_state['values']['faculty_email'],
 		":message" => 'None',
-		":samplefilepath" => ""
+		":samplefilepath" => "",
+		":proposed_completion_date" => $completion_date_timestamp
 	);
 	$result = db_query($query, $args, array(
 		'return' => Database::RETURN_INSERT_ID
@@ -1149,7 +1150,7 @@ function book_proposal_form_submit($form, &$form_state)
 		);
 		*/
 		$query = "INSERT INTO {textbook_companion_preference}
-      (proposal_id, pref_number, book, author, isbn, publisher, edition, year, category, approval_status) VALUES 		   (:proposal_id, :pref_number, :book, :author, :isbn, :publisher, :edition, :year, :category, :approval_status)
+      (proposal_id, pref_number, book, author, isbn, publisher, edition, year, category, approval_status) VALUES        (:proposal_id, :pref_number, :book, :author, :isbn, :publisher, :edition, :year, :category, :approval_status)
 	";
 		$args = array(
 			":proposal_id" => $proposal_id,
@@ -1840,9 +1841,9 @@ function book_proposal_nonaicte_form_submit($form, &$form_state)
 	$scilab_version = 'scilab ' . $form_state['values']['version'];
 	$query = "
 INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, country, city, pincode, state, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, message, scilab_version, operating_system, teacher_email, proposal_type, reason, samplefilepath) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :country, :city, :pincode, :state,
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university, country, city, pincode, state, faculty, reviewer, reference, completion_date, creation_date, approval_date, proposal_status, message, scilab_version, operating_system, teacher_email, proposal_type, reason, samplefilepath,proposed_completion_date) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :country, :city, :pincode, :state,
 :faculty, :reviewer, :reference, :completion_date, :creation_date, :approval_date, :proposal_status, :message, :scilab_version,
- :operating_system, :teacher_email, :proposal_type, :reason, :samplefilepath)
+ :operating_system, :teacher_email, :proposal_type, :reason, :samplefilepath,:proposed_completion_date)
 ";
 	// $result = db_query($query);
 	$args = array(
@@ -1872,7 +1873,8 @@ INSERT INTO {textbook_companion_proposal}
 		":teacher_email" => $form_state['values']['faculty_email'],
 		":proposal_type" => $form_state['values']['proposal_type'],
 		":reason" => $my_reason,
-		":samplefilepath" => ""
+		":samplefilepath" => "",
+		":proposed_completion_date" => $completion_date_timestamp
 	);
 	$result = db_query($query, $args, array(
 		'return' => Database::RETURN_INSERT_ID

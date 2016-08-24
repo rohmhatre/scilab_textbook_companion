@@ -121,7 +121,7 @@ Department/Branch : ' . $proposal_data->branch . '
 University/Institute : ' . $proposal_data->university . '
 College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' . $proposal_data->reviewer . '
-Expected date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
+Expected date of completion : ' . date('d-m-Y', $proposal_data->proposed_completion_date) . '
 
 Your Book Preferences :
 
@@ -242,7 +242,7 @@ Department/Branch : ' . $proposal_data->branch . '
 University/Institute : ' . $proposal_data->university . '
 College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' . $proposal_data->reviewer . '
-Expected date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
+Expected date of completion : ' . date('d-m-Y', $proposal_data->proposed_completion_date) . '
 
 Your Book Preferences :
 
@@ -370,7 +370,7 @@ Department/Branch : ' . $proposal_data->branch . '
 University/Institute : ' . $proposal_data->university . '
 College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' . $proposal_data->reviewer . '
-Expected date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
+Expected date of completion : ' . date('d-m-Y', $proposal_data->proposed_completion_date) . '
 
 Your Non AICTE Book Preferences:
 
@@ -495,7 +495,7 @@ Department/Branch : ' . $proposal_data->branch . '
 University/Institute : ' . $proposal_data->university . '
 College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' . $proposal_data->reviewer . '
-Expected date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
+Expected date of completion : ' . date('d-m-Y', $proposal_data->proposed_completion_date) . '
 
 Title of the book : ' . $approved_preference_data->book . '
 Author name : ' . $approved_preference_data->author . '
@@ -562,7 +562,8 @@ Department/Branch : ' . $proposal_data->branch . '
 University/Institute : ' . $proposal_data->university . '
 College Teacher / Professor : ' . $proposal_data->faculty . '
 Reviewer : ' . $proposal_data->reviewer . '
-Expected date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
+Proposed date of completion : ' . date('d-m-Y', $proposal_data->proposed_completion_date) . '
+Actual date of completion : ' . date('d-m-Y', $proposal_data->completion_date) . '
 
 Title of the book : ' . $approved_preference_data->book . '
 Author name : ' . $approved_preference_data->author . '
