@@ -45,7 +45,7 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
 	//var_dump(file_exists($dir_path . "book_" . $preference_data->id . ".pdf"));die;
 	if (file_exists($dir_path . "book_" . $preference_data->id . ".pdf"))
 	{
-		/* download zip file */
+		/* download PDF file */
 		ob_clean();
 		header("Pragma: public");
 		header("Expires: 0");
@@ -167,17 +167,31 @@ function _latex_generate_files($preference_id, $full_book = FALSE)
 	//var_dump($dir_path . "book_" . $preference_data->id . ".pdf");die;
 	if (_latex_run_script($book_filename, $contributor_filename, $latex_filename, $latex_dep_filename, $pdf_filename))
 	{
-		/* download zip file */
-		header('Content-Type: application/pdf');
-		header('Content-disposition: attachment; filename="' . $preference_data->book . '_' . $preference_data->author . '.pdf"');
-		header('Content-Length: ' . filesize($dir_path . $pdf_filename));
-		header("Content-Transfer-Encoding: binary");
-		header('Expires: 0');
-		header('Pragma: no-cache');
-		@readfile($dir_path . $pdf_filename);
-		ob_end_flush();
-		ob_clean();
-		flush();
+		/* download PDF file */
+		if (filesize($dir_path . $pdf_filename) == TRUE)
+		{
+			ob_clean();
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			header("Cache-Control: public");
+			header("Content-Description: File Transfer");
+			header('Content-Type: application/pdf');
+			header('Content-disposition: attachment; filename="' . $preference_data->book . '_' . $preference_data->author . '.pdf"');
+			header('Content-Length: ' . filesize($dir_path . $pdf_filename));
+			header("Content-Transfer-Encoding: binary");
+			header('Expires: 0');
+			header('Pragma: no-cache');
+			@readfile($dir_path . $pdf_filename);
+			ob_end_flush();
+			ob_clean();
+			flush();
+		} //filesize($dir_path . $pdf_filename) == TRUE
+		else
+		{
+			drupal_set_message("Error occurred when generating the PDF version of the Book.", 'error');
+			drupal_goto('textbook_run/' . $preference_data->id);
+		}
 	} //_latex_run_script($book_filename, $contributor_filename, $latex_filename, $latex_dep_filename, $pdf_filename)
 	else
 	{
@@ -223,4 +237,3 @@ function textbook_companion_delete_book()
 	drupal_goto('code_approval/bulk');
 	return;
 }
-
