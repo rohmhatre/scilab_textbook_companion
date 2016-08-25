@@ -36,9 +36,6 @@ function generate_pdf()
 			);
 		}
 	} //$data3->gender
-	//die;
-	/*if($data3->proposal_status == 3)
-	{*/
 	$pdf = new FPDF('L', 'mm', 'Letter');
 	if (!$pdf)
 	{
@@ -129,10 +126,98 @@ function generate_pdf()
 	unlink($file);
 	drupal_goto('certificate');
 	return;
-	/*}
-	else
-	{
-	drupal_set_message('Your Book Is Still Under Review.', 'status');
-	}*/
 }
-?>
+function generate_form_pdf()
+{
+	$mpath = drupal_get_path('module', 'textbook_companion');
+	require($mpath . '/pdf/fpdf/fpdf.php');
+	global $user;
+	$x = $user->uid;
+	$proposal_id = arg(3);
+	$query2 = db_query("SELECT * FROM {textbook_companion_preference} WHERE approval_status=1 AND  proposal_id= :prop_id", array(
+		':prop_id' => $proposal_id
+	));
+	$data2 = $query2->fetchObject();
+	$query3 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id= :prop_id", array(
+		':prop_id' => $proposal_id
+	));
+	$data3 = $query3->fetchObject();
+	//var_dump($data3->gender);
+	$gender = array(
+		'salutation' => 'Mr. /Ms.',
+		'gender' => 'He/She'
+	);
+	if ($data3->gender)
+	{
+		if ($data3->gender == 'M')
+		{
+			$gender = array(
+				'salutation' => 'Mr.',
+				'gender' => 'He'
+			);
+		} //$data3->gender == 'M'
+		else
+		{
+			$gender = array(
+				'salutation' => 'Ms.',
+				'gender' => 'She'
+			);
+		}
+	} //$data3->gender
+	$pdf = new FPDF('P', 'mm', 'Letter');
+	if (!$pdf)
+	{
+		echo "Error!";
+	} //!$pdf
+	$pdf->AddPage();
+	$path = drupal_get_path('module', 'textbook_companion');
+	$pdf->SetFont('Arial', 'B', 25);
+	$pdf->Ln(30);
+	$pdf->Cell(200, 8, 'Copyright Transfer Form', 0, 1, 'C');
+	$pdf->Ln(20);
+	$pdf->SetFont('Arial', '', 12);
+	$pdf->MultiCell(200, 8, 'I hereby transfer the copyrights of the Scilab Textbook Companion for ' . $data2->book . ' ( Author: ' . $data2->author . ', Edition: ' . $data2->edition . ', Publisher: ' . $data2->publisher . ', Year: ' . $data2->year . ') to FOSSEE Project, IIT Bombay.', 0);
+	$pdf->Ln(10);
+	$pdf->MultiCell(200, 8, 'I  understand  that  the  FOSSEE  project  will  release  the  Textbook  Companion  under  the Creative Commons (CC) license.');
+	$pdf->SetX(75);
+	$pdf->SetFont('', 'U');
+	$pdf->SetTextColor(0, 0, 255);
+	$pdf->SetFont('', '');
+	$pdf->SetTextColor(0, 0, 0);
+	$pdf->SetFont('', '');
+	$pdf->SetTextColor(0, 0, 0);
+	$pdf->SetY(-10);
+	$pdf->SetX(209);
+	$cur_date = date('jS F, Y');
+	$pdf->SetY(140);
+	$pdf->SetFont('', '');
+	$pdf->Ln(0);
+	$pdf->Cell(200, 0, ' Date: ' . $cur_date . '', 0, 1, 'L');
+	$pdf->Cell(200, 20, ' Place: _________________', 0, 1, 'L');
+	$pdf->SetY(140);
+	$pdf->SetX(120);
+	$pdf->Cell(180, 0, 'Signature: _________________', 0, 1, 'L');
+	$pdf->SetY(144);
+	$pdf->SetX(120);
+	$pdf->multicell(140, 14, 'Name: ' . $gender['salutation'] . ' ' . $data3->full_name . '', 0, '');
+	$filename = str_replace(' ', '-', $data3->full_name) . '-Scilab-Textbook-Companion-copyright-form.pdf';
+	$file = $path . '/pdf/temp_certificate/' . $proposal_id . '_' . $filename;
+	$pdf->Output($file, 'F');
+	header("Content-Type: application/octet-stream");
+	header("Content-Disposition: attachment; filename=" . $filename);
+	header("Content-Type: application/octet-stream");
+	header("Content-Type: application/download");
+	header("Content-Description: File Transfer");
+	header("Content-Length: " . filesize($file));
+	flush(); // this doesn't really matter.
+	$fp = fopen($file, "r");
+	while (!feof($fp))
+	{
+		echo fread($fp, 65536);
+		flush(); // this is essential for large downloads
+	} //!feof($fp)
+	fclose($fp);
+	unlink($file);
+	drupal_goto('Summer_Internship_Forms/copyright-form');
+	return;
+}

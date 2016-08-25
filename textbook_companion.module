@@ -661,14 +661,14 @@ function textbook_companion_menu()
 		'access arguments' => array(
 			'list all certificates'
 		),
-		'file' => 'pdf/generate_form_pdf.inc'
+		'file' => 'pdf/list_all_form_pdf.inc'
 	);
 	$items['Summer_Internship_Forms/copyright-form/generate_pdf'] = array(
 		'title' => 'Download Copyright Forms for Completed books',
 		'description' => 'Download Copyright Forms for Completed books',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
-			'generate_pdf'
+			'generate_form_pdf'
 		),
 		'access arguments' => array(
 			'generate pdf'
