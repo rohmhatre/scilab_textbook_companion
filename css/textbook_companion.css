@@ -118,3 +118,8 @@ fieldset input[type="text"]
     -o-border-radius: 5px;
     border-radius: 5px;
 }
+.book_prefrences{
+width:100%;
+margin-left:4%;
+margin-top: -3%;
+}
