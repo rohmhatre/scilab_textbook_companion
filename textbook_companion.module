@@ -8,6 +8,15 @@ function textbook_companion_menu()
 {
 	$items = array();
 	/* users */
+	/* BOOKS IN PROGRESS */
+	$items['books_in_progress'] = array(
+		'title' => 'Books in Progress',
+		'page callback' => 'tbc_books_in_progress_all',
+		'access arguments' => array(
+			'display books in progress'
+		),
+		'file' => 'display_books.inc'
+	);
 	$items['proposal'] = array(
 		'title' => 'Book Proposal Form',
 		'description' => 'Book Proposal Form.',
@@ -700,6 +709,10 @@ function textbook_companion_permission()
 		"create book proposal" => array(
 			"title" => t("Book Proposal Form"),
 			"description" => t("Book Proposal Form.")
+		),
+		"display books in progress" => array(
+			"title" => t("Book display books in progress"),
+			"description" => t("display books in progress.")
 		),
 		"approve book proposal" => array(
 			"title" => t("Approve book proposal"),
