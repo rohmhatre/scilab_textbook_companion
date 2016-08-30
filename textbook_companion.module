@@ -15,6 +15,7 @@ function textbook_companion_menu()
 		'access arguments' => array(
 			'display books in progress'
 		),
+		'type' => MENU_LOCAL_TASK,
 		'file' => 'display_books.inc'
 	);
 	$items['proposal'] = array(
