@@ -684,7 +684,7 @@ function textbook_companion_menu()
 		'access arguments' => array(
 			'generate pdf'
 		),
-		'type' => MENU_LOCAL_TASK,s
+		'type' => MENU_LOCAL_TASK,
 		'file' => 'pdf/generate_pdf.inc'
 	);
 	/*******************/
