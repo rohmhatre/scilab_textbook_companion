@@ -671,6 +671,7 @@ function textbook_companion_menu()
 		'access arguments' => array(
 			'list all certificates'
 		),
+		'type' => MENU_LOCAL_TASK,
 		'file' => 'pdf/list_all_form_pdf.inc'
 	);
 	$items['Summer_Internship_Forms/copyright-form/generate_pdf'] = array(
@@ -683,6 +684,7 @@ function textbook_companion_menu()
 		'access arguments' => array(
 			'generate pdf'
 		),
+		'type' => MENU_LOCAL_TASK,s
 		'file' => 'pdf/generate_pdf.inc'
 	);
 	/*******************/
