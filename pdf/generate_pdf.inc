@@ -268,6 +268,9 @@ function generate_undertaking_form_pdf()
 	$pdf->SetFont('Arial', 'B', 25);
 	$pdf->Ln(30);
 	$pdf->Cell(200, 8, 'Undertaking Form', 0, 1, 'C');
+	$pdf->Ln(0);
+	$pdf->SetFont('Arial', 'B', 10);
+	$pdf->Cell(200, 8,'(To be signed by college teacher)', 0, 1, 'C');
 	$pdf->Ln(20);
 	$pdf->SetFont('Arial', '', 12);
 	$pdf->MultiCell(200, 8, 'I hereby certify that all the codes written by ' .$gender['salutation'] . ' ' . $data3->full_name . ' under the Scilab Textbook Companion Project for the book '.$data2->book . ' ( Author: ' . $data2->author . ', Edition: ' . $data2->edition . ', Publisher: ' . $data2->publisher . ', Year: ' . $data2->year . ') are correctly reproducing the results given in the aforementioned book.', 0);
