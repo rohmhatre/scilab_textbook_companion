@@ -643,8 +643,8 @@ function textbook_companion_menu()
 		'file' => 'cheque_contact.inc'
 	);
 	$items['certificate'] = array(
-		'title' => 'List Of All Certificates',
-		'description' => 'List Of All Certificates',
+		'title' => 'List of all Certificates',
+		'description' => 'List of all Certificates',
 		'page callback' => '_list_all_certificates',
 		'access arguments' => array(
 			'list all certificates'
@@ -664,9 +664,9 @@ function textbook_companion_menu()
 		'file' => 'pdf/generate_pdf.inc'
 	);
 	/*******************/
-	$items['Summer_Internship_Forms/copyright-form'] = array(
-		'title' => 'List Of All Copyright Forms for Completed books',
-		'description' => 'List Of All Copyright Forms for Completed books',
+	$items['Summer_Internship_Forms/forms'] = array(
+		'title' => 'List of all Copyright Form and Undertaking Form for books',
+		'description' => 'List of all Copyright Form for books',
 		'page callback' => '_list_all_copyright_forms',
 		'access arguments' => array(
 			'list all certificates'
@@ -675,11 +675,24 @@ function textbook_companion_menu()
 		'file' => 'pdf/list_all_form_pdf.inc'
 	);
 	$items['Summer_Internship_Forms/copyright-form/generate_pdf'] = array(
-		'title' => 'Download Copyright Forms for Completed books',
-		'description' => 'Download Copyright Forms for Completed books',
+		'title' => 'Download Copyright Form for books',
+		'description' => 'Download Copyright Form for books',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
-			'generate_form_pdf'
+			'generate_copyright_form_pdf'
+		),
+		'access arguments' => array(
+			'generate pdf'
+		),
+		'type' => MENU_LOCAL_TASK,
+		'file' => 'pdf/generate_pdf.inc'
+	);
+	$items['Summer_Internship_Forms/undertaking-form/generate_pdf'] = array(
+		'title' => 'Download Undertaking Form for books',
+		'description' => 'Download Undertaking Form for books',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'generate_undertaking_form_pdf'
 		),
 		'access arguments' => array(
 			'generate pdf'

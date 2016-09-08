@@ -11,7 +11,7 @@ function _list_all_copyright_forms()
 	{
 		if ($exist_id->id < 3)
 		{
-			drupal_set_message('<strong>You need to propose a book <a href="http://www.scilab.in/book_proposal">Book Proposal</a></strong> or if you have already proposed then your book is under reviewing process', 'status');
+			drupal_set_message('<strong>You need to propose a <a href="http://www.scilab.in/book_proposal">Book Proposal</a></strong> or if you have already proposed then your book is under reviewing process', 'status');
 			return '';
 		} //$exist_id->id < 3
 		else
@@ -19,7 +19,7 @@ function _list_all_copyright_forms()
 			$search_rows = array();
 			global $output;
 			$output = '';
-			$query3 = db_query("SELECT prop.id,pref.isbn,pref.book,pref.author FROM textbook_companion_proposal as prop,textbook_companion_preference as pref WHERE prop.proposal_status=3 AND pref.approval_status=1 AND pref.proposal_id=prop.id AND prop.uid= :uid", array(
+			$query3 = db_query("SELECT prop.id,pref.isbn,pref.book,pref.author FROM textbook_companion_proposal as prop,textbook_companion_preference as pref WHERE (prop.proposal_status = 1 OR prop.proposal_status = 3) AND pref.approval_status =1 AND pref.proposal_id = prop.id AND prop.uid = :uid", array(
 				':uid' => $user->uid
 			));
 			while ($search_data3 = $query3->fetchObject())
@@ -30,7 +30,8 @@ function _list_all_copyright_forms()
 						$search_data3->isbn,
 						$search_data3->book,
 						$search_data3->author,
-						l('Download Copyright Form', 'Summer_Internship_Forms/copyright-form/generate_pdf/' . $search_data3->id)
+						l('Download Copyright Form', 'Summer_Internship_Forms/copyright-form/generate_pdf/' . $search_data3->id),
+						l('Download Undertaking Form', 'Summer_Internship_Forms/undertaking-form/generate_pdf/' . $search_data3->id)
 					);
 				} //$search_data3->id
 			} //$search_data3 = $query3->fetchObject()
@@ -40,7 +41,8 @@ function _list_all_copyright_forms()
 					'ISBN',
 					'Book Name',
 					'Author',
-					'Download Copyright Form'
+					'Download Copyright Form',
+					'Download Undertaking Form'
 				);
 				$output = theme('table', array(
 					'header' => $search_header,
