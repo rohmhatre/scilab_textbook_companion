@@ -475,7 +475,7 @@ function bulk_approval_form_submit($form, &$form_state)
 
 	if ($form_state['clicked_button']['#value'] == 'Submit')
 	{
-		$book_name = db_query("SELECT * FROM {textbook_companion_preference} WHERE preference_id = :book_id",array(":book_id"=>form_state['values']['book'])); 
+		$book_name = db_query("SELECT * FROM {textbook_companion_preference} WHERE preference_id = :book_id",array(":book_id"=>$form_state['values']['book'])); 
 		if ($form_state['values']['book'])
 			del_book_pdf($form_state['values']['book']);
 		if (user_access('bulk manage code'))
