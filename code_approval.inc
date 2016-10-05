@@ -475,7 +475,8 @@ function bulk_approval_form_submit($form, &$form_state)
 
 	if ($form_state['clicked_button']['#value'] == 'Submit')
 	{
-		$book_name = db_query("SELECT * FROM {textbook_companion_preference} WHERE preference_id = :book_id",array(":book_id"=>$form_state['values']['book'])); 
+		$book_name_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = :book_id",array(":book_id"=>$form_state['values']['book'])); 
+		$book_name= $book_name_q->fetchObject();
 		if ($form_state['values']['book'])
 			del_book_pdf($form_state['values']['book']);
 		if (user_access('bulk manage code'))
@@ -505,7 +506,7 @@ function bulk_approval_form_submit($form, &$form_state)
 				/* email */
 				$email_subject = t('[scilab.in] Your uploaded examples have been approved');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the book '. $book_name .' have been approved.')
+					0 => t('Your all the uploaded examples for the book '. $book_name->book .' have been approved.')
 				);
 			} //($form_state['values']['book_actions'] == 1) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0)
 			else if (($form_state['values']['book_actions'] == 2) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0))
@@ -530,7 +531,7 @@ function bulk_approval_form_submit($form, &$form_state)
 				/* email */
 				$email_subject = t('[scilab.in] Your uploaded examples have been marked as pending');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the book '. $book_name .' have been marked as pending to be review. You will be able to see the exmaples after they have been approved by one of our reviewers.')
+					0 => t('Your all the uploaded examples for the book '. $book_name->book .' have been marked as pending to be review. You will be able to see the exmaples after they have been approved by one of our reviewers.')
 				);
 			} //($form_state['values']['book_actions'] == 2) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0)
 			else if (($form_state['values']['book_actions'] == 3) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0))
@@ -551,7 +552,7 @@ function bulk_approval_form_submit($form, &$form_state)
 				/* email */
 				$email_subject = t('[scilab.in] Your uploaded examples have been marked as dis-approved');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the whole book '. $book_name .' have been marked as dis-approved.
+					0 => t('Your all the uploaded examples for the whole book '. $book_name->book .' have been marked as dis-approved.
 
 Reason for dis-approval:
 
@@ -606,17 +607,10 @@ Reason for dis-approval:
 					$preference_data = $result->fetchObject();
 					$book_name = $preference_data->book;
 					$proposal_id = $preference_data->proposal_id;
-					/*db_query("DELETE FROM {textbook_companion_preference} WHERE proposal_id = %d", $proposal_id);*/
-					$query = db_delete('textbook_companion_preference');
-					$query->condition('proposal_id', $proposal_id);
-					$num_deleted = $query->execute();
-					/*db_query("DELETE FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
-					$query = db_delete('textbook_companion_proposal');
-					$query->condition('id', $proposal_id);
-					$num_deleted = $query->execute();
+					
 					drupal_set_message(t('Deleted Book Proposal.'), 'status');
 					/* email */
-					$email_subject = t('[scilab.in] Your uploaded examples including the book '. $book_name .' proposal have been deleted');
+					$email_subject = t('[scilab.in] Your uploaded examples including the book '. $book_name->book .' proposal have been deleted');
 					$email_body = array(
 						0 => t('Your all the uploaded examples including the book have been deleted permanently.
 
@@ -624,6 +618,15 @@ Reason for deletion:
 
 ' . $form_state['values']['message'])
 					);
+					/*db_query("DELETE FROM {textbook_companion_preference} WHERE proposal_id = %d", $proposal_id);*/
+					$query = db_delete('textbook_companion_preference');
+					$query->condition('proposal_id', $proposal_id);
+					$num_deleted = $query->execute();
+					
+					/*db_query("DELETE FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
+					$query = db_delete('textbook_companion_proposal');
+					$query->condition('id', $proposal_id);
+					$num_deleted = $query->execute();
 				} //delete_book($form_state['values']['book'])
 				else
 				{
