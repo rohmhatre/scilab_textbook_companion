@@ -284,7 +284,7 @@ function code_approval_form_submit($form, &$form_state)
 /******************************************************************************/
 /********************************* BULK APPROVAL ******************************/
 /******************************************************************************/
-function bulk_approval_form($form, $form_state)
+function bulk_approval_form($form, &$form_state)
 {
 	$options_first = _bulk_list_of_books();
 	$options_two = _ajax_bulk_get_chapter_list();
@@ -452,7 +452,6 @@ function bulk_approval_form($form, $form_state)
 }
 function bulk_approval_submit_validate($form, &$form_state)
 {
-	//var_dump('test');
 	if (($form_state['values']['book_actions'] == 0) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0))
 		drupal_set_message("Wrong selection of action. Please select any one action1", 'error');
 	return;
@@ -473,8 +472,11 @@ function bulk_approval_form_submit($form, &$form_state)
 {
 	global $user;
 	$root_path = textbook_companion_path();
+
 	if ($form_state['clicked_button']['#value'] == 'Submit')
 	{
+		$book_name_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = :book_id",array(":book_id"=>$form_state['values']['book'])); 
+		$book_name= $book_name_q->fetchObject();
 		if ($form_state['values']['book'])
 			del_book_pdf($form_state['values']['book']);
 		if (user_access('bulk manage code'))
@@ -502,9 +504,9 @@ function bulk_approval_form_submit($form, &$form_state)
 				} //$chapter_data = $chapter_q->fetchObject()
 				drupal_set_message(t('Approved Entire Book.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded examples have been approved');
+				$email_subject = t('[scilab.in] Your uploaded examples have been approved');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the book have been approved.')
+					0 => t('Your all the uploaded examples for the book '. $book_name->book .' have been approved.')
 				);
 			} //($form_state['values']['book_actions'] == 1) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0)
 			else if (($form_state['values']['book_actions'] == 2) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0))
@@ -527,9 +529,9 @@ function bulk_approval_form_submit($form, &$form_state)
 				} //$chapter_data = $chapter_q->fetchObject()
 				drupal_set_message(t('Pending Review Entire Book.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded examples have been marked as pending');
+				$email_subject = t('[scilab.in] Your uploaded examples have been marked as pending');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the book have been marked as pending to be review. You will be able to see the exmaples after they have been approved by one of our reviewers.')
+					0 => t('Your all the uploaded examples for the book '. $book_name->book .' have been marked as pending to be review. You will be able to see the exmaples after they have been approved by one of our reviewers.')
 				);
 			} //($form_state['values']['book_actions'] == 2) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0)
 			else if (($form_state['values']['book_actions'] == 3) && ($form_state['values']['chapter_actions'] == 0) && ($form_state['values']['example_actions'] == 0))
@@ -548,9 +550,9 @@ function bulk_approval_form_submit($form, &$form_state)
 					drupal_set_message(t('Error Dis-Approving and Deleting Entire Book.'), 'error');
 				}
 				/* email */
-				$email_subject = t('Your uploaded examples have been marked as dis-approved');
+				$email_subject = t('[scilab.in] Your uploaded examples have been marked as dis-approved');
 				$email_body = array(
-					0 => t('Your all the uploaded examples for the whole book have been marked as dis-approved.
+					0 => t('Your all the uploaded examples for the whole book '. $book_name->book .' have been marked as dis-approved.
 
 Reason for dis-approval:
 
@@ -603,18 +605,12 @@ Reason for dis-approval:
 					$query->condition('id', $form_state['values']['book']);
 					$result = $query->execute();
 					$preference_data = $result->fetchObject();
+					$book_name = $preference_data->book;
 					$proposal_id = $preference_data->proposal_id;
-					/*db_query("DELETE FROM {textbook_companion_preference} WHERE proposal_id = %d", $proposal_id);*/
-					$query = db_delete('textbook_companion_preference');
-					$query->condition('proposal_id', $proposal_id);
-					$num_deleted = $query->execute();
-					/*db_query("DELETE FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
-					$query = db_delete('textbook_companion_proposal');
-					$query->condition('id', $proposal_id);
-					$num_deleted = $query->execute();
+					
 					drupal_set_message(t('Deleted Book Proposal.'), 'status');
 					/* email */
-					$email_subject = t('Your uploaded examples including the book proposal have been deleted');
+					$email_subject = t('[scilab.in] Your uploaded examples including the book '. $book_name->book .' proposal have been deleted');
 					$email_body = array(
 						0 => t('Your all the uploaded examples including the book have been deleted permanently.
 
@@ -622,6 +618,15 @@ Reason for deletion:
 
 ' . $form_state['values']['message'])
 					);
+					/*db_query("DELETE FROM {textbook_companion_preference} WHERE proposal_id = %d", $proposal_id);*/
+					$query = db_delete('textbook_companion_preference');
+					$query->condition('proposal_id', $proposal_id);
+					$num_deleted = $query->execute();
+					
+					/*db_query("DELETE FROM {textbook_companion_proposal} WHERE id = %d", $proposal_id);*/
+					$query = db_delete('textbook_companion_proposal');
+					$query->condition('id', $proposal_id);
+					$num_deleted = $query->execute();
 				} //delete_book($form_state['values']['book'])
 				else
 				{
@@ -641,7 +646,7 @@ Reason for deletion:
 				$num_updated = $query->execute();
 				drupal_set_message(t('Approved Entire Chapter.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded examples have been approved');
+				$email_subject = t('[scilab.in] Your uploaded examples have been approved');
 				$email_body = array(
 					0 => t('Your all the uploaded examples for the chapter have been approved.')
 				);
@@ -657,7 +662,7 @@ Reason for deletion:
 				$num_updated = $query->execute();
 				drupal_set_message(t('Entire Chapter marked as Pending Review.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded examples have been marked as pending');
+				$email_subject = t('[scilab.in] Your uploaded examples have been marked as pending');
 				$email_body = array(
 					0 => t('Your all the uploaded examples for the chapter have been marked as pending to be review.')
 				);
@@ -678,7 +683,7 @@ Reason for deletion:
 					drupal_set_message(t('Error Dis-Approving and Deleting Entire Chapter.'), 'error');
 				}
 				/* email */
-				$email_subject = t('Your uploaded example have been marked as dis-approved');
+				$email_subject = t('[scilab.in] Your uploaded example have been marked as dis-approved');
 				$email_body = array(
 					0 => t('Your uploaded example for the entire chapter have been marked as dis-approved.
 
@@ -699,7 +704,7 @@ Reason for dis-approval:
 				$num_updated = $query->execute();
 				drupal_set_message(t('Example approved.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded example has been approved');
+				$email_subject = t('[scilab.in] Your uploaded example has been approved');
 				$email_body = array(
 					0 => t('Your uploaded example has been approved.')
 				);
@@ -715,7 +720,7 @@ Reason for dis-approval:
 				$num_updated = $query->execute();
 				drupal_set_message(t('Example marked as Pending Review.'), 'status');
 				/* email */
-				$email_subject = t('Your uploaded example has been marked as pending');
+				$email_subject = t('[scilab.in] Your uploaded example has been marked as pending');
 				$email_body = array(
 					0 => t('Your uploaded example has been marked as pending to be review.')
 				);
@@ -731,7 +736,7 @@ Reason for dis-approval:
 					drupal_set_message(t('Error Dis-Approving and Deleting Example.'), 'error');
 				}
 				/* email */
-				$email_subject = t('Your uploaded example has been marked as dis-approved');
+				$email_subject = t('[scilab.in] Your uploaded example has been marked as dis-approved');
 				$email_body = array(
 					0 => t('Your uploaded example has been marked as dis-approved.
 
@@ -744,6 +749,20 @@ Reason for dis-approval:
 			if ($email_subject)
 			{
 				$email_to = $user->mail;
+				$from = variable_get('textbook_companion_from_email', '');
+				$bcc = variable_get('textbook_companion_emails', '');
+				$cc = variable_get('textbook_companion_cc_emails', '');
+				//$params['proposal_disapproved']['proposal_id'] = $proposal_id;
+				//$params['proposal_disapproved']['user_id'] = $row->uid;
+				$params['standard']['headers'] = array(
+				'From' => $from,
+				'MIME-Version' => '1.0',
+				'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+				'Content-Transfer-Encoding' => '8Bit',
+				'X-Mailer' => 'Drupal',
+				'Cc' => $cc,
+				'Bcc' => $bcc
+		);
 				$params['standard']['subject'] = $email_subject;
 				$params['standard']['body'] = $email_body;
 				if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
