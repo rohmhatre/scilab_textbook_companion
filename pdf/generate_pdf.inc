@@ -42,6 +42,8 @@ function generate_pdf()
 		echo "Error!";
 	} //!$pdf
 	$pdf->AddPage();
+	$image_bg = $mpath . "/pdf/images/bg.png";
+	$pdf->Image($image_bg, 0, 0, $pdf->w, $pdf->h);
 	$pdf->Rect(5, 5, 267, 207, 'D');
 	$pdf->SetMargins(18, 1, 18);
 	$pdf->Line(7.0, 7.0, 270.0, 7.0);
@@ -73,7 +75,7 @@ function generate_pdf()
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion for a duration equivalent to six weeks', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'He/She has coded, in Scilab, all the solved examples of the allotted', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'He/She has coded in Scilab, all the solved examples of the allotted', '0', '1', 'C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'textbook: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
