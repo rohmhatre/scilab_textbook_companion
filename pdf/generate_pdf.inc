@@ -73,11 +73,11 @@ function generate_pdf()
 		$pdf->SetTextColor(0, 0, 0);
 		$pdf->Cell(240, 8, 'from ' . $data3->university . ' has successfully', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion for a duration equivalent to six weeks', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'He/She has coded in Scilab, all the solved examples of the allotted', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .'solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'textbook: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
 	} //strtolower($data3->branch) != "others"
 	else
@@ -85,9 +85,9 @@ function generate_pdf()
 		$pdf->SetTextColor(0, 0, 0);
 		$pdf->Cell(240, 8, 'from ' . $data3->university . ' has successfully', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'completed a Scilab Textbook Companion', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'He/She has created S project files for all the solved simulation example in the', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .'solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'textbook: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
