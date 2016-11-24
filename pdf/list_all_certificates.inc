@@ -29,7 +29,7 @@ function _list_all_certificates()
 						$search_data3->isbn,
 						$search_data3->book,
 						$search_data3->author,
-						l('Download Certificate', 'certificate/generate_pdf/' . $search_data3->id)
+						l('Download Certificate', 'certificates/generate_pdf/' . $search_data3->id)
 					);
 				} //$search_data3->id
 			} //$search_data3 = $query3->fetchObject()
