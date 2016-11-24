@@ -15,6 +15,15 @@ function generate_pdf()
 		':prop_id' => $proposal_id
 	));
 	$data3       = $query3->fetchObject();
+	$query4 = db_query("SELECT COUNT( tce.id ) AS example_count FROM textbook_companion_example tce
+						LEFT JOIN textbook_companion_chapter tcc ON tce.chapter_id = tcc.id
+						LEFT JOIN textbook_companion_preference tcpe ON tcc.preference_id = tcpe.id
+						LEFT JOIN textbook_companion_proposal tcpo ON tcpe.proposal_id = tcpo.id
+						WHERE tcpo.proposal_status =3 AND tce.approval_status =1 AND tce.approval_status=1 AND tcpo.id = :prop_id", array(
+		':prop_id' => $proposal_id
+	));
+	$data4       = $query4->fetchObject();
+	$number_of_example = $data4->example_count;
 	$gender      = array(
 		'salutation' => 'Mr. /Ms.',
 		'gender' => 'He/She'
@@ -75,7 +84,7 @@ function generate_pdf()
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .'solved examples using Scilab from the', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .' solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
@@ -87,7 +96,7 @@ function generate_pdf()
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'completed Internship under Scilab Textbook Companion', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .'solved examples using Scilab from the', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .' solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'textbook: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
