@@ -658,7 +658,7 @@ function textbook_companion_menu()
 		'page arguments' => array(
 			'generate_pdf'
 		),
-		'type' => MENU_NORMAL_ITEM,
+		'type' => MENU_CALLBACK,
 		'access arguments' => array(
 			'generate pdf'
 		),
@@ -670,6 +670,7 @@ function textbook_companion_menu()
 		"access arguments" => array(
 			"verify certificates"
 		),
+		'type' => MENU_CALLBACK,
 	'file' => 'pdf/verify_certificates.inc',
 	);
 	/*******************/
