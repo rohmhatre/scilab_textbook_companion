@@ -86,7 +86,7 @@ function generate_pdf()
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .' solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'Book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
 	} //strtolower($data3->branch) != "others"
 	else
@@ -98,7 +98,7 @@ function generate_pdf()
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'He/she has coded '. $number_of_example .' solved examples using Scilab from the', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'textbook: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
+		$pdf->Cell(240, 8, 'Book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
 		$pdf->Ln(0);
 	}
 	$proposal_get_id = 0;
