@@ -642,7 +642,7 @@ function textbook_companion_menu()
 		),
 		'file' => 'cheque_contact.inc'
 	);
-	$items['certificate'] = array(
+	$items['certificates'] = array(
 		'title' => 'List of all Certificates',
 		'description' => 'List of all Certificates',
 		'page callback' => '_list_all_certificates',
@@ -651,17 +651,27 @@ function textbook_companion_menu()
 		),
 		'file' => 'pdf/list_all_certificates.inc'
 	);
-	$items['certificate/generate_pdf'] = array(
+	$items['certificates/generate_pdf'] = array(
 		'title' => 'Download Certificate',
 		'description' => 'Download Certificate',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
 			'generate_pdf'
 		),
+		'type' => MENU_CALLBACK,
 		'access arguments' => array(
 			'generate pdf'
 		),
 		'file' => 'pdf/generate_pdf.inc'
+	);
+	$items["certificates/verify"] = array(
+		"title" => "Certificate Verification",
+		"page callback" => "verify_certificates",
+		"access arguments" => array(
+			"verify certificates"
+		),
+		'type' => MENU_CALLBACK,
+	'file' => 'pdf/verify_certificates.inc',
 	);
 	/*******************/
 	$items['Summer_Internship_Forms/forms'] = array(
@@ -789,6 +799,10 @@ function textbook_companion_permission()
 		"list all certificates" => array(
 			"title" => t("list all certificates"),
 			"description" => t("Allows users to list all certificates.")
+		),
+		"verify certificates" => array(
+			"title" => t("Verify certificates"),
+			"description" => t("Allows users to verify certificates.")
 		),
 		"generate pdf" => array(
 			"title" => t("Generate pdf"),

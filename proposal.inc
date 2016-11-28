@@ -651,7 +651,7 @@ function book_proposal_form($form, &$form_state, $row1 = NULL, $row2 = NULL, $ro
 	$form['preference1']['edition1'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Edition'),
-		'#size' => 4,
+		'#size' => 2,
 		'#maxlength' => 2,
 		'#required' => TRUE,
 		'#default_value' => $row1->edition
