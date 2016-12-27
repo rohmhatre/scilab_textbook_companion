@@ -1211,5 +1211,4 @@ function textbook_companion_init()
 	$path = drupal_get_path('module', 'textbook_companion');
 	drupal_add_css($path . '/css/textbook_companion.css');
 	drupal_add_js($path . '/js/textbook_companion.js');
-	drupal_add_js($path . '/js/jquery-1.7.1.js');
 }
