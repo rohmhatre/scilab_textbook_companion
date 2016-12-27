@@ -96,6 +96,9 @@ function textbook_companion_download_example()
 		header('Content-Type: application/zip');
 		header('Content-disposition: attachment; filename="EX' . $example_data->number . '.zip"');
 		header('Content-Length: ' . filesize($zip_filename));
+		ob_end_flush();
+		ob_clean();
+		flush();
 		readfile($zip_filename);
 		unlink($zip_filename);
 	} //$zip_file_count > 0
@@ -169,6 +172,9 @@ function textbook_companion_download_chapter()
 		header('Content-Type: application/zip');
 		header('Content-disposition: attachment; filename="CH' . $chapter_data->number . '.zip"');
 		header('Content-Length: ' . filesize($zip_filename));
+		ob_end_flush();
+		ob_clean();
+		flush();
 		readfile($zip_filename);
 		unlink($zip_filename);
 	} //$zip_file_count > 0
