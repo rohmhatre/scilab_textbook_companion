@@ -200,6 +200,7 @@ function textbook_companion_download_full_book()
 		} //$example_row = $example_q->fetchObject()
 	} //$chapter_row = $chapter_q->fetchObject()
 	$zip_file_count = $zip->numFiles;
+	//var_dump($zip->numFiles);die;
 	$zip->close();
 	if ($zip_file_count > 0)
 	{
@@ -207,12 +208,12 @@ function textbook_companion_download_full_book()
 		header('Content-Type: application/zip');
 		header('Content-disposition: attachment; filename="' . $book_data->book . '.zip"');
 		header('Content-Length: ' . filesize($zip_filename));
-		//header("Content-Transfer-Encoding: binary");
-		//header('Expires: 0');
-		//header('Pragma: no-cache');
-		//ob_end_flush();
+		header('Content-Transfer-Encoding: binary');
+		header('Expires: 0');
+		header('Pragma: no-cache');
+		ob_end_flush();
 		ob_end_clean();
-		//flush();
+		flush();
 		readfile($zip_filename);
 		unlink($zip_filename);
 	} //$zip_file_count > 0

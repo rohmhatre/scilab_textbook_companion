@@ -156,8 +156,8 @@ function generate_pdf()
 	$pdf->SetX(200);
 	$pdf->SetTextColor(0, 0, 0);
 	$pdf->SetFont('', '');
-	$sign = $path . "/pdf/images/sign.png";
-	$pdf->Image($sign, $pdf->GetX(), $pdf->GetY() - 20, 50, 0);
+	//$sign = $path . "/pdf/images/sign.png";
+	//$pdf->Image($sign, $pdf->GetX(), $pdf->GetY() - 20, 50, 0);
 	$pdf->Cell(0, 8, 'Prof. Madhu Belur', 0, 1, 'L');
 	$pdf->SetX(194);
 	$pdf->Cell(0, 7, 'Principal Investigator - FOSSEE', 0, 1, 'L');
