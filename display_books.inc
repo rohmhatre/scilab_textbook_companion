@@ -84,7 +84,6 @@ function _textbook_companion_list_of_new_category_display($category_id = NULL)
 		$query->fields('list_of_category');
 		$query->condition('id', $category_id);
 		$category_list = $query->execute();
-		$category .= "<ul>";
 	} //$category_id != NULL
 	else
 	{
@@ -92,12 +91,12 @@ function _textbook_companion_list_of_new_category_display($category_id = NULL)
 	}
 	while ($category_list_data = $category_list->fetchObject())
 	{
-		$category .= "<li><h4>$category_list_data->maincategory</h4></li>";
+		$category .= "<li>$category_list_data->maincategory</li>";
 		$query_sub_cat = db_select('list_of_subcategory');
 		$query_sub_cat->fields('list_of_subcategory');
 		$query_sub_cat->condition('maincategory_id', $category_id);
 		$subcategory_list = $query_sub_cat->execute();
-		$category .= "<ul>";
+		$category .= "<ol style='list-style-type: lower-roman;'><h5>";
 		while ($sub_category_list_data = $subcategory_list->fetchObject())
 		{
 			$preference_q = db_query("
@@ -113,41 +112,43 @@ function _textbook_companion_list_of_new_category_display($category_id = NULL)
       AND pe.id = tcbm.pref_id AND tcbm.sub_category= :subcategory", array(
 				":subcategory" => $sub_category_list_data->subcategory_id
 			));
-			$category .= "<li><h4>$sub_category_list_data->subcategory</h4></li>";
+			$category .= "<li>$sub_category_list_data->subcategory</li>";
+			$category .= "<ol style='list-style-type: decimal;'>";
 			while ($preference_data = $preference_q->fetchObject())
 			{
-				$category .= "<ul>";
 				if ($sub_category_list_data->subcategory == $preference_data->subcategory && $sub_category_list_data->maincategory_id == $preference_data->category_id)
 				{
 					$category .= "<li>";
 					$category .= l($preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook_run/' . $preference_data->pe_id);
 					$category .= "</li>";
 				} //$sub_category_list_data->subcategory == $preference_data->subcategory && $sub_category_list_data->maincategory_id == $preference_data->category_id
-				$category .= "</ul>";
 			} //$preference_data = $preference_q->fetchObject()
+			$category .= "</ol>";
 		} //$sub_category_list_data = $subcategory_list->fetchObject()
-		$category .= "</ul>";
+		$category .= "</h5></ol>";
 	} //$category_list_data = $category_list->fetchObject()
-	$category .= "</ul>";
 	return $category;
 }
+/* Display Completed books */
 function tbc_completed_books_all()
 {
 	$category_id = NULL;
 	$output = "";
 	$output = "<h4>Category</h4>";
-	$output .= "<hr style='background-color: #abb2b8;' /><div style='width:50%; float:left;'>";
+	$output .= "<hr style='background-color: #abb2b8;' /><div style='width:100%; float:left;'><h4>";
 	$output .= _textbook_companion_list_of_new_category($category_id);
-	$output .= "</div>";
+	$output .= "</h4></div>";
 	$result_count = db_query("SELECT pe.book FROM textbook_companion_preference pe LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id WHERE po.proposal_status =3 AND pe.approval_status =1 AND pe.category>0");
 	$row_count = $result_count->rowCount();
 	$output .= "<p style='clear: both;'>Total number of completed books : &nbsp;" . $row_count . " </p>";
 	$output .= "<hr style='background-color: #abb2b8;' />";
 	$result_category = db_query("SELECT * FROM list_of_category WHERE category_id !=0");
 	$row_category_count = $result_category->rowCount();
+	$output .= "<ol style='list-style-type: upper-roman;'><h4>";
 	for ($i = 1; $i <= $row_category_count; $i++)
 	{
-		$output .= "<div id=$i>" . _textbook_companion_list_of_new_category_display($i) . "</div>";
+		$output .= "<div id=$i>" . _textbook_companion_list_of_new_category_display($i) . "</div><br>";
 	} //$i = 1; $i <= $row_category_count; $i++
+	$output .= "</h4></ol>";
 	return $output;
 }
