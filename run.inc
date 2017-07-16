@@ -431,6 +431,8 @@ function _list_of_category()
 		10 => 'Analog Electronics',
 		11 => 'Digital Electronics',
 		12 => 'Computer Programming',
+		14 => 'Nuclear Technology and Biotechnology',
+		15 => 'Power Systems',
 		13 => 'Others'
 	);
 	return $category_titles;
