@@ -77,7 +77,8 @@ echo >>$CURDIR/TEX
 
 
 
-
+echo \\newpage >> $CURDIR/TEX
+echo \\vspace*{3cm}>>$CURDIR/TEX
 echo \\tableofcontents >>$CURDIR/TEX
 echo \\listofcode >>$CURDIR/TEX
 
