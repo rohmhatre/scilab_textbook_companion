@@ -164,6 +164,19 @@ function tbc_completed_books_display_new_category_all()
 function tbc_books_display_new_category_form($form, &$form_state)
 {
 	$category_default_value = 0;
+		$countresult = db_query("SELECT count(DISTINCT pe.book) c
+      FROM textbook_companion_preference pe
+      LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
+      LEFT JOIN textbook_companion_book_main_subcategories tcbm ON pe.id = tcbm.pref_id
+      LEFT JOIN list_of_category loc ON tcbm.main_category = loc.category_id
+      WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND pe.category>0
+      AND pe.id = tcbm.pref_id ORDER BY pe.book");
+	$count_row = $countresult->fetchObject();
+	$book_count = $count_row->c;
+	$form['completed_book_count'] = array(
+		'#type' => 'item',
+		'#markup' => "Total number of completed books: " . $book_count,
+	);
 	$form['category'] = array(
 		'#type' => 'select',
 		'#title' => t('Category'),
