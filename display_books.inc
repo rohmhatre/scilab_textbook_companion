@@ -164,7 +164,7 @@ function tbc_completed_books_display_new_category_all()
 function tbc_books_display_new_category_form($form, &$form_state)
 {
 	$category_default_value = 0;
-		$countresult = db_query("SELECT count(DISTINCT pe.book) c
+		$countresult = db_query("SELECT count(DISTINCT pe.id) c
       FROM textbook_companion_preference pe
       LEFT JOIN textbook_companion_proposal po ON pe.proposal_id = po.id
       LEFT JOIN textbook_companion_book_main_subcategories tcbm ON pe.id = tcbm.pref_id
@@ -307,7 +307,7 @@ function _list_of_all_completed_books($category_default_value = NULL, $subcatego
       LEFT JOIN textbook_companion_book_main_subcategories tcbm ON pe.id = tcbm.pref_id
       LEFT JOIN list_of_category loc ON tcbm.main_category = loc.category_id
       WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND pe.category>0
-      AND pe.id = tcbm.pref_id GROUP BY pe.book having c >= 1 ORDER BY pe.book");
+      AND pe.id = tcbm.pref_id GROUP BY pe.id having c >= 1 ORDER BY pe.book");
 	} //$category_default_value <= 0 && $subcategory_default_value == NULL
 	elseif ($category_default_value > 0 && $subcategory_default_value == NULL)
 	{
@@ -319,7 +319,7 @@ function _list_of_all_completed_books($category_default_value = NULL, $subcatego
       LEFT JOIN textbook_companion_book_main_subcategories tcbm ON pe.id = tcbm.pref_id
       LEFT JOIN list_of_category loc ON tcbm.main_category = loc.category_id
       WHERE po.proposal_status = 3 AND pe.approval_status = 1 AND pe.category>0
-      AND pe.id = tcbm.pref_id AND loc.category_id= :category_id GROUP BY pe.book having c >= 1 ORDER BY pe.book", array(
+      AND pe.id = tcbm.pref_id AND loc.category_id= :category_id GROUP BY pe.id having c >= 1 ORDER BY pe.book", array(
 			"category_id" => $category_default_value
 		));
 	} //$category_default_value > 0 && $subcategory_default_value == NULL
