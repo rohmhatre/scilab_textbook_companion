@@ -423,6 +423,32 @@ function textbook_companion_menu()
 		'type' => MENU_NORMAL_ITEM,
 		'file' => 'run.inc'
 	);
+	/**********for new categorisation *************/
+    $items['textbook_run_1'] = array(
+		'title' => 'Download Codes',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'textbook_companion_book_run_form'
+		),
+		'access arguments' => array(
+			'access content'
+		),
+		'type' => MENU_NORMAL_ITEM,
+		'file' => 'textbook_run.inc'
+	);
+	$items['download_codes_1'] = array(
+		'title' => 'Download Codes',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array(
+			'textbook_companion_book_run_form'
+		),
+		'access arguments' => array(
+			'access content'
+		),
+		'type' => MENU_NORMAL_ITEM,
+		'file' => 'textbook_run.inc'
+	);
+/********************************************/
 	/* download callbacks */
 	$items['download/file'] = array(
 		'title' => 'Code Download',
