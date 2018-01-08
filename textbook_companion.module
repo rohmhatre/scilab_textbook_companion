@@ -18,15 +18,6 @@ function textbook_companion_menu()
 		'type' => MENU_LOCAL_TASK,
 		'file' => 'display_books.inc'
 	);
-    $items['Completed_Books_1'] = array(
-        'title' => 'Completed Books',
-        'page callback' => 'tbc_completed_books_display_new_category_all',
-        'access arguments' => array(
-        'display books in progress'
-        ),
-        'type' => MENU_LOCAL_TASK,
-        'file' => 'display_books.inc'
-  );
 	$items['proposal'] = array(
 		'title' => 'Book Proposal Form',
 		'description' => 'Book Proposal Form.',
@@ -399,7 +390,7 @@ function textbook_companion_menu()
 		'file' => 'search.inc',
 		'weight' => 1
 	);
-	$items['textbook_run'] = array(
+	/*$items['textbook_run'] = array(
 		'title' => 'Download Codes',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
@@ -410,8 +401,8 @@ function textbook_companion_menu()
 		),
 		'type' => MENU_NORMAL_ITEM,
 		'file' => 'run.inc'
-	);
-	$items['download_codes'] = array(
+	);*/
+	/*$items['download_codes'] = array(
 		'title' => 'Download Codes',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
@@ -422,9 +413,18 @@ function textbook_companion_menu()
 		),
 		'type' => MENU_NORMAL_ITEM,
 		'file' => 'run.inc'
-	);
+	);*/
 	/**********for new categorisation *************/
-    $items['textbook_run_1'] = array(
+    $items['Completed_Books'] = array(
+        'title' => 'Completed Books',
+        'page callback' => 'tbc_completed_books_display_new_category_all',
+        'access arguments' => array(
+        'display books in progress'
+        ),
+        'type' => MENU_LOCAL_TASK,
+        'file' => 'display_books.inc'
+    );
+    $items['textbook_run'] = array(
 		'title' => 'Download Codes',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
@@ -436,7 +436,7 @@ function textbook_companion_menu()
 		'type' => MENU_NORMAL_ITEM,
 		'file' => 'textbook_run.inc'
 	);
-	$items['download_codes_1'] = array(
+	$items['download_codes'] = array(
 		'title' => 'Download Codes',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array(
