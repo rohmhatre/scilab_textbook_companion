@@ -120,7 +120,7 @@ function _textbook_companion_list_of_new_category_display($category_id = NULL)
 				if ($sub_category_list_data->subcategory == $preference_data->subcategory && $sub_category_list_data->maincategory_id == $preference_data->category_id)
 				{
 					$category .= "<li>";
-					$category .= l($preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook_run_1/' . $preference_data->pe_id . '/' . $preference_data->sub_category . '/' . $preference_data->category_id);
+					$category .= l($preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook_run/' . $preference_data->pe_id . '/' . $preference_data->sub_category . '/' . $preference_data->category_id);
 					$category .= "</li>";
 				} //$sub_category_list_data->subcategory == $preference_data->subcategory && $sub_category_list_data->maincategory_id == $preference_data->category_id
 			} //$preference_data = $preference_q->fetchObject()
@@ -342,7 +342,7 @@ function _list_of_all_completed_books($category_default_value = NULL, $subcatego
 	{
 		$proposal_rows[] = array(
 			$i,
-			l($preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook_run_1/' . $preference_data->pe_id . '/' . $preference_data->sub_category . '/' . $preference_data->category_id)
+			l($preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook_run/' . $preference_data->pe_id . '/' . $preference_data->sub_category . '/' . $preference_data->category_id)
 		);
 		$i++;
 	} //$proposal_data = $proposal_q->fetchObject()
