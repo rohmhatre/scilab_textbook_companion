@@ -199,6 +199,12 @@ function _category_all()
 			case 13:
 				$category_data = 'Others';
 				break;
+			case 14:
+				$category_data = 'Nuclear Technology and Biotechnology';
+				break;
+			case 15:
+				$category_data = 'Power Systems';
+				break;
 			default:
 				$category_data = 'Unknown';
 				break;
