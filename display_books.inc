@@ -7,7 +7,6 @@ function tbc_books_in_progress_all()
     $query->fields('list_of_category');
     $query->orderBy('id', 'ASC');
     $category_list = $query->execute();
-
     $query = "
   SELECT po.creation_date, pe.book as book, pe.author as author, pe.publisher as publisher,pe.edition as edition, pe.isbn as isbn, pe.year as year, pe.id as pe_id, loc.category_name as category, loc.category_id as cat_id
 FROM textbook_companion_preference pe 
@@ -220,8 +219,7 @@ function tbc_books_display_new_category_form($form, &$form_state)
 }
 function _list_of_display_category($category_id = NULL)
 {
-    $category = "";
-    $category[0] .= "All";
+    $category[0] = "All";
     if ($category_id == NULL)
     {
         $query = db_select('list_of_category');
@@ -239,7 +237,7 @@ function _list_of_display_category($category_id = NULL)
     }
     while ($category_list_data = $category_list->fetchObject())
     {
-        $category[$category_list_data->category_id] .= $category_list_data->maincategory;
+        $category[$category_list_data->category_id] = $category[$category_list_data->category_id].$category_list_data->maincategory;
     } //$category_list_data = $category_list->fetchObject()
     return $category;
 }
@@ -367,8 +365,7 @@ function _list_of_all_completed_books($category_default_value = NULL, $subcatego
 }
 function _list_of_subcategory($category_id = NULL)
 {
-    $subcategory = "";
-    $subcategory[0] .= "Please select";
+    $subcategory[0] = "Please select";
     if ($category_id == NULL)
     {
         $query = db_select('list_of_subcategory');
@@ -387,7 +384,7 @@ function _list_of_subcategory($category_id = NULL)
     }
     while ($subcategory_list_data = $subcategory_list->fetchObject())
     {
-        $subcategory[$subcategory_list_data->subcategory_id] .= $subcategory_list_data->subcategory;
+        $subcategory[$subcategory_list_data->subcategory_id] = $subcategory[$subcategory_list_data->subcategory_id].$subcategory_list_data->subcategory;
     } //$category_list_data = $category_list->fetchObject()
     return $subcategory;
 }
