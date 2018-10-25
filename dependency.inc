@@ -292,7 +292,6 @@ function upload_dependency_form_submit($form, &$form_state)
 function _list_existing_dependency($book_id)
 {
 	// $return_html = '<ul>';
-	$return_html = "";
 	/*$query = "SELECT * FROM textbook_companion_dependency_files WHERE preference_id = %d ORDER BY filename ASC";
 	$result = db_query($query, $book_id);*/
 	$query = db_select('textbook_companion_dependency_files');
