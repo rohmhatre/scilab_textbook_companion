@@ -12,6 +12,7 @@ function textbook_companion_download_example_file()
 	$query->range(0, 1);
 	$result = $query->execute();
 	$example_file_data = $result->fetchObject();
+	ob_clean();
 	header('Content-Type: ' . $example_file_data->filemime);
 	header('Content-disposition: attachment; filename="' . $example_file_data->filename . '"');
 	header('Content-Length: ' . filesize($root_path . $example_file_data->filepath));
