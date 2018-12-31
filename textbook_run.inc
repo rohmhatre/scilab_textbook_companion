@@ -498,8 +498,8 @@ function bootstrap_table_format($headers, $rows)
 /***********************************************************************************/
 function _list_of_category($category_id = NULL)
 {
-	$category = "";
-	$category[0] .= "Please select";
+
+	$category[0] = "Please select";
 	if ($category_id == NULL)
 	{
 		$query = db_select('list_of_category');
@@ -517,14 +517,13 @@ function _list_of_category($category_id = NULL)
 	}
 	while ($category_list_data = $category_list->fetchObject())
 	{
-		$category[$category_list_data->category_id] .= $category_list_data->maincategory;
+		$category[$category_list_data->category_id] = $category[$category_list_data->category_id].$category_list_data->maincategory;
 	} //$category_list_data = $category_list->fetchObject()
 	return $category;
 }
 function _list_of_subcategory($category_id = NULL)
 {
-	$subcategory = "";
-	$subcategory[0] .= "Please select";
+	$subcategory[0] = "Please select";
 	if ($category_id == NULL)
 	{
 		$query = db_select('list_of_subcategory');
@@ -543,7 +542,7 @@ function _list_of_subcategory($category_id = NULL)
 	}
 	while ($subcategory_list_data = $subcategory_list->fetchObject())
 	{
-		$subcategory[$subcategory_list_data->subcategory_id] .= $subcategory_list_data->subcategory;
+		$subcategory[$subcategory_list_data->subcategory_id] = $subcategory_list_data->subcategory;
 	} //$category_list_data = $category_list->fetchObject()
 	return $subcategory;
 }

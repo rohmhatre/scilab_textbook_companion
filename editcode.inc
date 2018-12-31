@@ -3,7 +3,7 @@
 /******************************************************************************/
 /***************************** EDIT EXAMPLE ***********************************/
 /******************************************************************************/
-function upload_examples_edit_form($form, $form_state)
+function upload_examples_edit_form($form, &$form_state)
 {
 	global $user;
 	$example_id = arg(3);
