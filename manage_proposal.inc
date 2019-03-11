@@ -765,10 +765,25 @@ function proposal_status_form($form, &$form_state)
 			$proposal_status = t('Unkown');
 			break;
 	} //$proposal_data->proposal_status
-	$form['proposal_status'] = array(
+
+	$form['current_proposal_status'] = array(
 		'#type' => 'item',
 		'#markup' => $proposal_status,
-		'#title' => t('Proposal Status')
+		'#title' => t('Current Proposal Status')
+	);
+	$new_proposal_status = array(
+		'0' => t('Pending'),
+		'1' => t('Approved'), 
+		'2' => t('Dis-approved'),
+		'3' => t('Completed'),
+		'4' => t('External'),
+		'5' => t('Unkown'),
+	);
+	$form['new_proposal_status'] = array(
+		'#type' => 'radios',
+		'#options' => $new_proposal_status,
+		'#title' => t('Set new Proposal Status'),
+		'#default_value' => $proposal_data->proposal_status
 	);
 	if ($proposal_data->proposal_status == 2)
 	{
@@ -818,14 +833,15 @@ function proposal_status_form_submit($form, &$form_state)
 	$query->fields('textbook_companion_proposal');
 	$query->condition('id', $proposal_id);
 	$proposal_q = $query->execute();
-	if (!$proposal_data = $proposal_q->fetchObject())
+	$proposal_data = $proposal_q->fetchObject();
+	if (!$proposal_data)
 	{
 		drupal_set_message(t('Invalid proposal selected. Please try again.'), 'error');
 		drupal_goto('manage_proposal');
 		return;
 	} //!$proposal_data = $proposal_q->fetchObject()
 	/* set the book status to completed */
-	if ($form_state['values']['completed'] == 1)
+	if (($form_state['values']['completed'] == 1) && ($form_state['values']['new_proposal_status'] == 1))
 	{
 		/*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
 		$query = db_update('textbook_companion_proposal');
@@ -855,8 +871,20 @@ function proposal_status_form_submit($form, &$form_state)
 		if (!drupal_mail('textbook_companion', 'proposal_completed', $email_to, language_default(), $params, $from, TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message('Congratulations! Book proposal has been marked as completed. User has been notified of the completion.', 'status');
-	} //$form_state['values']['completed'] == 1
-	drupal_goto('manage_proposal');
+	} elseif ($form_state['values']['new_proposal_status'] != $proposal_data->proposal_status){
+		$u_query = db_update('textbook_companion_proposal');
+		$u_query->fields(array(
+			'proposal_status' => $form_state['values']['new_proposal_status'],
+		));
+		$u_query->condition('id', $proposal_id);
+		$u_updated = $u_query->execute();
+		drupal_set_message(t('No notification email has been sent. Proposal status updated. Please check new proposal status.'));
+		drupal_goto('manage_proposal/status/'. $proposal_id);
+	}else{
+	drupal_set_message(t('Please check your selected options'),'error');
+	drupal_goto('manage_proposal/status/'. $proposal_id);
+	}
+	
 	return;
 }
 /******************************************************************************/
