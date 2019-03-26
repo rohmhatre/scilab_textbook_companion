@@ -422,19 +422,19 @@ function ajax_example_files_callback($form, $form_state)
 				);
 			} //$example_list_data = $example_list_q->fetchObject()
 			/* dependency files */
-			// $dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, dependency.caption as dependency_caption
-			//   FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency
-			//  ON example_dependency.dependency_id = dependency.id
-			//  WHERE example_dependency.example_id = %d", $form_state['values']['run']['example']);
-			$query = db_select('textbook_companion_example_dependency', 'example_dependency');
-			$query->fields('dependency', array(
-				'id',
-				'filename',
-				'caption'
-			));
-			$query->leftJoin('textbook_companion_dependency_files', 'dependency', 'example_dependency.dependency_id = dependency.id');
-			$query->condition('example_dependency.example_id', $form_state['values']['example_list']);
-			$dependency_list_q = $query->execute();
+			 $dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, dependency.caption as dependency_caption
+			   FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency
+			  ON example_dependency.dependency_id = dependency.id
+			  WHERE example_dependency.example_id = :example_id", array('example_id' =>$example_list_default_value));
+			//$query = db_select('textbook_companion_example_dependency', 'example_dependency');
+			//$query->fields('dependency', array(
+			//	'id',
+			//	'filename',
+			//	'caption'
+			//));
+			//$query->leftJoin('textbook_companion_dependency_files', 'dependency', 'example_dependency.dependency_id = dependency.id');
+			//$query->condition('example_dependency.example_id', $form_state['values']['example_list']);
+			//$dependency_list_q = $query->execute();
 			while ($dependency_list_data = $dependency_list_q->fetchObject())
 			{
 				$example_file_type = 'Dependency file';
