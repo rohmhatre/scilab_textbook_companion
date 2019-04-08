@@ -841,7 +841,7 @@ function proposal_status_form_submit($form, &$form_state)
 		return;
 	} //!$proposal_data = $proposal_q->fetchObject()
 	/* set the book status to completed */
-	if (($form_state['values']['completed'] == 1) && ($form_state['values']['new_proposal_status'] == 1))
+	if ($form_state['values']['completed'] == 1)
 	{
 		/*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
 		$query = db_update('textbook_companion_proposal');
