@@ -416,15 +416,8 @@ function ajax_example_files_callback($form, $form_state)
 						$example_file_type = 'Unknown';
 						break;
 				} //$example_list_data->filetype
-
-				if(get_dependency_alert($example_list_default_value) == true){
-				$alert = array('attributes' => array('onclick' => "alert('This example has dependency. Please download the dependency files also for successful exection.')"),);
-				}
-				else{
-								$alert = array('');
-				}
 				$example_files_rows[] = array(
-					l($example_list_data->filename, 'download/file/' . $example_list_data->id, $alert),
+					l($example_list_data->filename, 'download/file/' . $example_list_data->id),
 					$example_file_type
 				);
 			} //$example_list_data = $example_list_q->fetchObject()
@@ -463,7 +456,7 @@ function ajax_example_files_callback($form, $form_state)
 				'rows' => $example_files_rows
 			));
 		} //$example_list_q
-		$commands[] = ajax_command_html("#ajax-download-example-code-replace", l('Download Scilab code for the example', 'download/example/' . $example_list_default_value));
+		$commands[] = ajax_command_html("#ajax-download-example-code-replace", l('Download Scilab code for the example', 'download/example/' . $example_list_default_value) .' '. '(<font color="red">You have to download all the files one at a time, for successful execution on your computer. Alternately you can also download the chapter.</font>)');
 		$commands[] = ajax_command_html("#ajax-download-example-files-replace", $example_files);
 	} //$example_list_default_value != 0
 	else
@@ -704,20 +697,4 @@ function _html_book_info($preference_id)
 		}
 	} //$book_details
 	return $html_data;
-}
-function get_dependency_alert($example_id)
-{
-		$dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, 		dependency.caption as dependency_caption
-			   FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency
-			  ON example_dependency.dependency_id = dependency.id
-			  WHERE example_dependency.example_id = :example_id", array('example_id' =>$example_id));
-
-	$dependency_list_data = $dependency_list_q->fetchObject();
-	if($dependency_list_data)
-	{
-		return True;
-	}
-	else{
-		return False;
-	}
 }
