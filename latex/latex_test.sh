@@ -244,10 +244,12 @@ echo `file -b ../$col2` > $CURDIR/Dependency_Image_files
         echo \\curlable{AP~$i} >> $CURDIR/TEX;
         echo \\begin{code} >> $CURDIR/TEX;
         echo \\label{AP:$col4} >> $CURDIR/TEX
-        echo \\tcaption {$col3}{$col3} >> $CURDIR/TEX
-        echo \\lstinputlisting{../$col2}  >> $CURDIR/TEX
-        echo \\end{code} >> $CURDIR/TEX
-        echo >> $CURDIR/TEX
+	echo \\begin{verbatim} >> $CURDIR/TEX
+	echo $col3 >> $CURDIR/TEX
+	echo \\end{verbatim} >> $CURDIR/TEX
+	echo \\lstinputlisting{../$col2}  >> $CURDIR/TEX
+	echo \\end{code} >> $CURDIR/TEX
+	echo >> $CURDIR/TEX
     fi
         let "i+=1"
    done < $Dep_dat
