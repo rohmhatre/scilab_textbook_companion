@@ -1,7 +1,7 @@
 <?php
 function verify_certificates($qr_code = 0)
 {
-	$qr_code = arg(2);
+	$qr_code = arg(3);
 	$page_content = "";
 	if ($qr_code)
 	{
