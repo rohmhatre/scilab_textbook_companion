@@ -699,7 +699,7 @@ function textbook_companion_menu()
 		),
 		'file' => 'pdf/generate_pdf.inc'
 	);
-	$items["certificates/verify"] = array(
+	$items["textbook_companion/certificates/verify"] = array(
 		"title" => "Certificate Verification",
 		"page callback" => "verify_certificates",
 		"access arguments" => array(
@@ -975,7 +975,8 @@ function check_chapter_number($name = '')
 }
 function textbook_companion_path()
 {
-	return $_SERVER['DOCUMENT_ROOT'] . base_path() . 'uploads/';
+	//return $_SERVER['DOCUMENT_ROOT'] . base_path() . 'uploads/';
+	return "/data/home/scc_uploads/uploads_11012018/";
 }
 function textbook_companion_samplecode_path()
 {
