@@ -134,7 +134,7 @@ function generate_pdf()
 	{
 		$UniqueString = $DBString;
 	}
-	$codeContents        = "http://scilab.in/textbook_companion/certificates/verify/" . $UniqueString;
+	$codeContents        = "https://scilab.in/textbook_companion/certificates/verify/" . $UniqueString;
 	$fileName            = 'generated_qrcode.png';
 	$pngAbsoluteFilePath = $tempDir . $fileName;
 	$urlRelativeFilePath = $path . "/pdf/temp_prcode/" . $fileName;
@@ -144,7 +144,7 @@ function generate_pdf()
 	$pdf->write(0, 'The work done is available at ');
 	$pdf->SetFont('', 'U');
 	$pdf->SetTextColor(139, 69, 19);
-	$pdf->write(0, 'http://scilab.in/', 'http://scilab.in/');
+	$pdf->write(0, 'https://scilab.in/', 'https://scilab.in/');
 	$pdf->SetFont('', '');
 	$pdf->SetTextColor(0, 0, 0);
 	$pdf->write(0, '.', '.');

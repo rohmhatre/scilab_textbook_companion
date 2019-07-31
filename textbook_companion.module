@@ -975,8 +975,7 @@ function check_chapter_number($name = '')
 }
 function textbook_companion_path()
 {
-	//return $_SERVER['DOCUMENT_ROOT'] . base_path() . 'uploads/';
-	return "/data/home/scc_uploads/uploads_11012018/";
+	return $_SERVER['DOCUMENT_ROOT'] . base_path() . 'uploads/';
 }
 function textbook_companion_samplecode_path()
 {

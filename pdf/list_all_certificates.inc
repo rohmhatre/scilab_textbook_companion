@@ -45,6 +45,7 @@ function _list_all_certificates()
 					'header' => $search_header,
 					'rows' => $search_rows
 				));
+				$output .= t("<span style='color:red;'>Note: It is requested to you that open the certificate pdf in pdf reader application as some browser pdf plugin shows the certificate as blank. </span> ");
 				return $output;
 			} //$search_rows
 			else
