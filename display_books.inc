@@ -172,10 +172,17 @@ function tbc_books_display_new_category_form($form, &$form_state)
       AND pe.id = tcbm.pref_id ORDER BY pe.book");
     $count_row = $countresult->fetchObject();
     $book_count = $count_row->c;
+    $form['completed_book_note'] = array(
+        '#type' => 'item',
+        '#markup' => "",
+    );
     $form['completed_book_count'] = array(
         '#type' => 'item',
-        '#markup' => "Total number of completed books: " . $book_count,
-    );
+        '#markup' => "Total number of completed books: " . $book_count.
+                     "<br><span style='color:red;'>The list below is not the ".
+                     "books as named but only are the solved example for ".
+                     "Scilab</span>"
+        );
     $form['category'] = array(
         '#type' => 'select',
         '#title' => t('Category'),
