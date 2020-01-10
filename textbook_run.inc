@@ -81,7 +81,7 @@ function textbook_companion_book_run_form($form, &$form_state)
 		);
 		$form['download_pdf'] = array(
 			'#type' => 'item',
-			'#markup' => '<div id="ajax-download-book-pdf-replace">' . l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)') . '</div>'
+			'#markup' => '<div id="ajax-download-book-pdf-replace">' . l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)<br><span style="color:red">The generated PDF is not the PDF of the book as named but only is the PDF of the solved example for Scilab</span>') . '</div>',
 		);
 		$form['chapter'] = array(
 			'#type' => 'select',
@@ -334,7 +334,7 @@ function ajax_chapter_list_callback($form, $form_state)
 		$commands[] = ajax_command_html("#ajax-book-details-replace", _html_book_info($book_list_default_value));
 		$form['chapter']['#options'] = _list_of_chapters($book_list_default_value);
 		$commands[] = ajax_command_html("#ajax-download-book-replace", l('Download', 'download/book/' . $book_list_default_value) . ' ' . t('(Download the Scilab codes for all the solved examples)'));
-		$commands[] = ajax_command_html("#ajax-download-book-pdf-replace", l('Download PDF', 'textbook_companion/generate_book/' . $book_list_default_value) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)'));
+		$commands[] = ajax_command_html("#ajax-download-book-pdf-replace", l('Download PDF', 'textbook_companion/generate_book/' . $book_list_default_value) . ' ' . t('(Download the PDF file containing Scilab codes for all the solved examples)<br><span style="color:red">The generated PDF is not the PDF of the book as named but only is the PDF of the solved example for Scilab</span>'));
 		$commands[] = ajax_command_replace("#ajax-chapter-list-replace", drupal_render($form['chapter']));
 		$commands[] = ajax_command_html("#ajax-example-list-replace", '');
 		$commands[] = ajax_command_html("#ajax-download-example-code-replace", '');
