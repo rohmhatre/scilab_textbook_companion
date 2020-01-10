@@ -1,6 +1,6 @@
 name = Textbook Companion
-description = IIT Bombay Textbook Companion project
+description = FOSSEE, IIT Bombay Textbook Companion project
 package = IITB
 version = VERSION
 core = 7.x
-
+project = "textbook_companion"
