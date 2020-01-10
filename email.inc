@@ -351,7 +351,7 @@ FOSSEE, IIT Bombay', array(
 			$preference1_data = $preference1_q->fetchObject();
 			$user_data = user_load($params['nonaicte_proposal_received']['user_id']);
 			$message['headers'] = $params['nonaicte_proposal_received']['headers'];
-			$message['subject'] = t('[!site_name] Your book proposal has been received', array(
+			$message['subject'] = t('[!site_name] [Textbook Companion][Non AICTE Book]Your book proposal has been received', array(
 				'!site_name' => variable_get('site_name', '')
 			), array(
 				'language' => $language->language
@@ -574,7 +574,7 @@ Year of publication : ' . $approved_preference_data->year . '
 
 Your book is now available at following link to download.
 
-http://scilab.in/textbook_run/' . $approved_preference_data->id . '
+http://scilab.in/textbook_run/Completed_Books' . '
 
 Now you should be able to propose a new book...
 
