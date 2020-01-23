@@ -580,7 +580,7 @@ function book_proposal_form($form, &$form_state, $row1 = NULL, $row2 = NULL, $ro
 	);
 	$form['reviewer'] = array(
 		'#type' => 'hidden',
-		'#value' => 'None',
+		'#value' => 'Scilab TBC Team',
 		'#title' => t('Reviewer'),
 		'#size' => 30,
 		'#maxlength' => 50
@@ -1538,7 +1538,7 @@ function book_proposal_nonaicte_form($form, &$form_state)
 	);
 	$form['reviewer'] = array(
 		'#type' => 'hidden',
-		'#value' => 'None',
+		'#value' => 'Scilab TBC Team',
 		'#title' => t('Reviewer'),
 		'#size' => 30,
 		'#maxlength' => 50
